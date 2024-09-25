@@ -1,0 +1,307 @@
+.login-main {
+  display: flex;
+  perspective: 1000px;
+  background-color: #141B2D;
+}
+
+.login-left {
+  flex-grow: 1;
+  height: 100vh; /* Make the image take up the full height */
+  background-image: url('../assets/LoginImage.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 800px;
+}
+
+.login-right {
+  height: 100vh;
+  flex-grow: 1;
+  display: flex;
+  align-items: center; /* Vertically center the form */
+  justify-content: center;
+  
+}
+
+.login-right-container {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-right form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-logo {
+  align-self: center;
+  padding-top: 50px;
+}
+
+.login-center {
+  margin: auto 0;
+  text-align: center;
+}
+
+.login-logo img {
+  width: 50px;
+}
+
+.login-center h2 {
+  font-size: 35px;
+  color: #E0E0E0;
+}
+
+.login-center p {
+  font-weight: 400;
+  font-size: 20px;
+  margin-bottom: 40px;
+  color: #E0E0E0;
+}
+
+form input[type="email"],
+form input[type="password"],
+form input[type="text"] {
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 0px;
+  border-bottom: 1px solid #E0E0E0;
+  outline: none;
+  box-sizing: border-box;
+  background-color: transparent; /* To match the dark theme */
+  color: #E0E0E0; /* Light color for input text */
+}
+
+.pass-input-div {
+  position: relative;
+}
+
+.pass-input-div input {
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 0;
+  border-bottom: 1px solid #E0E0E0;
+  outline: none;
+  box-sizing: border-box;
+  background-color: transparent;
+  color: #E0E0E0;
+}
+
+.pass-input-div svg {
+  position: absolute;
+  right: 10px; /* Ensure the icon is on the right side */
+  top: 50%; /* Vertically center the icon */
+  transform: translateY(-50%); /* Adjust to keep the icon centered */
+  cursor: pointer;
+  font-size: 20px;
+  outline: none;
+  color: #E0E0E0;
+}
+
+form button[type="submit"] {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+  background-color: black;
+  color: white;
+  border: 3px solid black;
+  transition: background 1s linear 0ms, color 500ms linear 0ms;
+}
+
+form button[type="submit"]:hover {
+  color: #333;
+  background-color: white;
+}
+
+.login-center-buttons {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.login-center-buttons button:nth-child(2) {
+  background: #F0F0F0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 10px;
+  transition: background 500ms linear 0ms;
+}
+
+.login-center-buttons button:nth-child(2) img {
+  width: 30px;
+}
+
+.login-center-buttons button:nth-child(2):hover {
+  background: #c4c4c4c2;
+}
+
+.login-bottom-p {
+  text-align: center;
+  font-size: 15px;
+  padding-bottom: 40px;
+}
+
+.login-bottom-p a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #E0E0E0;
+}
+
+.login-bottom-p a:hover {
+  text-decoration: underline;
+}
+
+.login-right {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.login-right.admin {
+  transform: rotateY(0deg);
+}
+
+.login-right.agent {
+  transform: rotateY(180deg);
+}
+
+/* The switch container */
+/* The switch container */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 36px;
+}
+
+/* Hide the default checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The switch container */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 36px;
+}
+
+/* Hide the default checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider (track) */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: grey;
+  transition: background-color 0.4s ease;
+  border-radius: 36px; /* Make the slider edges round */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 4px; /* Padding for the rolling effect */
+}
+
+/* The rolling ball (knob) */
+.slider:before {
+  content: "";
+  position: relative;
+  display: block;
+  height: 28px;
+  width: 28px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), background-color 0.4s ease; /* Smooth rolling */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* When the input is checked (active state) */
+input:checked + .slider {
+  background-color: blue; /* Green when active */
+  justify-content: flex-end; /* Move the ball to the right */
+}
+
+input:checked + .slider:before {
+  transform: rotate(360deg); /* Rotate the knob to create a rolling effect */
+}
+
+/* Glow effect on hover */
+.slider:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Glow effect on hover */
+}
+
+
+/* Toggle container adjustments */
+.role-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px; /* Slight adjustment for proper spacing */
+  
+}
+
+/* Flip transition for the role switch */
+.login-right.agent h2,
+.login-right.agent p,
+.login-right.agent label,
+.login-right.agent input,
+.login-right.agent button,
+.login-right.agent .pass-input-div svg {
+  transform: rotateY(180deg);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.6s ease, opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.login-right.agent h2,
+.login-right.agent p,
+.login-right.agent label,
+.login-right.agent input,
+.login-right.agent button,
+.login-right.agent .pass-input-div svg {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Ensure smooth transition for both admin and agent roles */
+.login-right h2,
+.login-right p,
+.login-right label,
+.login-right input,
+.login-right button,
+.login-right .pass-input-div svg {
+  transition: transform 0.6s ease, opacity 0.3s ease, visibility 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Specifically target the eye icon inside the pass-input-div */
+.login-right.agent .pass-input-div svg {
+  position: absolute;
+  left: 10px; 
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  outline: none;
+}

@@ -1,0 +1,204 @@
+{
+    "agent001": {
+      "agentName": "John Doe",
+      "agentID": "001",
+      "workingHours": "9:00 AM - 5:00 PM",
+      "salesComparative": {
+        "values": [
+          {
+            "saleID": "sale001",
+            "customer": {
+              "title": "Mr.",
+              "firstName": "James",
+              "middleName": "Robert",
+              "lastName": "Smith",
+              "email": "james.smith@example.com",
+              "phone": "+1234567890",
+              "altPhone": "+0987654321",
+              "address": "123 Main St, Apt 4B",
+              "city": "New York",
+              "state": "NY",
+              "postcode": "10001",
+              "province": "New York",
+              "vendorID": "V001",
+              "dialCode": "+1",
+              "gender": "Male",
+              "comments": "First-time buyer"
+            },
+            "product": "Product A",
+            "amount": 250.00,
+            "date": "2024-09-01"
+          },
+          {
+            "saleID": "sale002",
+            "customer": {
+              "title": "Mrs.",
+              "firstName": "Emily",
+              "middleName": "Rose",
+              "lastName": "Johnson",
+              "email": "emily.johnson@example.com",
+              "phone": "+1234567891",
+              "altPhone": "+0987654322",
+              "address": "456 Oak St, Apt 12",
+              "city": "Boston",
+              "state": "MA",
+              "postcode": "02108",
+              "province": "Massachusetts",
+              "vendorID": "V002",
+              "dialCode": "+1",
+              "gender": "Female",
+              "comments": "Repeat customer"
+            },
+            "product": "Product B",
+            "amount": 450.00,
+            "date": "2024-09-02"
+          }
+        ]
+      },
+      "comparativeCampaignSales": {
+        "values": [
+          {
+            "campaignName": "Summer Sale",
+            "totalSales": 700.00,
+            "startDate": "2024-08-01",
+            "endDate": "2024-08-31"
+          }
+        ]
+      }
+    },
+    "agent002": {
+        "agentName": "Johny jugnu",
+        "agentID": "002",
+        "workingHours": "9:00 AM - 5:00 PM",
+        "salesComparative": {
+          "values": [
+            {
+              "saleID": "sale003",
+              "customer": {
+                "title": "Mr.",
+                "firstName": "James",
+                "middleName": "Robert",
+                "lastName": "Smith",
+                "email": "james.smith@example.com",
+                "phone": "+1234567890",
+                "altPhone": "+0987654321",
+                "address": "123 Main St, Apt 4B",
+                "city": "New York",
+                "state": "NY",
+                "postcode": "10001",
+                "province": "New York",
+                "vendorID": "V001",
+                "dialCode": "+1",
+                "gender": "Male",
+                "comments": "First-time buyer"
+              },
+              "product": "Product A",
+              "amount": 250.00,
+              "date": "2024-09-01"
+            },
+            {
+              "saleID": "sale004",
+              "customer": {
+                "title": "Mrs.",
+                "firstName": "Emily",
+                "middleName": "Rose",
+                "lastName": "Johnson",
+                "email": "emily.johnson@example.com",
+                "phone": "+1234567891",
+                "altPhone": "+0987654322",
+                "address": "456 Oak St, Apt 12",
+                "city": "Boston",
+                "state": "MA",
+                "postcode": "02108",
+                "province": "Massachusetts",
+                "vendorID": "V002",
+                "dialCode": "+1",
+                "gender": "Female",
+                "comments": "Repeat customer"
+              },
+              "product": "Product B",
+              "amount": 450.00,
+              "date": "2024-09-02"
+            }
+          ]
+        },
+        "comparativeCampaignSales": {
+          "values": [
+            {
+              "campaignName": "Summer Sale",
+              "totalSales": 700.00,
+              "startDate": "2024-08-01",
+              "endDate": "2024-08-31"
+            }
+          ]
+        }
+      },
+      "agent003": {
+        "agentName": " Doey boy",
+        "agentID": "003",
+        "workingHours": "9:00 AM - 5:00 PM",
+        "salesComparative": {
+          "values": [
+            {
+              "saleID": "sale005",
+              "customer": {
+                "title": "Mr.",
+                "firstName": "James",
+                "middleName": "Robert",
+                "lastName": "Smith",
+                "email": "james.smith@example.com",
+                "phone": "+1234567890",
+                "altPhone": "+0987654321",
+                "address": "123 Main St, Apt 4B",
+                "city": "New York",
+                "state": "NY",
+                "postcode": "10001",
+                "province": "New York",
+                "vendorID": "V001",
+                "dialCode": "+1",
+                "gender": "Male",
+                "comments": "First-time buyer"
+              },
+              "product": "Product A",
+              "amount": 250.00,
+              "date": "2024-09-01"
+            },
+            {
+              "saleID": "sale006",
+              "customer": {
+                "title": "Mrs.",
+                "firstName": "Emily",
+                "middleName": "Rose",
+                "lastName": "Johnson",
+                "email": "emily.johnson@example.com",
+                "phone": "+1234567891",
+                "altPhone": "+0987654322",
+                "address": "456 Oak St, Apt 12",
+                "city": "Boston",
+                "state": "MA",
+                "postcode": "02108",
+                "province": "Massachusetts",
+                "vendorID": "V002",
+                "dialCode": "+1",
+                "gender": "Female",
+                "comments": "Repeat customer"
+              },
+              "product": "Product B",
+              "amount": 450.00,
+              "date": "2024-09-02"
+            }
+          ]
+        },
+        "comparativeCampaignSales": {
+          "values": [
+            {
+              "campaignName": "Summer Sale",
+              "totalSales": 700.00,
+              "startDate": "2024-08-01",
+              "endDate": "2024-08-31"
+            }
+          ]
+        }
+      }
+  }
+  

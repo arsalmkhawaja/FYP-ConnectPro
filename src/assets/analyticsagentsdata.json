@@ -1,0 +1,574 @@
+{
+    "agent1": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },
+        "totalCalls": 120,
+        "callDisposition": {
+          "answered": 50,
+          "unanswered": 70
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },
+    "agent2": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [25, 16, 22, 23, 13, 19]
+        },
+        "totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [500, 3500, 4200, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [45, 70, 75, 70]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 170, 200, 170, 390]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 275, 185, 450, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 35, 50, 40, 25, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3600, 4500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 65, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 62, 47, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 0, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [70, 45, 95, 99]
+        }
+    },
+    "agent3": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },"totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },"agent4": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },
+        "totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },"agent5": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },
+        "totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },
+    "agent6": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },
+        "totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },"agent7": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },
+        "totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },"agent8": {
+        "attendance": {
+            "chartLabel": "Monthly Attendance",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [20, 19, 21, 22, 13, 19]
+        },
+        "totalCalls": 200,
+        "callDisposition": {
+          "answered": 150,
+          "unanswered": 50
+        },
+        "workingHours": 40,
+        "salesComparative": {
+            "chartLabel": "Comparative Sales Report",
+            "labels": ["Product A", "Product B", "Product C", "Product D"],
+            "values": [5000, 3000, 4000, 7000]
+        },
+        "performanceAnalysis": {
+            "chartLabel": "Performance Analysis",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [75, 80, 85, 90]
+        },
+        "inboundCalls": {
+            "chartLabel": "Inbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [150, 120, 180, 200, 170, 190]
+        },
+        "outboundCalls": {
+            "chartLabel": "Outbound Calls",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [140, 160, 175, 185, 150, 170]
+        },
+        "callsTransferred": {
+            "chartLabel": "Calls Transferred",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [30, 45, 50, 40, 35, 55]
+        },
+        "comparativeCampaignSales": {
+            "chartLabel": "Comparative Campaign Sales",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [2000, 3000, 2500]
+        },
+        "campaignSuccess": {
+            "chartLabel": "Campaign Success Rate",
+            "labels": ["Campaign A", "Campaign B", "Campaign C"],
+            "values": [80, 75, 85]
+        },
+        "scorecard": {
+            "chartLabel": "Scorecard",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [85, 90, 88, 92, 87, 90]
+        },
+        "lateEntry": {
+            "chartLabel": "Late Entry Incidents",
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            "values": [2, 1, 3, 0, 2, 1]
+        },
+        "targetsAchieved": {
+            "chartLabel": "Targets Achieved",
+            "labels": ["Q1", "Q2", "Q3", "Q4"],
+            "values": [90, 85, 95, 92]
+        }
+    },
+    "allagent": {
+            "attendance": {
+              "chartLabel": "Monthly Attendance",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [20, 22, 18, 25, 21, 19, 23, 20]
+            },
+            "totalCalls": {
+              "chartLabel": "Total Number of Calls",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [200, 180, 220, 210, 195, 205, 215, 190]
+            },
+            "callDisposition": {
+              "chartLabel": "Call Disposition",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "answered": [150, 130, 160, 155, 145, 150, 160, 140],
+              "unanswered": [50, 50, 60, 55, 50, 55, 55, 50]
+            },
+            "workingHours": {
+              "chartLabel": "Working Hours",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [40, 42, 38, 45, 41, 39, 43, 40]
+            },
+            "salesComparative": {
+              "chartLabel": "Comparative Sales Report",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [5000, 3000, 4000, 7000, 4500, 4800, 5200, 6000]
+            },
+            "performanceAnalysis": {
+              "chartLabel": "Performance Analysis",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [75, 80, 85, 90, 78, 82, 88, 85]
+            },
+            "inboundCalls": {
+              "chartLabel": "Inbound Calls",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [150, 120, 180, 200, 170, 160, 190, 140]
+            },
+            "outboundCalls": {
+              "chartLabel": "Outbound Calls",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [140, 160, 175, 185, 150, 170, 165, 180]
+            },
+            "callsTransferred": {
+              "chartLabel": "Calls Transferred",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [30, 45, 60, 28, 40, 50, 35, 55]
+            },
+            "comparativeCampaignSales": {
+              "chartLabel": "Comparative Campaign Sales",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [2000, 3000, 2500, 2200, 2700, 2900, 2600, 3100]
+            },
+            "campaignSuccess": {
+              "chartLabel": "Campaign Success Rate",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [80, 75, 85, 90, 78, 82, 88, 80]
+            },
+            "scorecard": {
+              "chartLabel": "Scorecard",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [85, 90, 88, 92, 87, 89, 91, 90]
+            },
+            "lateEntry": {
+              "chartLabel": "Late Entry Incidents",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [2, 1, 3, 0, 2, 2, 1, 1]
+            },
+            "targetsAchieved": {
+              "chartLabel": "Targets Achieved",
+              "labels": ["Agent 1", "Agent 2", "Agent 3", "Agent 4", "Agent 5", "Agent 6", "Agent 7", "Agent 8"],
+              "values": [90, 85, 95, 92, 88, 91, 93, 87]
+            }
+          }
+}

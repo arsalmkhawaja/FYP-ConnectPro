@@ -1,0 +1,79 @@
+{
+  "agents": [
+    {
+      "name": "haris",
+      "callMetrics": {
+        "incomingCalls": 150,
+        "answeredCalls": 120,
+        "abandonedCalls": 20,
+        "totalCalls": 170
+      },
+      "callsVolume": {
+        "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "incomingCalls": [65, 20, 65, 30, 55, 20, 30, 25, 20, 30, 25, 20],
+        "answeredCalls": [10, 15, 20, 25, 30, 35, 25, 20, 15, 25, 20, 15]
+      },
+      "satisfaction": 4.85
+    },
+    {
+      "name": "Shakir Ramli",
+      "callMetrics": {
+        "incomingCalls": 180,
+        "answeredCalls": 130,
+        "abandonedCalls": 55,
+        "totalCalls": 185
+      },
+      "callsVolume": {
+        "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "incomingCalls": [18, 22, 28, 33, 37, 42, 32, 28, 23, 33, 28, 22],
+        "answeredCalls": [12, 18, 22, 28, 33, 37, 28, 22, 18, 28, 22, 18]
+      },
+      "satisfaction": 4.9
+    },
+    {
+      "name": "Aisha Khan",
+      "callMetrics": {
+        "incomingCalls": 140,
+        "answeredCalls": 110,
+        "abandonedCalls": 30,
+        "totalCalls": 160
+      },
+      "callsVolume": {
+        "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "incomingCalls": [14, 19, 24, 29, 34, 38, 28, 24, 19, 29, 24, 19],
+        "answeredCalls": [11, 15, 19, 24, 29, 34, 24, 19, 15, 24, 19, 15]
+      },
+      "satisfaction": 4.7
+    },
+    {
+      "name": "John Doe",
+      "callMetrics": {
+        "incomingCalls": 170,
+        "answeredCalls": 150,
+        "abandonedCalls": 20,
+        "totalCalls": 190
+      },
+      "callsVolume": {
+        "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "incomingCalls": [17, 23, 27, 32, 36, 41, 31, 27, 23, 32, 27, 23],
+        "answeredCalls": [15, 20, 25, 30, 35, 40, 30, 25, 20, 30, 25, 20]
+      },
+      "satisfaction": 4.8
+    },
+    {
+      "name": "Emma Lee",
+      "callMetrics": {
+        "incomingCalls": 160,
+        "answeredCalls": 140,
+        "abandonedCalls": 20,
+        "totalCalls": 180
+      },
+      "callsVolume": {
+        "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "incomingCalls": [16, 21, 26, 31, 35, 39, 29, 26, 21, 31, 26, 21],
+        "answeredCalls": [14, 19, 24, 29, 34, 39, 29, 24, 19, 29, 24, 19]
+      },
+      "satisfaction": 4.75
+    }
+  ]
+}

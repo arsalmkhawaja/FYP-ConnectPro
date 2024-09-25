@@ -1,0 +1,98 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the content */
+    padding: 20px;
+    font-family: Arial, sans-serif; /* Apply a clean font */
+  }
+  
+  .metrics-container {
+    display: flex;
+    justify-content: space-between;
+    width: 80%; /* Align metrics to the chart width */
+    margin-bottom: 20px;
+  }
+  
+  .metric-card {
+    flex: 1;
+    background-color: #f8f9fa;
+    padding: 20px;
+    margin-right: 10px;
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .metric-card:last-child {
+    margin-right: 0;
+  }
+  
+  .metric-icon {
+    font-size: 30px; /* Increase icon size for emphasis */
+    margin-bottom: 10px;
+    color: #007bff; /* Consistent blue color for icons */
+  }
+  
+  .chart-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    width: 100px; /* Set chart width to 80% of the container */
+  }
+  
+  .chart-container.small-chart {
+    height: 500px; 
+    width: 900px;/* Maintain chart height */
+  }
+  
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .additional-sections {
+    display: flex;
+    justify-content: space-between;
+    width: 80%; /* Set width to align with chart and metrics */
+    margin-top: 20px;
+  }
+  
+  .agents-section, .calendar-section {
+    flex: 1;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-right: 20px;
+  }
+  
+  .calendar-section {
+    margin-right: 0; /* Remove margin for the last element */
+  }
+  
+  h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f1f1f1;
+  }
+  
+  td {
+    color: #333;
+  }
+  
