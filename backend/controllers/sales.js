@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Sales = require("../models/Sales");
 const Agent = require("../models/Agents");
-const Form = require("../models/Forms");
 
 exports.createSale = async (req, res) => {
   try {
@@ -13,23 +12,24 @@ exports.createSale = async (req, res) => {
       return res.status(404).json({ message: "Agent not found" });
     }
 
-    // No need to find the form by ID; use the entire form object from the request body
-    const formData = form;
+    // Validate that form is an ObjectId
+    if (!mongoose.Types.ObjectId.isValid(form)) {
+      return res.status(400).json({ message: "Invalid form ID" });
+    }
 
-    // If campaign is not provided or is not a valid ObjectId, set it to null
+    // Handle campaign - check if it's a valid ObjectId
     let campaignData = null;
     if (mongoose.Types.ObjectId.isValid(campaign)) {
       campaignData = campaign;
     } else {
-      // If you want to handle it as a string, you can directly assign it
-      campaignData = campaign || null;
+      campaignData = null;
     }
 
     // Create the sale using the validated agent, form, and campaign
     const sale = new Sales({
       agent: agentData._id, // Use the agent's ObjectId
-      form: formData, // Save the entire form data
-      campaign: campaignData, // Use campaignData which might be null or a string
+      form: form, // Directly use the form ID passed from frontend
+      campaign: campaignData, // Use campaignData which might be null or an ObjectId
       amount,
       saleDate,
       score,

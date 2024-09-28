@@ -175,15 +175,15 @@ const CallCenterScreen = () => {
 
       const formDataFromServer = formResponse.data;
 
-      if (!formDataFromServer) {
+      if (!formDataFromServer || !formDataFromServer.formId) {
         toast.error("Form not found for the provided phone number.");
         return;
       }
 
-      // Update the sale with form data and save the sale
+      // Update the sale with form ID and save the sale
       const updatedSale = {
         ...currentSale,
-        form: formDataFromServer, // Assigning the entire form data fetched from the backend
+        form: formDataFromServer.formId, // Assign only the form ID
         campaign: currentSale.campaign || null, // Handle campaign as null if not provided
       };
 
