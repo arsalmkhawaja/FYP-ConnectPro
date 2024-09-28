@@ -64,3 +64,24 @@ exports.deleteForm = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+exports.getFormByPhoneNumber = async (req, res) => {
+  try {
+    const phoneNumber = req.params.phoneNumber;
+    console.log("Received phone number:", phoneNumber); // Debugging line
+
+    // Find the form by phone number
+    const form = await Form.findOne({
+      phoneNumber: Number(phoneNumber),
+    }).select("_id"); // Only select the _id field
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    // Return the ObjectId
+    res.status(200).json({ formId: form._id });
+  } catch (error) {
+    console.error("Error fetching form:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

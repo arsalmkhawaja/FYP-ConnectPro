@@ -5,10 +5,12 @@ const {
   registerAdmin,
   registerAgent,
   login,
-  getAllUsers,
   deleteAgent,
   editAgent,
+  getAdminProfile,
   getAllAdmins,
+  getAllAgents,
+  getAgentProfile,
 } = require("../controllers/user");
 const authMiddleware = require("../middleware/auth"); // Auth middleware to protect routes
 
@@ -30,8 +32,10 @@ router.post("/register/agent", upload.single("profileImage"), registerAgent); //
 router.post("/login", login); // Common login for both admin and agent
 
 // Protected routes
-router.get("/users", authMiddleware, getAllUsers); // Get all users (admins and agents)
-router.get("/admins", authMiddleware, getAllAdmins); // Get all admins only
+router.get("/users", authMiddleware, getAllAgents); // Get all users (admins and agents)
+router.get("/admins", authMiddleware, getAllAdmins); // Get all users (admins and agents)
+router.get("/admin", authMiddleware, getAdminProfile); // Get all admins only
+router.get("/agent", authMiddleware, getAgentProfile);
 
 // Edit and delete agent routes
 router.put(

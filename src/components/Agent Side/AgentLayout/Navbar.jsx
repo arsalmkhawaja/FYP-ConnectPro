@@ -6,17 +6,15 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { tokens, ColorModeContext } from "../../theme";
+import { tokens, ColorModeContext } from "../../../theme";
 import {
   DarkModeOutlined,
   LightModeOutlined,
   MenuOutlined,
-  NotificationsOutlined,
   PersonOutlined,
   SearchOutlined,
-  SettingsOutlined,
 } from "@mui/icons-material";
-import { ToggledContext } from "./AdminLayout";
+import { ToggledContext } from "./AgentLayout";
 import "../styles/Navbar.css";
 
 const Navbar = () => {
@@ -71,12 +69,6 @@ const Navbar = () => {
           ) : (
             <DarkModeOutlined />
           )}
-        </IconButton>
-        <IconButton>
-          <NotificationsOutlined />
-        </IconButton>
-        <IconButton>
-          <SettingsOutlined />
         </IconButton>
         <IconButton>
           <PersonOutlined />

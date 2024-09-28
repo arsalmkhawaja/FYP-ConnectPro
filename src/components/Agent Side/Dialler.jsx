@@ -29,6 +29,15 @@ const CallCenterScreen = () => {
   const [timeoutId, setTimeoutId] = useState(null);
   const [confirmationText, setConfirmationText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [currentSale, setCurrentSale] = useState({
+    agent: { agentID: "", fullName: "" },
+    form: "",
+    campaign: "Default Campaign ID", // Replace with actual campaign ID
+    amount: "",
+    saleDate: new Date().toISOString(),
+    score: "",
+    sentiment: "Positive",
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -45,26 +54,32 @@ const CallCenterScreen = () => {
     comments: "",
   });
 
-  const handleFormChange = (updatedFormData) => {
-    setFormData(updatedFormData);
-  };
+  const token = JSON.parse(localStorage.getItem("auth")) || "";
 
-  const handleClearForm = () => {
-    setFormData({
-      title: "",
-      firstName: "",
-      lastName: "",
-      address: "",
-      city: "",
-      state: "",
-      postCode: "",
-      gender: "",
-      phone: "",
-      altPhone: "",
-      email: "",
-      comments: "",
-    });
-  };
+  useEffect(() => {
+    const fetchAgentProfile = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/api/v1/agent", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const agentData = response.data.agent;
+        setCurrentSale((prevSale) => ({
+          ...prevSale,
+          agent: {
+            agentID: agentData._id, // Assuming you want to use the ObjectId as agentID
+            fullName: agentData.fullName,
+          },
+        }));
+      } catch (error) {
+        console.error("Error fetching agent profile:", error);
+        toast.error("Failed to fetch agent profile");
+      }
+    };
+
+    fetchAgentProfile();
+  }, [token]);
 
   useEffect(() => {
     if (window.Twilio) {
@@ -97,6 +112,27 @@ const CallCenterScreen = () => {
     initializeScripts();
   }, []);
 
+  const handleFormChange = (updatedFormData) => {
+    setFormData(updatedFormData);
+  };
+
+  const handleClearForm = () => {
+    setFormData({
+      title: "",
+      firstName: "",
+      lastName: "",
+      address: "",
+      city: "",
+      state: "",
+      postCode: "",
+      gender: "",
+      phone: "",
+      altPhone: "",
+      email: "",
+      comments: "",
+    });
+  };
+
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
@@ -117,6 +153,62 @@ const CallCenterScreen = () => {
 
   const handleCloseDisposition = () => {
     setShowDisposition(false);
+  };
+
+  const handleSaveSale = async () => {
+    if (!currentSale.amount) {
+      toast.error("Sale amount is required to save the sale.");
+      return;
+    }
+    console.log(`Requesting form data for phone number: ${formData.phone}`);
+
+    try {
+      // Fetch form data based on the phone number
+      const formResponse = await axios.get(
+        `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const formDataFromServer = formResponse.data;
+
+      if (!formDataFromServer) {
+        toast.error("Form not found for the provided phone number.");
+        return;
+      }
+
+      // Update the sale with form data and save the sale
+      const updatedSale = {
+        ...currentSale,
+        form: formDataFromServer, // Assigning the entire form data fetched from the backend
+        campaign: currentSale.campaign || null, // Handle campaign as null if not provided
+      };
+
+      console.log("Updated Sale Data:", updatedSale);
+
+      // Now save the sale
+      const saleResponse = await axios.post(
+        "http://localhost:4000/api/v4/sales",
+        updatedSale,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Sale saved successfully");
+      console.log("Sale saved successfully:", saleResponse.data);
+    } catch (error) {
+      toast.error("Failed to save sale");
+      console.error(
+        "Error saving sale:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -345,7 +437,12 @@ const CallCenterScreen = () => {
             borderRadius: 2,
           }}
         >
-          <DispositionModal onClose={handleCloseDisposition} />
+          <DispositionModal
+            onClose={handleCloseDisposition}
+            onSaveSale={handleSaveSale}
+            currentSale={currentSale}
+            setCurrentSale={setCurrentSale}
+          />
         </Box>
       </Modal>
 
@@ -372,7 +469,6 @@ const CallCenterScreen = () => {
     </Container>
   );
 };
-
 const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
   return (
     <Paper sx={{ padding: 3, borderRadius: 2 }}>
@@ -471,6 +567,131 @@ const Dialer = ({ handleHangup }) => {
       </Box>
     </Box>
   );
+};
+const DispositionModal = ({
+  onClose,
+  onSaveSale,
+  currentSale,
+  setCurrentSale,
+}) => {
+  const [checkedItems, setCheckedItems] = useState({
+    A: false,
+    B: false,
+    CALLBK: false,
+    DC: false,
+    DEC: false,
+    DNC: false,
+    N: false,
+    NI: false,
+    NP: false,
+    SALE: false,
+    XFER: false,
+  });
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setCheckedItems((prevState) => ({ ...prevState, [name]: checked }));
+  };
+
+  const handleSaleAmountChange = (e) => {
+    setCurrentSale((prevSale) => ({
+      ...prevSale,
+      amount: e.target.value,
+    }));
+  };
+
+  const handleSubmit = () => {
+    const isAnyChecked = Object.values(checkedItems).some((item) => item);
+    if (isAnyChecked) {
+      if (checkedItems.SALE) {
+        onSaveSale();
+      } else {
+        onClose();
+      }
+    } else {
+      alert("Please select at least one option before submitting.");
+    }
+  };
+
+  const handleClearDispositionForm = () => {
+    setCheckedItems({
+      A: false,
+      B: false,
+      CALLBK: false,
+      DC: false,
+      DEC: false,
+      DNC: false,
+      N: false,
+      NI: false,
+      NP: false,
+      SALE: false,
+      XFER: false,
+    });
+  };
+
+  return (
+    <Paper sx={{ padding: 3, borderRadius: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        CALL DISPOSITION
+      </Typography>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        {Object.keys(checkedItems).map((key) => (
+          <FormControlLabel
+            key={key}
+            control={
+              <Checkbox
+                checked={checkedItems[key]}
+                onChange={handleCheckboxChange}
+                name={key}
+              />
+            }
+            label={getLabel(key)}
+          />
+        ))}
+      </Box>
+      {checkedItems.SALE && (
+        <TextField
+          label="Sale Amount"
+          variant="outlined"
+          fullWidth
+          value={currentSale.amount}
+          onChange={handleSaleAmountChange}
+          sx={{ marginTop: 2 }}
+        />
+      )}
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+      >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleClearDispositionForm}
+        >
+          Clear Form
+        </Button>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </Box>
+    </Paper>
+  );
+};
+
+const getLabel = (key) => {
+  const labels = {
+    A: "Answering Machine",
+    B: "Busy",
+    CALLBK: "Call Back",
+    DC: "Disconnected Number",
+    DEC: "Declined Sale",
+    DNC: "DO NOT CALL",
+    N: "No Answer",
+    NI: "Not Interested",
+    NP: "No Pitch No Price",
+    SALE: "Sale Made",
+    XFER: "Call Transferred",
+  };
+  return labels[key];
 };
 
 const CustomerForm = ({
@@ -675,106 +896,6 @@ const CustomerForm = ({
       </Box>
     </form>
   );
-};
-
-const DispositionModal = ({ onClose }) => {
-  const [checkedItems, setCheckedItems] = useState({
-    A: false,
-    B: false,
-    CALLBK: false,
-    DC: false,
-    DEC: false,
-    DNC: false,
-    N: false,
-    NI: false,
-    NP: false,
-    SALE: false,
-    XFER: false,
-  });
-
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setCheckedItems((prevState) => ({ ...prevState, [name]: checked }));
-  };
-
-  const handleSubmit = () => {
-    const isAnyChecked = Object.values(checkedItems).some((item) => item);
-    if (isAnyChecked) {
-      onClose();
-    } else {
-      alert("Please select at least one option before submitting.");
-    }
-  };
-
-  const handleClearDispositionForm = () => {
-    setCheckedItems({
-      A: false,
-      B: false,
-      CALLBK: false,
-      DC: false,
-      DEC: false,
-      DNC: false,
-      N: false,
-      NI: false,
-      NP: false,
-      SALE: false,
-      XFER: false,
-    });
-  };
-
-  return (
-    <Paper sx={{ padding: 3, borderRadius: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        CALL DISPOSITION
-      </Typography>
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {Object.keys(checkedItems).map((key) => (
-          <FormControlLabel
-            key={key}
-            control={
-              <Checkbox
-                checked={checkedItems[key]}
-                onChange={handleCheckboxChange}
-                name={key}
-              />
-            }
-            label={getLabel(key)}
-          />
-        ))}
-      </Box>
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
-      >
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleClearDispositionForm}
-        >
-          Clear Form
-        </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Box>
-    </Paper>
-  );
-};
-
-const getLabel = (key) => {
-  const labels = {
-    A: "Answering Machine",
-    B: "Busy",
-    CALLBK: "Call Back",
-    DC: "Disconnected Number",
-    DEC: "Declined Sale",
-    DNC: "DO NOT CALL",
-    N: "No Answer",
-    NI: "Not Interested",
-    NP: "No Pitch No Price",
-    SALE: "Sale Made",
-    XFER: "Call Transferred",
-  };
-  return labels[key];
 };
 
 export default CallCenterScreen;

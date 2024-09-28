@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
-import { ColorModeContext, useMode } from "../../theme";
+import { ColorModeContext, useMode } from "../../../theme";
 import Navbar from "./Navbar";
 import SideBar from "./sidebar/Sidebar"; // Import the SideBar component
 import { Outlet } from "react-router-dom";
 
 export const ToggledContext = React.createContext(null); // Export the context
 
-const AdminLayout = () => {
+const AgentLayout = () => {
   const [theme, colorMode] = useMode();
   const [toggled, setToggled] = useState(false);
   const values = { toggled, setToggled };
@@ -48,4 +48,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default AgentLayout;

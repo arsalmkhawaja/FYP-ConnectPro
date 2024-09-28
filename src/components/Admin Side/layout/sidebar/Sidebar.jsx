@@ -1,30 +1,31 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Avatar, Box, IconButton, Typography, useTheme } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import {
+  Avatar,
+  Box,
+  IconButton,
+  Typography,
+  useTheme,
+  Button,
+} from "@mui/material";
 import { tokens } from "../../../../theme"; // Adjust path if necessary
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
   BarChartOutlined,
-  CalendarTodayOutlined,
-  ContactsOutlined,
   DashboardOutlined,
-  DonutLargeOutlined,
-  HelpOutlineOutlined,
-  MapOutlined,
+  CampaignOutlined,
   MenuOutlined,
   PeopleAltOutlined,
-  PersonOutlined,
   ReceiptOutlined,
-  TimelineOutlined,
-  WavesOutlined,
   VerifiedOutlined,
-  CampaignOutlined,
+  ExitToAppOutlined,
 } from "@mui/icons-material";
-import avatar from "../../../../assets/Circle CV Picture.png"; // Adjust path if necessary
+import defaultAvatar from "../../../../assets/Circle CV Picture.png"; // Fallback avatar
 import logo from "../../../../assets/logo name.jpg"; // Adjust path if necessary
 import Item from "./Item";
 import { ToggledContext } from "../AdminLayout";
 import axios from "axios";
-import { toast } from "react-toastify"; // Import toast for notifications
+import { toast } from "react-toastify";
 
 const SideBar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -32,34 +33,47 @@ const SideBar = () => {
   const { toggled, setToggled } = useContext(ToggledContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
 
-  // Fetch user profile data when the component mounts
+  // Fetch admin profile data when the component mounts
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchAdminProfile = async () => {
       try {
         const token = JSON.parse(localStorage.getItem("auth")) || "";
-        console.log("Token being sent:", token); // Log token
         if (token) {
           const response = await axios.get(
-            "http://localhost:4000/api/v1/dashboard",
+            "http://localhost:4000/api/v1/admin", // Adjusted to fetch specific admin
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          console.log("Response data:", response.data); // Log response data
-          setUser(response.data); // Set user data
+          const adminData = response.data.admin; // Access the admin object directly
+          setUser(adminData); // Set user data
         } else {
-          console.error("No token found");
           toast.warn("No token found");
         }
       } catch (error) {
-        console.error("Failed to fetch user profile", error);
-        toast.error("Failed to load user profile");
+        toast.error("Failed to load admin profile");
       }
     };
 
-    fetchUserProfile();
+    fetchAdminProfile();
   }, []);
+
+  const handleLogout = () => {
+    try {
+      // Remove the authentication token from localStorage
+      localStorage.removeItem("auth");
+      console.log("Token removed from localStorage");
+
+      // Redirect the user to the login page
+      navigate("/login");
+      toast.info("Logged out successfully.");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Failed to log out. Please try again.");
+    }
+  };
 
   return (
     <Sidebar
@@ -109,7 +123,7 @@ const SideBar = () => {
                   textTransform="capitalize"
                   color={colors.greenAccent[500]}
                 >
-                  YourAppName
+                  Admin Dashboard
                 </Typography>
               </Box>
             )}
@@ -131,19 +145,23 @@ const SideBar = () => {
         >
           <Avatar
             alt="avatar"
-            src={avatar}
+            src={
+              user.profileImage
+                ? `http://localhost:4000/${user.profileImage}`
+                : defaultAvatar
+            }
             sx={{ width: "100px", height: "100px" }}
           />
           <Box sx={{ textAlign: "center" }}>
             <Typography variant="h3" fontWeight="bold" color={colors.gray[100]}>
-              {user.name}
+              {user.fullName || "Admin Name"}
             </Typography>
             <Typography
               variant="h6"
               fontWeight="500"
               color={colors.greenAccent[500]}
             >
-              {user.role || "Your Role"} {/* Update based on user data */}
+              {user.position}{" "}
             </Typography>
           </Box>
         </Box>
@@ -173,7 +191,7 @@ const SideBar = () => {
           color={colors.gray[300]}
           sx={{ m: "15px 0 5px 20px" }}
         >
-          {!collapsed ? "Data" : " "}
+          {!collapsed ? "Management" : " "}
         </Typography>
         <Menu
           menuItemStyles={{
@@ -235,62 +253,27 @@ const SideBar = () => {
             colors={colors}
             icon={<VerifiedOutlined />}
           />
-          <Item
-            title="FAQ Page"
-            path="/faq"
-            colors={colors}
-            icon={<HelpOutlineOutlined />}
-          />
         </Menu>
-        <Typography
-          variant="h6"
-          color={colors.gray[300]}
-          sx={{ m: "15px 0 5px 20px" }}
-        >
-          {!collapsed ? "Charts" : " "}
-        </Typography>
-        <Menu
-          menuItemStyles={{
-            button: {
-              ":hover": {
-                color: "#868dfb",
-                background: "transparent",
-                transition: ".4s ease",
-              },
+      </Box>
+
+      {/* Add the logout button at the bottom */}
+      <Box sx={{ mt: 22.2, p: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleLogout}
+          fullWidth
+          startIcon={<ExitToAppOutlined />}
+          sx={{
+            mt: 2,
+            backgroundColor: colors.primary[100],
+            color: colors.primary[500],
+            ":hover": {
+              backgroundColor: colors.primary[300],
             },
           }}
         >
-          <Item
-            title="Bar Chart"
-            path="/bar"
-            colors={colors}
-            icon={<BarChartOutlined />}
-          />
-          <Item
-            title="Pie Chart"
-            path="/pie"
-            colors={colors}
-            icon={<DonutLargeOutlined />}
-          />
-          <Item
-            title="Line Chart"
-            path="/line"
-            colors={colors}
-            icon={<TimelineOutlined />}
-          />
-          <Item
-            title="Geography Chart"
-            path="/geography"
-            colors={colors}
-            icon={<MapOutlined />}
-          />
-          <Item
-            title="Stream Chart"
-            path="/stream"
-            colors={colors}
-            icon={<WavesOutlined />}
-          />
-        </Menu>
+          Logout
+        </Button>
       </Box>
     </Sidebar>
   );

@@ -16,7 +16,7 @@ const formSchema = new mongoose.Schema(
     },
     email: { type: String },
     comments: { type: String },
-    phoneNumber: { type: String, required: true },
+    phoneNumber: { type: Number, required: true, unique: true },
     altPhoneNumber: { type: String },
   },
   { timestamps: true }

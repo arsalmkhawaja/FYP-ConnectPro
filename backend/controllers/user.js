@@ -35,7 +35,6 @@ const registerAdmin = async (req, res) => {
       return res.status(400).json({ msg: "Email already in use" });
     }
 
-
     const profileImage = req.file ? req.file.path : undefined;
     const admin = new Admin({
       fullName,
@@ -190,6 +189,7 @@ const deleteAgent = async (req, res) => {
 };
 
 // Login for both Admin and Agent
+// Login for both Admin and Agent
 const login = async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -232,7 +232,12 @@ const login = async (req, res) => {
       expiresIn: "30d",
     });
 
-    res.status(200).json({ token });
+    // Return the token along with user data (agentID/fullName for agents, etc.)
+    res.status(200).json({
+      token,
+      agentID: role === "agent" ? user.agentID : null,
+      fullName: user.fullName,
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ msg: "Server error" });
@@ -240,18 +245,15 @@ const login = async (req, res) => {
 };
 
 // Get all Admins and Agents
-const getAllUsers = async (req, res) => {
+const getAllAgents = async (req, res) => {
   try {
-    const admins = await Admin.find({});
     const agents = await Agent.find({});
-    res.status(200).json({ admins, agents });
+    res.status(200).json({ agents });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Server error" });
   }
 };
-
-// Get all Admins
 const getAllAdmins = async (req, res) => {
   try {
     const admins = await Admin.find({});
@@ -262,12 +264,41 @@ const getAllAdmins = async (req, res) => {
   }
 };
 
+const getAdminProfile = async (req, res) => {
+  try {
+    console.log("User ID from token:", req.user.id);
+    const admin = await Admin.findById(req.user.id); // Fetch the admin using the ID from the token
+    if (!admin) {
+      return res.status(404).json({ msg: "Admin not found" });
+    }
+    res.status(200).json({ admin });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+const getAgentProfile = async (req, res) => {
+  try {
+    console.log("User ID from token:", req.user.id); // Add this line
+    const agent = await Agent.findById(req.user.id); // Adjust based on your middleware
+    if (!agent) {
+      return res.status(404).json({ msg: "Agent not found" });
+    }
+    res.status(200).json({ agent });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
 module.exports = {
   registerAdmin,
   registerAgent,
   login,
-  getAllUsers,
   deleteAgent,
   editAgent,
+  getAdminProfile,
+  getAllAgents,
   getAllAdmins,
+  getAgentProfile,
 };

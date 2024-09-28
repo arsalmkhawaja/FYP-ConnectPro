@@ -4,14 +4,17 @@ import Login from "./components/Login";
 import AdminRegister from "./components/AdminRegister";
 import Dashboard from "./components/Admin Side/Dashboard";
 import Layout from "./components/Admin Side/layout/AdminLayout";
-import UserManagement from "./components/Admin Side/UserManagement";
+import AgentManagement from "./components/Admin Side/AgentManagement";
 import CampaignDashboard from "./components/Admin Side/campaigndashboard";
 import DownloadSalesReport from "./components/Admin Side/DownloadSalesReport";
 import AgentAnalyticsDashboard from "./components/Admin Side/Analytics";
 import AudioSentiment from "./components/Admin Side/QA";
-import DialingScreen from "./components/Agent Side/Dialer";
+import DialingScreen from "./components/Agent Side/Dialler";
 import AgentHome from "./components/Agent Side/AgentHome";
-import CallCenterScreen from "./components/Agent Side/Dialler2";
+// import CallCenterScreen from "./components/Agent Side/Dialler2";
+import CallCenterScreen from "./components/Agent Side/Dialler";
+import AgentLayout from "./components/Agent Side/AgentLayout/AgentLayout";
+import AgentAnalytics from "./components/Agent Side/AgentAnalytics";
 
 const App = () => {
   return (
@@ -20,14 +23,14 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/adminregister" element={<AdminRegister />} />
-        <Route path="/dialler" element={<DialingScreen />} />
+        <Route path="/dialer" element={<DialingScreen />} />
         <Route path="/d" element={<CallCenterScreen />} />
         {/* Admin Dashboard */}
         <Route path="/dashboard" element={<Layout />}>
           <Route index element={<Dashboard />} />
         </Route>
         <Route path="/agents" element={<Layout />}>
-          <Route index element={<UserManagement />} />
+          <Route index element={<AgentManagement />} />
         </Route>
         <Route path="/campaigns" element={<Layout />}>
           <Route index element={<CampaignDashboard />} />
@@ -42,11 +45,14 @@ const App = () => {
           <Route index element={<AudioSentiment />} />
         </Route>
         {/* Agent Dialer */}
-        <Route path="/dialer" element={<Layout />}>
+        <Route path="/dialler" element={<AgentLayout />}>
           <Route index element={<CallCenterScreen />} />
         </Route>
-        <Route path="/agent" element={<Layout />}>
-          <Route index element={<AgentHome />} />
+        <Route path="/agent" element={<AgentLayout />}>
+          <Route index element={<AgentHome loggedInAgent={"haris"} />} />
+        </Route>
+        <Route path="/agent-analytics" element={<AgentLayout />}>
+          <Route index element={<AgentAnalytics loggedInAgent={"haris"} />} />
         </Route>
       </Routes>
     </Router>

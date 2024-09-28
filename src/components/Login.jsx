@@ -1,11 +1,26 @@
 import React, { useEffect, useState } from "react";
 import Logo from "../assets/logo.png";
-import GoogleSvg from "../assets/icons8-google.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "./Login.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+
+const ErrorModal = ({ show, message, onClose }) => {
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <div className="modal-overlay" role="alertdialog">
+      <div className="modal-content">
+        <h2>Error</h2>
+        <p>{message}</p>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+};
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +28,8 @@ const Login = () => {
   const [token, setToken] = useState(
     JSON.parse(localStorage.getItem("auth")) || ""
   );
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleLoginSubmit = async (e) => {
@@ -28,21 +45,36 @@ const Login = () => {
           "http://localhost:4000/api/v1/login",
           formData
         );
+
+        // Store the token in localStorage
         localStorage.setItem("auth", JSON.stringify(response.data.token));
+
+        if (role === "agent") {
+          const agentInfo = {
+            agentID: response.data.agentID || "", // Ensure these fields exist
+            fullName: response.data.fullName || "", // Ensure these fields exist
+          };
+          console.log("Agent Info to be stored:", agentInfo);
+          localStorage.setItem("agentInfo", JSON.stringify(agentInfo));
+        }
+
         toast.success("Login successful");
 
         if (role === "admin") {
           navigate("/dashboard");
         } else if (role === "agent") {
-          navigate("/dialer");
+          navigate("/agent");
         }
       } catch (err) {
         if (err.response) {
-          toast.error(err.response.data.msg || "Login failed");
+          setErrorMessage(err.response.data.msg || "Wrong email or password");
+          setShowErrorModal(true);
         } else if (err.request) {
-          toast.error("No response from server");
+          setErrorMessage("No response from server");
+          setShowErrorModal(true);
         } else {
-          toast.error("An error occurred");
+          setErrorMessage("An error occurred");
+          setShowErrorModal(true);
         }
       }
     } else {
@@ -53,7 +85,7 @@ const Login = () => {
   useEffect(() => {
     if (token) {
       toast.success("You are already logged in");
-      navigate("/dashboard");
+      navigate("/login");
     }
   }, [token, navigate]);
 
@@ -65,7 +97,6 @@ const Login = () => {
           <div className="login-logo">
             <img src={Logo} alt="Logo" />
           </div>
-          {/* Conditionally render content based on role */}
           {isRoleAdmin ? (
             <div className="login-center">
               <h2>Welcome back, Admin!</h2>
@@ -129,19 +160,23 @@ const Login = () => {
             </div>
           )}
 
-          {/* Role toggle switch */}
-          <div class="role-toggle">
-            <label class="switch">
+          <div className="role-toggle">
+            <label className="switch">
               <input
                 type="checkbox"
                 checked={!isRoleAdmin}
                 onChange={() => setIsRoleAdmin(!isRoleAdmin)}
               />
-              <span class="slider"></span>
+              <span className="slider"></span>
             </label>
           </div>
         </div>
       </div>
+      <ErrorModal
+        show={showErrorModal}
+        message={errorMessage}
+        onClose={() => setShowErrorModal(false)}
+      />
     </div>
   );
 };

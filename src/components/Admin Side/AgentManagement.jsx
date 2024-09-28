@@ -2,8 +2,71 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+const ErrorModal = ({ show, message, onClose }) => {
+  if (!show) return null;
 
-const UserManagement = () => {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: "0",
+        left: "0",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        zIndex: 1000,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: "white",
+          padding: "20px",
+          borderRadius: "8px",
+          width: "90%",
+          maxWidth: "400px",
+          position: "relative",
+        }}
+      >
+        <h3>Error</h3>
+        <p>{message}</p>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button
+            style={{
+              padding: "10px 15px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+        <button
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            background: "transparent",
+            border: "none",
+            fontSize: "20px",
+            cursor: "pointer",
+          }}
+          onClick={onClose}
+        >
+          &times;
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AgentManagement = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
 
@@ -20,7 +83,9 @@ const UserManagement = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null); // State for user to delete
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(""); // State to hold the error message
+  const [showErrorModal, setShowErrorModal] = useState(false); // State to control the error modal visibility
   const [newUser, setNewUser] = useState({
     fullName: "",
     dateOfBirth: "",
@@ -48,7 +113,7 @@ const UserManagement = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setUsers([...response.data.admins, ...response.data.agents]);
+        setUsers([...response.data.agents]);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -57,7 +122,33 @@ const UserManagement = () => {
     fetchUsers();
   }, [token]);
 
+  const validateUser = () => {
+    const { phoneNumber, email, agentID } = newUser;
+
+    if (!/^\d{10,15}$/.test(phoneNumber)) {
+      setErrorMessage("Phone number must be between 10 to 15 digits.");
+      setShowErrorModal(true);
+      return false;
+    }
+
+    if (users.some((user) => user.email === email)) {
+      setErrorMessage("This email is already in use.");
+      setShowErrorModal(true);
+      return false;
+    }
+
+    if (users.some((user) => user.agentID === agentID)) {
+      setErrorMessage("This Agent ID is already in use.");
+      setShowErrorModal(true);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleAddUser = async () => {
+    if (!validateUser()) return; // Return if validation fails
+
     const formData = new FormData();
     formData.append("agentID", newUser.agentID);
     formData.append("fullName", newUser.fullName);
@@ -97,6 +188,8 @@ const UserManagement = () => {
   };
 
   const handleEditUser = async () => {
+    if (!validateUser()) return; // Return if validation fails
+
     const formData = new FormData();
     formData.append("fullName", newUser.fullName);
     formData.append("dateOfBirth", newUser.dateOfBirth);
@@ -223,7 +316,7 @@ const UserManagement = () => {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.fullName && // Check if fullName is defined
+      user.fullName &&
       user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -301,7 +394,7 @@ const UserManagement = () => {
                   cursor: "pointer",
                   color: "blue",
                 }}
-                onClick={() => handleUserClick(user)} // Open view modal on name click
+                onClick={() => handleUserClick(user)}
               >
                 {user.fullName}
               </td>
@@ -319,7 +412,7 @@ const UserManagement = () => {
                     cursor: "pointer",
                     marginRight: "10px",
                   }}
-                  onClick={() => handleEditClick(user)} // Open edit modal on Edit click
+                  onClick={() => handleEditClick(user)}
                 >
                   Edit
                 </button>
@@ -507,7 +600,7 @@ const UserManagement = () => {
                 display: "block",
                 margin: "10px 0",
                 padding: "8px",
-                width: "100%",
+                width: "100              %",
               }}
             />
             <input
@@ -849,7 +942,7 @@ const UserManagement = () => {
       {/* Confirmation Modal for Deleting User */}
       {confirmDeleteVisible && (
         <div
-          id="confirm-delete-modal" // Adding ID to the modal
+          id="confirm-delete-modal"
           style={{
             position: "fixed",
             top: "0",
@@ -912,8 +1005,15 @@ const UserManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Error Modal for Validation Errors */}
+      <ErrorModal
+        show={showErrorModal}
+        message={errorMessage}
+        onClose={() => setShowErrorModal(false)}
+      />
     </div>
   );
 };
 
-export default UserManagement;
+export default AgentManagement;
