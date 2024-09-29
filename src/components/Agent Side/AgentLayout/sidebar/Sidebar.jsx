@@ -234,7 +234,6 @@ const SideBar = () => {
           fullWidth
           startIcon={<ExitToAppOutlined />}
           sx={{
-            mt: 35,
             backgroundColor: colors.primary[100],
             color: colors.primary[500],
             ":hover": {
@@ -242,6 +241,7 @@ const SideBar = () => {
             },
             justifyContent: collapsed ? "center" : "flex-start",
             padding: collapsed ? "8px" : "8px 16px",
+            mt: collapsed ? 62 : 35,
             paddingLeft: collapsed ? "18px" : "65px",
             width: collapsed ? "35px" : "100%", // Adjust width in collapsed mode
             minWidth: collapsed ? "25px" : "auto", // Ensure the button doesn't shrink too much

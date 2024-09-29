@@ -822,6 +822,12 @@ const CustomerForm = ({
             name="title"
             value={formData.title}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -833,6 +839,12 @@ const CustomerForm = ({
             value={formData.firstName}
             onChange={handleChange}
             required
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -843,6 +855,12 @@ const CustomerForm = ({
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -853,6 +871,12 @@ const CustomerForm = ({
             name="address"
             value={formData.address}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -863,6 +887,12 @@ const CustomerForm = ({
             name="city"
             value={formData.city}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -873,6 +903,12 @@ const CustomerForm = ({
             name="state"
             value={formData.state}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -883,6 +919,12 @@ const CustomerForm = ({
             name="postCode"
             value={formData.postCode}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -893,6 +935,12 @@ const CustomerForm = ({
               value={formData.gender}
               onChange={handleChange}
               label="Gender"
+              sx={{
+                color: "text.primary",
+                "& .MuiInputBase-input": {
+                  color: "text.primary",
+                },
+              }}
             >
               <MenuItem value="">Select Gender</MenuItem>
               <MenuItem value="M">Male</MenuItem>
@@ -910,6 +958,12 @@ const CustomerForm = ({
             value={formData.phone}
             onChange={handleChange}
             required
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -920,6 +974,12 @@ const CustomerForm = ({
             name="altPhone"
             value={formData.altPhone}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -930,6 +990,12 @@ const CustomerForm = ({
             name="email"
             value={formData.email}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -940,6 +1006,12 @@ const CustomerForm = ({
             name="comments"
             value={formData.comments}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
       </Grid>
