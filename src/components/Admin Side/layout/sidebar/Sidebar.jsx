@@ -110,10 +110,14 @@ const SideBar = () => {
                 display="flex"
                 alignItems="center"
                 gap="12px"
-                sx={{ transition: ".3s ease" }}
+                sx={{ transition: "all 0.3s ease" }}
               >
                 <img
-                  style={{ width: "30px", height: "30px", borderRadius: "8px" }}
+                  style={{
+                    width: "30px",
+                    height: "30px",
+                    borderRadius: "8px",
+                  }}
                   src={logo}
                   alt="Logo"
                 />
@@ -123,7 +127,7 @@ const SideBar = () => {
                   textTransform="capitalize"
                   color={colors.greenAccent[500]}
                 >
-                  Admin Dashboard
+                  Admin
                 </Typography>
               </Box>
             )}
@@ -256,23 +260,29 @@ const SideBar = () => {
         </Menu>
       </Box>
 
-      {/* Add the logout button at the bottom */}
-      <Box sx={{ mt: 22.2, p: 2 }}>
+      {/* Logout button with icon and text when expanded, and icon only when collapsed */}
+      <Box sx={{ mt: "auto", p: 2 }}>
         <Button
           variant="contained"
           onClick={handleLogout}
           fullWidth
           startIcon={<ExitToAppOutlined />}
           sx={{
-            mt: 2,
+            mt: 17.2,
             backgroundColor: colors.primary[100],
             color: colors.primary[500],
             ":hover": {
               backgroundColor: colors.primary[300],
             },
+            justifyContent: collapsed ? "center" : "flex-start",
+            padding: collapsed ? "8px" : "8px 16px",
+            paddingLeft: collapsed ? "18px" : "65px",
+            width: collapsed ? "35px" : "100%", // Adjust width in collapsed mode
+            minWidth: collapsed ? "25px" : "auto", // Ensure the button doesn't shrink too much
+            transition: "all 0.3s ease", // Smooth transition for all properties
           }}
         >
-          Logout
+          {!collapsed && "Logout"}
         </Button>
       </Box>
     </Sidebar>

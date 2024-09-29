@@ -3,24 +3,16 @@ import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import Modal from "react-modal";
-
-Modal.setAppElement("#root");
+import { useTheme } from "@mui/material";
+import { tokens } from "../../theme";
 
 const DownloadSalesReport = () => {
   const navigate = useNavigate();
   const [salesData, setSalesData] = useState([]);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [currentSale, setCurrentSale] = useState({
-    agent: { agentID: "", fullName: "" },
-    form: { email: "", phoneNumber: "", address: "", comments: "" },
-    campaign: { name: "" },
-    amount: "",
-    saleDate: "",
-    score: "",
-    sentiment: "Neutral",
-  });
   const token = JSON.parse(localStorage.getItem("auth")) || "";
+
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   useEffect(() => {
     if (!token) {
@@ -31,6 +23,24 @@ const DownloadSalesReport = () => {
     }
   }, [token, navigate]);
 
+  const fetchFormDataById = async (formId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/api/v3/forms/${formId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      toast.error("Failed to fetch form data");
+      console.error("Error fetching form data:", error);
+      return null;
+    }
+  };
+
   const fetchSalesData = async () => {
     try {
       const response = await axios.get("http://localhost:4000/api/v4/sales", {
@@ -38,7 +48,24 @@ const DownloadSalesReport = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setSalesData(response.data);
+
+      const salesWithDetails = await Promise.all(
+        response.data.map(async (sale) => {
+          const formData = await fetchFormDataById(sale.form);
+          return {
+            ...sale,
+            form: formData || {
+              email: "N/A",
+              phoneNumber: "N/A",
+              address: "N/A",
+              comments: "N/A",
+            },
+          };
+        })
+      );
+
+      setSalesData(salesWithDetails);
+      console.log("Fetched Sales Data with Forms:", salesWithDetails);
     } catch (error) {
       toast.error("Failed to fetch sales data");
       console.error("Error fetching sales data:", error);
@@ -84,79 +111,6 @@ const DownloadSalesReport = () => {
     XLSX.writeFile(workbook, "SalesReport.xlsx");
   };
 
-  const openModal = (sale = null) => {
-    setCurrentSale(
-      sale || {
-        agent: { agentID: "", fullName: "" },
-        form: { email: "", phoneNumber: "", address: "", comments: "" },
-        campaign: { name: "" },
-        amount: "",
-        saleDate: "",
-        score: "",
-        sentiment: "Neutral",
-      }
-    );
-    setModalIsOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setCurrentSale({
-      agent: { agentID: "", fullName: "" },
-      form: { email: "", phoneNumber: "", address: "", comments: "" },
-      campaign: { name: "" },
-      amount: "",
-      saleDate: "",
-      score: "",
-      sentiment: "Neutral",
-    });
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    // Ensure all fields are filled out
-    if (
-      !currentSale.agent.agentID ||
-      !currentSale.campaign.name ||
-      !currentSale.form.email ||
-      !currentSale.amount
-    ) {
-      toast.error("Please fill out all required fields");
-      return;
-    }
-
-    try {
-      if (currentSale._id) {
-        await axios.put(
-          `http://localhost:4000/api/v4/sales/${currentSale._id}`,
-          currentSale,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        toast.success("Sale updated successfully");
-      } else {
-        await axios.post("http://localhost:4000/api/v4/sales", currentSale, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        toast.success("Sale created successfully");
-      }
-      fetchSalesData();
-      closeModal();
-    } catch (error) {
-      toast.error("Failed to save sale");
-      console.error(
-        "Error saving sale:",
-        error.response ? error.response.data : error.message
-      );
-    }
-  };
-
   const handleDelete = async (saleId) => {
     if (window.confirm("Are you sure you want to delete this sale?")) {
       try {
@@ -177,47 +131,17 @@ const DownloadSalesReport = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentSale((prevSale) => {
-      const updatedSale = { ...prevSale };
-      if (name.includes("agent")) {
-        updatedSale.agent = {
-          ...updatedSale.agent,
-          [name.split(".")[1]]: value,
-        };
-      } else if (name.includes("form")) {
-        updatedSale.form = { ...updatedSale.form, [name.split(".")[1]]: value };
-      } else if (name.includes("campaign")) {
-        updatedSale.campaign = {
-          ...updatedSale.campaign,
-          [name.split(".")[1]]: value,
-        };
-      } else {
-        updatedSale[name] = value;
-      }
-      return updatedSale;
-    });
-  };
-
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>Sales Report</h1>
-      <button
-        onClick={() => openModal()}
+      <h1
         style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          backgroundColor: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
+          fontSize: "24px",
           marginBottom: "20px",
+          color: colors.primary[100],
         }}
       >
-        Add New Sale
-      </button>
+        Sales Report
+      </h1>
       <table
         style={{
           width: "100%",
@@ -227,101 +151,242 @@ const DownloadSalesReport = () => {
         }}
       >
         <thead>
-          <tr style={{ backgroundColor: "#4CAF50", color: "white" }}>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+          <tr
+            style={{ backgroundColor: colors.greenAccent[500], color: "white" }}
+          >
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Agent ID
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Agent Name
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Email</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
+              Email
+            </th>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Phone Number
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Address
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Comments
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Campaign Name
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Amount
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Sale Date
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>Score</th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
+              Score
+            </th>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Sentiment
             </th>
-            <th style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                border: `1px solid ${colors.primary[300]}`,
+                color: `${colors.primary[600]}`,
+              }}
+            >
               Actions
             </th>
           </tr>
         </thead>
         <tbody>
           {salesData.map((sale, index) => (
-            <tr key={index}>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+            <tr
+              key={index}
+              style={{
+                backgroundColor: colors.primary[400],
+                color: colors.primary[200],
+              }}
+            >
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.agent?.agentID || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.agent?.fullName || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.form?.email || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.form?.phoneNumber || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.form?.address || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.form?.comments || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.campaign?.name || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 ${sale.amount !== undefined ? sale.amount.toFixed(2) : "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.saleDate
                   ? new Date(sale.saleDate).toLocaleDateString()
                   : "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.score || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 {sale.sentiment || "N/A"}
               </td>
-              <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                <button
-                  onClick={() => openModal(sale)}
-                  style={{
-                    padding: "5px 10px",
-                    fontSize: "12px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "3px",
-                    cursor: "pointer",
-                    marginRight: "5px",
-                  }}
-                >
-                  Edit
-                </button>
+              <td
+                style={{
+                  padding: "10px",
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: `${colors.gray[100]}`,
+                }}
+              >
                 <button
                   onClick={() => handleDelete(sale._id)}
                   style={{
                     padding: "5px 10px",
                     fontSize: "12px",
-                    backgroundColor: "#f44336",
+                    backgroundColor: colors.redAccent[600],
                     color: "white",
                     border: "none",
                     borderRadius: "3px",
@@ -340,7 +405,7 @@ const DownloadSalesReport = () => {
         style={{
           padding: "10px 20px",
           fontSize: "16px",
-          backgroundColor: "#4CAF50",
+          backgroundColor: colors.greenAccent[500],
           color: "white",
           border: "none",
           borderRadius: "5px",
@@ -352,184 +417,6 @@ const DownloadSalesReport = () => {
       >
         Download Report
       </button>
-
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={{
-          content: {
-            top: "50%",
-            left: "50%",
-            right: "auto",
-            bottom: "auto",
-            marginRight: "-50%",
-            transform: "translate(-50%, -50%)",
-            width: "400px",
-            padding: "20px",
-          },
-        }}
-      >
-        <h2>{currentSale && currentSale._id ? "Edit Sale" : "Add New Sale"}</h2>
-        <form onSubmit={handleSave}>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Agent ID:</label>
-            <input
-              type="text"
-              name="agent.agentID"
-              value={currentSale.agent.agentID}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Agent Name:</label>
-            <input
-              type="text"
-              name="agent.fullName"
-              value={currentSale.agent.fullName}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Email:</label>
-            <input
-              type="email"
-              name="form.email"
-              value={currentSale.form.email}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Phone Number:</label>
-            <input
-              type="text"
-              name="form.phoneNumber"
-              value={currentSale.form.phoneNumber}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Address:</label>
-            <input
-              type="text"
-              name="form.address"
-              value={currentSale.form.address}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Comments:</label>
-            <input
-              type="text"
-              name="form.comments"
-              value={currentSale.form.comments}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Campaign Name:</label>
-            <input
-              type="text"
-              name="campaign.name"
-              value={currentSale.campaign.name}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Amount:</label>
-            <input
-              type="number"
-              name="amount"
-              value={currentSale.amount}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Score:</label>
-            <input
-              type="number"
-              name="score"
-              value={currentSale.score}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Sentiment:</label>
-            <select
-              name="sentiment"
-              value={currentSale.sentiment}
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            >
-              <option value="Positive">Positive</option>
-              <option value="Neutral">Neutral</option>
-              <option value="Negative">Negative</option>
-            </select>
-          </div>
-          <div style={{ marginBottom: "10px" }}>
-            <label>Sale Date:</label>
-            <input
-              type="date"
-              name="saleDate"
-              value={
-                currentSale.saleDate
-                  ? new Date(currentSale.saleDate).toISOString().substr(0, 10)
-                  : ""
-              }
-              onChange={handleChange}
-              style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              backgroundColor: "#4CAF50",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            onClick={closeModal}
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              backgroundColor: "#f44336",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              marginLeft: "10px",
-            }}
-          >
-            Cancel
-          </button>
-        </form>
-      </Modal>
     </div>
   );
 };

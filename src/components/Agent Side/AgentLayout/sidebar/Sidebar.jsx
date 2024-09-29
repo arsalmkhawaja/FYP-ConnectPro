@@ -35,25 +35,25 @@ const SideBar = () => {
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
 
-  // Fetch admin profile data when the component mounts
+  // Fetch agent profile data when the component mounts
   useEffect(() => {
     const fetchAgentProfile = async () => {
       try {
         const token = JSON.parse(localStorage.getItem("auth")) || "";
         if (token) {
           const response = await axios.get(
-            "http://localhost:4000/api/v1/agent", // Adjusted to fetch specific admin
+            "http://localhost:4000/api/v1/agent", // Adjusted to fetch specific agent
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          const agentData = response.data.agent; // Access the admin object directly
+          const agentData = response.data.agent; // Access the agent object directly
           setUser(agentData); // Set user data
         } else {
           toast.warn("No token found");
         }
       } catch (error) {
-        toast.error("Failed to load admin profile");
+        toast.error("Failed to load agent profile");
       }
     };
 
@@ -111,7 +111,7 @@ const SideBar = () => {
                 display="flex"
                 alignItems="center"
                 gap="12px"
-                sx={{ transition: ".3s ease" }}
+                sx={{ transition: "all 0.3s ease" }}
               >
                 <img
                   style={{ width: "30px", height: "30px", borderRadius: "8px" }}
@@ -124,7 +124,7 @@ const SideBar = () => {
                   textTransform="capitalize"
                   color={colors.greenAccent[500]}
                 >
-                  Agent Dashboard
+                  Agent
                 </Typography>
               </Box>
             )}
@@ -226,23 +226,29 @@ const SideBar = () => {
         </Menu>
       </Box>
 
-      {/* Add the logout button at the bottom */}
-      <Box sx={{ mt: 40, p: 2 }}>
+      {/* Logout button with icon and text when expanded, and icon only when collapsed */}
+      <Box sx={{ mt: "auto", p: 2 }}>
         <Button
           variant="contained"
           onClick={handleLogout}
           fullWidth
           startIcon={<ExitToAppOutlined />}
           sx={{
-            mt: 2,
+            mt: 35,
             backgroundColor: colors.primary[100],
             color: colors.primary[500],
             ":hover": {
               backgroundColor: colors.primary[300],
             },
+            justifyContent: collapsed ? "center" : "flex-start",
+            padding: collapsed ? "8px" : "8px 16px",
+            paddingLeft: collapsed ? "18px" : "65px",
+            width: collapsed ? "35px" : "100%", // Adjust width in collapsed mode
+            minWidth: collapsed ? "25px" : "auto", // Ensure the button doesn't shrink too much
+            transition: "all 0.3s ease", // Smooth transition for all properties
           }}
         >
-          Logout
+          {!collapsed && "Logout"}
         </Button>
       </Box>
     </Sidebar>

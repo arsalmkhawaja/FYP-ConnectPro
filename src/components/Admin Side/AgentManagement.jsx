@@ -2,7 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useTheme } from "@mui/material";
+import { tokens } from "../../theme";
+
 const ErrorModal = ({ show, message, onClose }) => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
   if (!show) return null;
 
   return (
@@ -22,21 +28,22 @@ const ErrorModal = ({ show, message, onClose }) => {
     >
       <div
         style={{
-          backgroundColor: "white",
+          backgroundColor: colors.primary[400],
           padding: "20px",
           borderRadius: "8px",
           width: "90%",
           maxWidth: "400px",
           position: "relative",
+          color: colors.primary[100],
         }}
       >
-        <h3>Error</h3>
+        <h3 style={{ color: colors.redAccent[600] }}>Error</h3>
         <p>{message}</p>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <button
             style={{
               padding: "10px 15px",
-              backgroundColor: "#007bff",
+              backgroundColor: colors.redAccent[600],
               color: "white",
               border: "none",
               borderRadius: "5px",
@@ -56,6 +63,7 @@ const ErrorModal = ({ show, message, onClose }) => {
             border: "none",
             fontSize: "20px",
             cursor: "pointer",
+            color: colors.primary[100],
           }}
           onClick={onClose}
         >
@@ -69,6 +77,8 @@ const ErrorModal = ({ show, message, onClose }) => {
 const AgentManagement = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   useEffect(() => {
     if (!token) {
@@ -84,8 +94,8 @@ const AgentManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [confirmDeleteVisible, setConfirmDeleteVisible] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(""); // State to hold the error message
-  const [showErrorModal, setShowErrorModal] = useState(false); // State to control the error modal visibility
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [newUser, setNewUser] = useState({
     fullName: "",
     dateOfBirth: "",
@@ -147,7 +157,7 @@ const AgentManagement = () => {
   };
 
   const handleAddUser = async () => {
-    if (!validateUser()) return; // Return if validation fails
+    if (!validateUser()) return;
 
     const formData = new FormData();
     formData.append("agentID", newUser.agentID);
@@ -188,7 +198,7 @@ const AgentManagement = () => {
   };
 
   const handleEditUser = async () => {
-    if (!validateUser()) return; // Return if validation fails
+    if (!validateUser()) return;
 
     const formData = new FormData();
     formData.append("fullName", newUser.fullName);
@@ -316,8 +326,10 @@ const AgentManagement = () => {
 
   const filteredUsers = users.filter(
     (user) =>
-      user.fullName &&
-      user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      (user.fullName &&
+        user.fullName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.agentID &&
+        user.agentID.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -329,7 +341,7 @@ const AgentManagement = () => {
           marginBottom: "20px",
         }}
       >
-        <h2>Members</h2>
+        <h2 style={{ color: colors.primary[100] }}>Agents</h2>
         <div>
           <input
             type="text"
@@ -339,13 +351,15 @@ const AgentManagement = () => {
             style={{
               padding: "8px",
               borderRadius: "5px",
-              border: "1px solid #ddd",
+              border: `1px solid ${colors.primary[300]}`,
+              color: colors.primary[100],
+              backgroundColor: colors.primary[400],
             }}
           />
           <button
             style={{
               padding: "10px 15px",
-              backgroundColor: "#007bff",
+              backgroundColor: colors.greenAccent[500],
               color: "white",
               border: "none",
               borderRadius: "5px",
@@ -354,7 +368,7 @@ const AgentManagement = () => {
             }}
             onClick={() => setShowModal(true)}
           >
-            + Add member
+            + Add agent
           </button>
         </div>
       </div>
@@ -366,72 +380,140 @@ const AgentManagement = () => {
         }}
       >
         <thead>
-          <tr>
-            <th style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+          <tr
+            style={{
+              backgroundColor: colors.greenAccent[500],
+              color: colors.primary[100],
+            }}
+          >
+            <th
+              style={{
+                padding: "10px",
+                borderBottom: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[600],
+              }}
+            >
               Agent ID
             </th>
-            <th style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                borderBottom: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[600],
+              }}
+            >
               Agent Name
             </th>
-            <th style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                borderBottom: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[600],
+              }}
+            >
               Email
             </th>
-            <th style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+            <th
+              style={{
+                padding: "10px",
+                borderBottom: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[600],
+              }}
+            >
               Actions
             </th>
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.map((user) => (
-            <tr key={user._id}>
-              <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                {user.agentID}
-              </td>
-              <td
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map((user) => (
+              <tr
+                key={user._id}
                 style={{
-                  padding: "10px",
-                  borderBottom: "1px solid #ddd",
-                  cursor: "pointer",
-                  color: "blue",
+                  backgroundColor: colors.primary[400],
+                  color: colors.primary[200],
                 }}
-                onClick={() => handleUserClick(user)}
               >
-                {user.fullName}
-              </td>
-              <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                {user.email}
-              </td>
-              <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                <button
+                <td
                   style={{
-                    padding: "5px 10px",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "3px",
-                    cursor: "pointer",
-                    marginRight: "10px",
+                    padding: "10px",
+                    borderBottom: `1px solid ${colors.primary[300]}`,
+                    color: colors.gray[100],
                   }}
-                  onClick={() => handleEditClick(user)}
                 >
-                  Edit
-                </button>
-                <button
+                  {user.agentID}
+                </td>
+                <td
                   style={{
-                    padding: "5px 10px",
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "3px",
+                    padding: "10px",
+                    borderBottom: `1px solid ${colors.primary[300]}`,
+                    color: colors.gray[100],
                     cursor: "pointer",
                   }}
-                  onClick={() => openConfirmDeleteModal(user)}
+                  onClick={() => handleUserClick(user)}
                 >
-                  Remove
-                </button>
+                  {user.fullName}
+                </td>
+                <td
+                  style={{
+                    padding: "10px",
+                    borderBottom: `1px solid ${colors.primary[300]}`,
+                    color: colors.gray[100],
+                  }}
+                >
+                  {user.email}
+                </td>
+                <td
+                  style={{
+                    padding: "10px",
+                    borderBottom: `1px solid ${colors.primary[300]}`,
+                    color: colors.gray[100],
+                  }}
+                >
+                  <button
+                    style={{
+                      padding: "5px 10px",
+                      backgroundColor: colors.blueAccent[600],
+                      color: "white",
+                      border: "none",
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                      marginRight: "10px",
+                    }}
+                    onClick={() => handleEditClick(user)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    style={{
+                      padding: "5px 10px",
+                      backgroundColor: colors.redAccent[600],
+                      color: "white",
+                      border: "none",
+                      borderRadius: "3px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => openConfirmDeleteModal(user)}
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td
+                colSpan="4"
+                style={{
+                  textAlign: "center",
+                  padding: "20px",
+                  color: colors.gray[100],
+                }}
+              >
+                No agents found.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
@@ -452,7 +534,7 @@ const AgentManagement = () => {
         >
           <div
             style={{
-              backgroundColor: "white",
+              backgroundColor: colors.primary[400],
               padding: "20px",
               borderRadius: "8px",
               width: "90%",
@@ -460,6 +542,7 @@ const AgentManagement = () => {
               maxHeight: "80vh",
               overflowY: "auto",
               position: "relative",
+              color: colors.primary[100],
             }}
           >
             <h3>{editMode ? "Edit User" : "Add User"}</h3>
@@ -475,6 +558,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -489,6 +575,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -503,6 +592,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -517,6 +609,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -531,6 +626,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -545,6 +643,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -559,6 +660,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -573,6 +677,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -587,6 +694,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -600,7 +710,10 @@ const AgentManagement = () => {
                 display: "block",
                 margin: "10px 0",
                 padding: "8px",
-                width: "100              %",
+                width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -615,6 +728,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -629,6 +745,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -643,9 +762,11 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
-            {/* Password input (optional, only enter if changing password) */}
             <input
               type="password"
               placeholder="New Password (optional)"
@@ -658,6 +779,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <input
@@ -669,6 +793,9 @@ const AgentManagement = () => {
                 margin: "10px 0",
                 padding: "8px",
                 width: "100%",
+                backgroundColor: colors.primary[500],
+                border: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[100],
               }}
             />
             <div
@@ -681,7 +808,7 @@ const AgentManagement = () => {
               <button
                 style={{
                   padding: "10px 15px",
-                  backgroundColor: "#007bff",
+                  backgroundColor: colors.greenAccent[500],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -694,7 +821,7 @@ const AgentManagement = () => {
               <button
                 style={{
                   padding: "10px 15px",
-                  backgroundColor: "#f44336",
+                  backgroundColor: colors.redAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -714,6 +841,7 @@ const AgentManagement = () => {
                 border: "none",
                 fontSize: "20px",
                 cursor: "pointer",
+                color: colors.primary[100],
               }}
               onClick={closeModal}
             >
@@ -740,7 +868,7 @@ const AgentManagement = () => {
         >
           <div
             style={{
-              backgroundColor: "white",
+              backgroundColor: colors.primary[400],
               padding: "20px",
               borderRadius: "8px",
               width: "90%",
@@ -748,6 +876,7 @@ const AgentManagement = () => {
               maxHeight: "80vh",
               overflowY: "auto",
               position: "relative",
+              color: colors.primary[100],
             }}
           >
             <h3>Agent Details</h3>
@@ -761,6 +890,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -774,6 +906,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -787,6 +922,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -800,6 +938,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -813,6 +954,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -826,6 +970,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -839,6 +986,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -852,6 +1002,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -865,6 +1018,9 @@ const AgentManagement = () => {
                   display: "block",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -897,6 +1053,9 @@ const AgentManagement = () => {
                   margin: "10px 0",
                   padding: "8px",
                   width: "100%",
+                  backgroundColor: colors.primary[500],
+                  border: `1px solid ${colors.primary[300]}`,
+                  color: colors.primary[100],
                 }}
               />
             </div>
@@ -910,7 +1069,7 @@ const AgentManagement = () => {
               <button
                 style={{
                   padding: "10px 15px",
-                  backgroundColor: "#007bff",
+                  backgroundColor: colors.blueAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -930,6 +1089,7 @@ const AgentManagement = () => {
                 border: "none",
                 fontSize: "20px",
                 cursor: "pointer",
+                color: colors.primary[100],
               }}
               onClick={closeViewModal}
             >
@@ -957,7 +1117,7 @@ const AgentManagement = () => {
         >
           <div
             style={{
-              backgroundColor: "white",
+              backgroundColor: colors.primary[400],
               padding: "20px",
               borderRadius: "8px",
               width: "90%",
@@ -965,6 +1125,7 @@ const AgentManagement = () => {
               maxHeight: "80vh",
               overflowY: "auto",
               position: "relative",
+              color: colors.primary[100],
             }}
           >
             <h3>Confirm Deletion</h3>
@@ -978,7 +1139,7 @@ const AgentManagement = () => {
               <button
                 style={{
                   padding: "10px 15px",
-                  backgroundColor: "#dc3545",
+                  backgroundColor: colors.redAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -991,7 +1152,7 @@ const AgentManagement = () => {
               <button
                 style={{
                   padding: "10px 15px",
-                  backgroundColor: "#007bff",
+                  backgroundColor: colors.blueAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",

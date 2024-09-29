@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Sales = require("../models/Sales");
 const Agent = require("../models/Agents");
+const form = require("../models/Forms");
 
 exports.createSale = async (req, res) => {
   try {
@@ -51,6 +52,7 @@ exports.getAllSales = async (req, res) => {
       .populate("agent")
       .populate("form")
       .populate("campaign");
+
     res.status(200).json(sales);
   } catch (error) {
     res.status(500).json({ message: error.message });

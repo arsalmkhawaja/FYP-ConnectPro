@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import {
   Box,
   IconButton,
-  InputBase,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -12,7 +11,6 @@ import {
   LightModeOutlined,
   MenuOutlined,
   PersonOutlined,
-  SearchOutlined,
 } from "@mui/icons-material";
 import { ToggledContext } from "./AgentLayout";
 import "../styles/Navbar.css";
@@ -22,7 +20,6 @@ const Navbar = () => {
   const colorMode = useContext(ColorModeContext);
   const { toggled, setToggled } = useContext(ToggledContext);
   const isMdDevices = useMediaQuery("(max-width:768px)");
-  const isXsDevices = useMediaQuery("(max-width:466px)");
   const colors = tokens(theme.palette.mode);
 
   return (
@@ -38,7 +35,7 @@ const Navbar = () => {
         right: 0,
         zIndex: 1100,
         backgroundColor: theme.palette.background.default,
-        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+        // boxShadow: "0 2px 4px rgba(0,0,0,0.1)", // Removed the boxShadow
       }}
     >
       <Box display="flex" alignItems="center" gap={2}>
@@ -48,18 +45,6 @@ const Navbar = () => {
         >
           <MenuOutlined />
         </IconButton>
-        <Box
-          display="flex"
-          alignItems="center"
-          bgcolor={colors.primary[400]}
-          borderRadius="3px"
-          sx={{ display: `${isXsDevices ? "none" : "flex"}` }}
-        >
-          <InputBase placeholder="Search" sx={{ ml: 2, flex: 1 }} />
-          <IconButton type="button" sx={{ p: 1 }}>
-            <SearchOutlined />
-          </IconButton>
-        </Box>
       </Box>
 
       <Box>

@@ -54,6 +54,8 @@ const CallCenterScreen = () => {
     comments: "",
   });
 
+  const [error, setError] = useState({ open: false, message: "" }); // State for error modal
+
   const token = JSON.parse(localStorage.getItem("auth")) || "";
 
   useEffect(() => {
@@ -157,7 +159,10 @@ const CallCenterScreen = () => {
 
   const handleSaveSale = async () => {
     if (!currentSale.amount) {
-      toast.error("Sale amount is required to save the sale.");
+      setError({
+        open: true,
+        message: "Sale amount is required to save the sale.",
+      });
       return;
     }
     console.log(`Requesting form data for phone number: ${formData.phone}`);
@@ -176,7 +181,10 @@ const CallCenterScreen = () => {
       const formDataFromServer = formResponse.data;
 
       if (!formDataFromServer || !formDataFromServer.formId) {
-        toast.error("Form not found for the provided phone number.");
+        setError({
+          open: true,
+          message: "Form not found for the provided phone number.",
+        });
         return;
       }
 
@@ -203,7 +211,10 @@ const CallCenterScreen = () => {
       toast.success("Sale saved successfully");
       console.log("Sale saved successfully:", saleResponse.data);
     } catch (error) {
-      toast.error("Failed to save sale");
+      setError({
+        open: true,
+        message: "Failed to save sale. Please check the fields and try again.",
+      });
       console.error(
         "Error saving sale:",
         error.response?.data || error.message
@@ -372,8 +383,9 @@ const CallCenterScreen = () => {
                   <CustomerForm
                     formData={formData}
                     onFormChange={handleFormChange}
-                    handleClearForm={handleClearForm} // Pass handleClearForm here for Automatic Dial
+                    handleClearForm={handleClearForm}
                     twoColumns
+                    setError={setError} // Pass setError to handle errors in form submission
                   />
                 </Paper>
               </Grid>
@@ -466,108 +478,49 @@ const CallCenterScreen = () => {
           />
         </Box>
       </Modal>
+
+      <ErrorModal
+        open={error.open}
+        onClose={() => setError({ ...error, open: false })}
+        errorMessage={error.message}
+      />
     </Container>
   );
 };
-const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
+
+const ErrorModal = ({ open, onClose, errorMessage }) => {
   return (
-    <Paper sx={{ padding: 3, borderRadius: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        {text}
-      </Typography>
+    <Modal open={open} onClose={onClose}>
       <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
       >
-        <Button variant="contained" color="primary" onClick={onConfirm}>
-          Confirm
-        </Button>
-        <Button variant="contained" color="secondary" onClick={onCancel}>
-          Skip
-        </Button>
-      </Box>
-    </Paper>
-  );
-};
-
-const Dialer = ({ handleHangup }) => {
-  const [dialerInput, setDialerInput] = useState("");
-
-  const handleDialerButtonClick = (value) => {
-    setDialerInput(dialerInput + value);
-  };
-
-  const handleCallButtonClick = () => {
-    if (window.Twilio) {
-      window.Twilio.Device.connect({ To: dialerInput });
-    }
-    console.log("Call button clicked");
-  };
-
-  const handleHangupButtonClick = () => {
-    if (window.Twilio) {
-      window.Twilio.Device.disconnectAll();
-    }
-    console.log("Hangup button clicked");
-    handleHangup();
-  };
-
-  const handleKeyPress = (e) => {
-    const { key } = e;
-    if (/^[0-9*#]$/.test(key)) {
-      setDialerInput(dialerInput + key);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keypress", handleKeyPress);
-    return () => {
-      window.removeEventListener("keypress", handleKeyPress);
-    };
-  }, [dialerInput]);
-
-  return (
-    <Box sx={{ textAlign: "center" }}>
-      <Typography variant="h4" sx={{ marginBottom: 2 }}>
-        {dialerInput || "Enter number"}
-      </Typography>
-      <Grid container spacing={1}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, "*", 0, "#"].map((num) => (
-          <Grid item xs={4} key={num}>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={() => handleDialerButtonClick(num.toString())}
-              sx={{ height: 60 }}
-            >
-              {num}
+        <Paper sx={{ padding: 3, borderRadius: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Error
+          </Typography>
+          <Typography variant="body1">{errorMessage}</Typography>
+          <Box
+            sx={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}
+          >
+            <Button variant="contained" color="primary" onClick={onClose}>
+              Close
             </Button>
-          </Grid>
-        ))}
-      </Grid>
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
-      >
-        <Button
-          variant="contained"
-          color="success"
-          sx={{ height: 80, width: 80, fontSize: 32 }}
-          onClick={handleCallButtonClick}
-        >
-          📞
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          sx={{ height: 80, width: 80, fontSize: 32 }}
-          onClick={handleHangupButtonClick}
-        >
-          ✖
-        </Button>
+          </Box>
+        </Paper>
       </Box>
-    </Box>
+    </Modal>
   );
 };
+
 const DispositionModal = ({
   onClose,
   onSaveSale,
@@ -694,11 +647,112 @@ const getLabel = (key) => {
   return labels[key];
 };
 
+const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
+  return (
+    <Paper sx={{ padding: 3, borderRadius: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        {text}
+      </Typography>
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+      >
+        <Button variant="contained" color="primary" onClick={onConfirm}>
+          Confirm
+        </Button>
+        <Button variant="contained" color="secondary" onClick={onCancel}>
+          Skip
+        </Button>
+      </Box>
+    </Paper>
+  );
+};
+
+const Dialer = ({ handleHangup }) => {
+  const [dialerInput, setDialerInput] = useState("");
+
+  const handleDialerButtonClick = (value) => {
+    setDialerInput(dialerInput + value);
+  };
+
+  const handleCallButtonClick = () => {
+    if (window.Twilio) {
+      window.Twilio.Device.connect({ To: dialerInput });
+    }
+    console.log("Call button clicked");
+  };
+
+  const handleHangupButtonClick = () => {
+    if (window.Twilio) {
+      window.Twilio.Device.disconnectAll();
+    }
+    console.log("Hangup button clicked");
+    handleHangup();
+  };
+
+  const handleKeyPress = (e) => {
+    const { key } = e;
+    if (/^[0-9*#]$/.test(key)) {
+      setDialerInput(dialerInput + key);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keypress", handleKeyPress);
+    return () => {
+      window.removeEventListener("keypress", handleKeyPress);
+    };
+  }, [dialerInput]);
+
+  return (
+    <Box sx={{ textAlign: "center" }}>
+      <Typography variant="h4" sx={{ marginBottom: 2 }}>
+        {dialerInput || "Enter number"}
+      </Typography>
+      <Grid container spacing={1}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, "*", 0, "#"].map((num) => (
+          <Grid item xs={4} key={num}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={() => handleDialerButtonClick(num.toString())}
+              sx={{ height: 60 }}
+            >
+              {num}
+            </Button>
+          </Grid>
+        ))}
+      </Grid>
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+      >
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ height: 80, width: 80, fontSize: 32 }}
+          onClick={handleCallButtonClick}
+        >
+          📞
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          sx={{ height: 80, width: 80, fontSize: 32 }}
+          onClick={handleHangupButtonClick}
+        >
+          ✖
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
 const CustomerForm = ({
   formData,
   onFormChange,
   handleClearForm,
   twoColumns,
+  setError, // Pass setError from the parent component to display errors
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -712,7 +766,11 @@ const CustomerForm = ({
     e.preventDefault();
 
     if (!formData.firstName || !formData.phone || !formData.gender) {
-      toast.error("Please fill in all required fields.");
+      setError({
+        open: true,
+        message:
+          "Please fill in all required fields (First Name, Phone, Gender).",
+      });
       return;
     }
 
@@ -745,8 +803,11 @@ const CustomerForm = ({
       toast.success("Form submitted successfully");
       console.log("Form submitted successfully:", response.data);
     } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to submit form. Please try again.",
+      });
       console.error("Error submitting form:", error.response?.data || error);
-      toast.error("Failed to submit form. Please try again.");
     }
   };
 
@@ -771,6 +832,7 @@ const CustomerForm = ({
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
+            required
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -824,7 +886,7 @@ const CustomerForm = ({
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
-          <FormControl fullWidth variant="outlined">
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel>Gender</InputLabel>
             <Select
               name="gender"
@@ -847,6 +909,7 @@ const CustomerForm = ({
             name="phone"
             value={formData.phone}
             onChange={handleChange}
+            required
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -886,11 +949,7 @@ const CustomerForm = ({
         <Button variant="contained" color="primary" type="submit">
           Submit
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleClearForm} // Attach the handleClearForm function here
-        >
+        <Button variant="contained" color="secondary" onClick={handleClearForm}>
           Clear Form
         </Button>
       </Box>
