@@ -213,7 +213,7 @@ const SideBar = () => {
           />
           <Item
             title="Call Logs"
-            path="/qa"
+            path="/call-logs"
             colors={colors}
             icon={<CallReceivedOutlined />}
           />

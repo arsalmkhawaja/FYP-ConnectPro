@@ -59,7 +59,6 @@ const SideBar = () => {
 
     fetchAdminProfile();
   }, []);
-
   const handleLogout = () => {
     try {
       // Remove the authentication token from localStorage

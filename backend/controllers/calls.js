@@ -1,29 +1,78 @@
+const mongoose = require("mongoose");
 const Call = require("../models/Calls");
+const Agent = require("../models/Agents");
 
-// Create a new call
 exports.createCall = async (req, res) => {
   try {
-    const call = new Call(req.body);
-    await call.save();
-    res.status(201).json(call);
+    const {
+      phoneNumber,
+      form,
+      campaign,
+      duration,
+      sentiment,
+      disposition,
+      transcription,
+    } = req.body;
+
+    // Fetch the current agent profile using the agent ID from the token
+    const agentData = await Agent.findById(req.user.id);
+    if (!agentData) {
+      return res.status(404).json({ message: "Agent not found" });
+    }
+
+    // If form ID is provided, validate it; otherwise, set it to null
+    let formId = null;
+    if (form && mongoose.Types.ObjectId.isValid(form)) {
+      formId = form;
+    }
+
+    // Create the call using the validated agent, form (if available), and other data
+    const newCall = new Call({
+      phoneNumber,
+      agent: agentData._id, // Use the agent's ObjectId
+      form: formId, // Form might be null if not provided or invalid
+      campaign, // Campaign could be null or an ObjectId
+      duration,
+      sentiment,
+      disposition,
+      transcription,
+    });
+
+    await newCall.save();
+    res.status(201).json({ message: "Call saved successfully", newCall });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error saving call:", error);
+    res.status(500).json({ message: "Error saving call", error });
   }
 };
 
-// Get a call by ID
+// Get all calls
+exports.getAllCalls = async (req, res) => {
+  try {
+    const calls = await Call.find()
+      .populate("agent")
+      .populate("form")
+      .populate("campaign");
+
+    res.status(200).json(calls);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get a specific call by ID
 exports.getCallById = async (req, res) => {
   try {
     const call = await Call.findById(req.params.id)
-      .populate("form")
       .populate("agent")
+      .populate("form")
       .populate("campaign");
     if (!call) {
       return res.status(404).json({ message: "Call not found" });
     }
     res.status(200).json(call);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -32,14 +81,13 @@ exports.updateCall = async (req, res) => {
   try {
     const call = await Call.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true,
     });
     if (!call) {
       return res.status(404).json({ message: "Call not found" });
     }
     res.status(200).json(call);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -50,37 +98,26 @@ exports.deleteCall = async (req, res) => {
     if (!call) {
       return res.status(404).json({ message: "Call not found" });
     }
-    res.status(200).json({ message: "Call deleted successfully" });
+    res.status(200).json({ message: "Call deleted" });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
-
-// Get all calls
-exports.getAllCalls = async (req, res) => {
+exports.getCallsByAgent = async (req, res) => {
   try {
-    const calls = await Call.find()
-      .populate("form")
+    const agentId = req.params.agentId;
+
+    // Validate the agentId
+    if (!mongoose.Types.ObjectId.isValid(agentId)) {
+      return res.status(400).json({ message: "Invalid agent ID" });
+    }
+
+    const calls = await Call.find({ agent: agentId })
       .populate("agent")
       .populate("campaign");
     res.status(200).json(calls);
   } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
-
-// Find all calls made by a specific agent
-exports.getCallsByAgent = async (req, res) => {
-  try {
-    const agentId = req.params.agentId;
-    const calls = await Call.find({ agent: agentId })
-      .populate("form")
-      .populate("campaign");
-    if (calls.length === 0) {
-      return res.status(404).json({ message: "No calls found for this agent" });
-    }
-    res.status(200).json(calls);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error("Error fetching calls for agent:", error);
+    res.status(500).json({ message: "Error fetching calls for agent", error });
   }
 };

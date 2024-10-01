@@ -29,6 +29,15 @@ const CallCenterScreen = () => {
   const [timeoutId, setTimeoutId] = useState(null);
   const [confirmationText, setConfirmationText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [currentSale, setCurrentSale] = useState({
+    agent: { agentID: "", fullName: "" },
+    form: "",
+    campaign: "Default Campaign ID", // Replace with actual campaign ID
+    amount: "",
+    saleDate: new Date().toISOString(),
+    score: "",
+    sentiment: "Positive",
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -45,26 +54,34 @@ const CallCenterScreen = () => {
     comments: "",
   });
 
-  const handleFormChange = (updatedFormData) => {
-    setFormData(updatedFormData);
-  };
+  const [error, setError] = useState({ open: false, message: "" }); // State for error modal
 
-  const handleClearForm = () => {
-    setFormData({
-      title: "",
-      firstName: "",
-      lastName: "",
-      address: "",
-      city: "",
-      state: "",
-      postCode: "",
-      gender: "",
-      phone: "",
-      altPhone: "",
-      email: "",
-      comments: "",
-    });
-  };
+  const token = JSON.parse(localStorage.getItem("auth")) || "";
+
+  useEffect(() => {
+    const fetchAgentProfile = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/api/v1/agent", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const agentData = response.data.agent;
+        setCurrentSale((prevSale) => ({
+          ...prevSale,
+          agent: {
+            agentID: agentData._id, // Assuming you want to use the ObjectId as agentID
+            fullName: agentData.fullName,
+          },
+        }));
+      } catch (error) {
+        console.error("Error fetching agent profile:", error);
+        toast.error("Failed to fetch agent profile");
+      }
+    };
+
+    fetchAgentProfile();
+  }, [token]);
 
   useEffect(() => {
     if (window.Twilio) {
@@ -97,6 +114,27 @@ const CallCenterScreen = () => {
     initializeScripts();
   }, []);
 
+  const handleFormChange = (updatedFormData) => {
+    setFormData(updatedFormData);
+  };
+
+  const handleClearForm = () => {
+    setFormData({
+      title: "",
+      firstName: "",
+      lastName: "",
+      address: "",
+      city: "",
+      state: "",
+      postCode: "",
+      gender: "",
+      phone: "",
+      altPhone: "",
+      email: "",
+      comments: "",
+    });
+  };
+
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
@@ -117,6 +155,71 @@ const CallCenterScreen = () => {
 
   const handleCloseDisposition = () => {
     setShowDisposition(false);
+  };
+
+  const handleSaveSale = async () => {
+    if (!currentSale.amount) {
+      setError({
+        open: true,
+        message: "Sale amount is required to save the sale.",
+      });
+      return;
+    }
+    console.log(`Requesting form data for phone number: ${formData.phone}`);
+
+    try {
+      // Fetch form data based on the phone number
+      const formResponse = await axios.get(
+        `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const formDataFromServer = formResponse.data;
+
+      if (!formDataFromServer || !formDataFromServer.formId) {
+        setError({
+          open: true,
+          message: "Form not found for the provided phone number.",
+        });
+        return;
+      }
+
+      // Update the sale with form ID and save the sale
+      const updatedSale = {
+        ...currentSale,
+        form: formDataFromServer.formId, // Assign only the form ID
+        campaign: currentSale.campaign || null, // Handle campaign as null if not provided
+      };
+
+      console.log("Updated Sale Data:", updatedSale);
+
+      // Now save the sale
+      const saleResponse = await axios.post(
+        "http://localhost:4000/api/v4/sales",
+        updatedSale,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Sale saved successfully");
+      console.log("Sale saved successfully:", saleResponse.data);
+    } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to save sale. Please check the fields and try again.",
+      });
+      console.error(
+        "Error saving sale:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -280,8 +383,9 @@ const CallCenterScreen = () => {
                   <CustomerForm
                     formData={formData}
                     onFormChange={handleFormChange}
-                    handleClearForm={handleClearForm} // Pass handleClearForm here for Automatic Dial
+                    handleClearForm={handleClearForm}
                     twoColumns
+                    setError={setError} // Pass setError to handle errors in form submission
                   />
                 </Paper>
               </Grid>
@@ -345,7 +449,12 @@ const CallCenterScreen = () => {
             borderRadius: 2,
           }}
         >
-          <DispositionModal onClose={handleCloseDisposition} />
+          <DispositionModal
+            onClose={handleCloseDisposition}
+            onSaveSale={handleSaveSale}
+            currentSale={currentSale}
+            setCurrentSale={setCurrentSale}
+          />
         </Box>
       </Modal>
 
@@ -369,8 +478,173 @@ const CallCenterScreen = () => {
           />
         </Box>
       </Modal>
+
+      <ErrorModal
+        open={error.open}
+        onClose={() => setError({ ...error, open: false })}
+        errorMessage={error.message}
+      />
     </Container>
   );
+};
+
+const ErrorModal = ({ open, onClose, errorMessage }) => {
+  return (
+    <Modal open={open} onClose={onClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+      >
+        <Paper sx={{ padding: 3, borderRadius: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Error
+          </Typography>
+          <Typography variant="body1">{errorMessage}</Typography>
+          <Box
+            sx={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}
+          >
+            <Button variant="contained" color="primary" onClick={onClose}>
+              Close
+            </Button>
+          </Box>
+        </Paper>
+      </Box>
+    </Modal>
+  );
+};
+
+const DispositionModal = ({
+  onClose,
+  onSaveSale,
+  currentSale,
+  setCurrentSale,
+}) => {
+  const [checkedItems, setCheckedItems] = useState({
+    A: false,
+    B: false,
+    CALLBK: false,
+    DC: false,
+    DEC: false,
+    DNC: false,
+    N: false,
+    NI: false,
+    NP: false,
+    SALE: false,
+    XFER: false,
+  });
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setCheckedItems((prevState) => ({ ...prevState, [name]: checked }));
+  };
+
+  const handleSaleAmountChange = (e) => {
+    setCurrentSale((prevSale) => ({
+      ...prevSale,
+      amount: e.target.value,
+    }));
+  };
+
+  const handleSubmit = () => {
+    const isAnyChecked = Object.values(checkedItems).some((item) => item);
+    if (isAnyChecked) {
+      if (checkedItems.SALE) {
+        onSaveSale();
+      } else {
+        onClose();
+      }
+    } else {
+      alert("Please select at least one option before submitting.");
+    }
+  };
+
+  const handleClearDispositionForm = () => {
+    setCheckedItems({
+      A: false,
+      B: false,
+      CALLBK: false,
+      DC: false,
+      DEC: false,
+      DNC: false,
+      N: false,
+      NI: false,
+      NP: false,
+      SALE: false,
+      XFER: false,
+    });
+  };
+
+  return (
+    <Paper sx={{ padding: 3, borderRadius: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        CALL DISPOSITION
+      </Typography>
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        {Object.keys(checkedItems).map((key) => (
+          <FormControlLabel
+            key={key}
+            control={
+              <Checkbox
+                checked={checkedItems[key]}
+                onChange={handleCheckboxChange}
+                name={key}
+              />
+            }
+            label={getLabel(key)}
+          />
+        ))}
+      </Box>
+      {checkedItems.SALE && (
+        <TextField
+          label="Sale Amount"
+          variant="outlined"
+          fullWidth
+          value={currentSale.amount}
+          onChange={handleSaleAmountChange}
+          sx={{ marginTop: 2 }}
+        />
+      )}
+      <Box
+        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
+      >
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleClearDispositionForm}
+        >
+          Clear Form
+        </Button>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </Box>
+    </Paper>
+  );
+};
+
+const getLabel = (key) => {
+  const labels = {
+    A: "Answering Machine",
+    B: "Busy",
+    CALLBK: "Call Back",
+    DC: "Disconnected Number",
+    DEC: "Declined Sale",
+    DNC: "DO NOT CALL",
+    N: "No Answer",
+    NI: "Not Interested",
+    NP: "No Pitch No Price",
+    SALE: "Sale Made",
+    XFER: "Call Transferred",
+  };
+  return labels[key];
 };
 
 const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
@@ -478,6 +752,7 @@ const CustomerForm = ({
   onFormChange,
   handleClearForm,
   twoColumns,
+  setError, // Pass setError from the parent component to display errors
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -491,7 +766,11 @@ const CustomerForm = ({
     e.preventDefault();
 
     if (!formData.firstName || !formData.phone || !formData.gender) {
-      toast.error("Please fill in all required fields.");
+      setError({
+        open: true,
+        message:
+          "Please fill in all required fields (First Name, Phone, Gender).",
+      });
       return;
     }
 
@@ -524,8 +803,11 @@ const CustomerForm = ({
       toast.success("Form submitted successfully");
       console.log("Form submitted successfully:", response.data);
     } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to submit form. Please try again.",
+      });
       console.error("Error submitting form:", error.response?.data || error);
-      toast.error("Failed to submit form. Please try again.");
     }
   };
 
@@ -540,6 +822,12 @@ const CustomerForm = ({
             name="title"
             value={formData.title}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -550,6 +838,13 @@ const CustomerForm = ({
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
+            required
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -560,6 +855,12 @@ const CustomerForm = ({
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -570,6 +871,12 @@ const CustomerForm = ({
             name="address"
             value={formData.address}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -580,6 +887,12 @@ const CustomerForm = ({
             name="city"
             value={formData.city}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -590,6 +903,12 @@ const CustomerForm = ({
             name="state"
             value={formData.state}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -600,16 +919,28 @@ const CustomerForm = ({
             name="postCode"
             value={formData.postCode}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
-          <FormControl fullWidth variant="outlined">
+          <FormControl fullWidth variant="outlined" required>
             <InputLabel>Gender</InputLabel>
             <Select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
               label="Gender"
+              sx={{
+                color: "text.primary",
+                "& .MuiInputBase-input": {
+                  color: "text.primary",
+                },
+              }}
             >
               <MenuItem value="">Select Gender</MenuItem>
               <MenuItem value="M">Male</MenuItem>
@@ -626,6 +957,13 @@ const CustomerForm = ({
             name="phone"
             value={formData.phone}
             onChange={handleChange}
+            required
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -636,6 +974,12 @@ const CustomerForm = ({
             name="altPhone"
             value={formData.altPhone}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={twoColumns ? 6 : 12}>
@@ -646,6 +990,12 @@ const CustomerForm = ({
             name="email"
             value={formData.email}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -656,6 +1006,12 @@ const CustomerForm = ({
             name="comments"
             value={formData.comments}
             onChange={handleChange}
+            sx={{
+              color: "text.primary",
+              "& .MuiInputBase-input": {
+                color: "text.primary",
+              },
+            }}
           />
         </Grid>
       </Grid>
@@ -665,116 +1021,12 @@ const CustomerForm = ({
         <Button variant="contained" color="primary" type="submit">
           Submit
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleClearForm} // Attach the handleClearForm function here
-        >
+        <Button variant="contained" color="secondary" onClick={handleClearForm}>
           Clear Form
         </Button>
       </Box>
     </form>
   );
-};
-
-const DispositionModal = ({ onClose }) => {
-  const [checkedItems, setCheckedItems] = useState({
-    A: false,
-    B: false,
-    CALLBK: false,
-    DC: false,
-    DEC: false,
-    DNC: false,
-    N: false,
-    NI: false,
-    NP: false,
-    SALE: false,
-    XFER: false,
-  });
-
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setCheckedItems((prevState) => ({ ...prevState, [name]: checked }));
-  };
-
-  const handleSubmit = () => {
-    const isAnyChecked = Object.values(checkedItems).some((item) => item);
-    if (isAnyChecked) {
-      onClose();
-    } else {
-      alert("Please select at least one option before submitting.");
-    }
-  };
-
-  const handleClearDispositionForm = () => {
-    setCheckedItems({
-      A: false,
-      B: false,
-      CALLBK: false,
-      DC: false,
-      DEC: false,
-      DNC: false,
-      N: false,
-      NI: false,
-      NP: false,
-      SALE: false,
-      XFER: false,
-    });
-  };
-
-  return (
-    <Paper sx={{ padding: 3, borderRadius: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        CALL DISPOSITION
-      </Typography>
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        {Object.keys(checkedItems).map((key) => (
-          <FormControlLabel
-            key={key}
-            control={
-              <Checkbox
-                checked={checkedItems[key]}
-                onChange={handleCheckboxChange}
-                name={key}
-              />
-            }
-            label={getLabel(key)}
-          />
-        ))}
-      </Box>
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
-      >
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleClearDispositionForm}
-        >
-          Clear Form
-        </Button>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Box>
-    </Paper>
-  );
-};
-
-const getLabel = (key) => {
-  const labels = {
-    A: "Answering Machine",
-    B: "Busy",
-    CALLBK: "Call Back",
-    DC: "Disconnected Number",
-    DEC: "Declined Sale",
-    DNC: "DO NOT CALL",
-    N: "No Answer",
-    NI: "Not Interested",
-    NP: "No Pitch No Price",
-    SALE: "Sale Made",
-    XFER: "Call Transferred",
-  };
-  return labels[key];
 };
 
 export default CallCenterScreen;

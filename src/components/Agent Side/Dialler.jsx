@@ -157,6 +157,7 @@ const CallCenterScreen = () => {
     setShowDisposition(false);
   };
 
+  // Function to save the sale
   const handleSaveSale = async () => {
     if (!currentSale.amount) {
       setError({
@@ -217,6 +218,42 @@ const CallCenterScreen = () => {
       });
       console.error(
         "Error saving sale:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  // New function to save the call
+  const handleSaveCall = async (dispositionSelected) => {
+    const callData = {
+      phoneNumber: formData.phone,
+      form: currentSale.form,
+      agent: currentSale.agent.agentID,
+      duration: 120, // Example duration, replace with actual duration
+      sentiment: currentSale.sentiment,
+      disposition: dispositionSelected,
+      campaign: currentSale.campaign || null,
+      transcription: "Call transcription text", // Replace with actual transcription if available
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/v5/calls",
+        callData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Ensure token is valid
+          },
+        }
+      );
+      toast.success("Call saved successfully");
+    } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to save call. Please try again.",
+      });
+      console.error(
+        "Error saving call:",
         error.response?.data || error.message
       );
     }
@@ -427,6 +464,7 @@ const CallCenterScreen = () => {
                       onFormChange={handleFormChange}
                       handleClearForm={handleClearForm} // Pass handleClearForm here for Manual Dial
                       twoColumns
+                      setError={setError}
                     />
                   </Box>
                 </Paper>
@@ -436,6 +474,7 @@ const CallCenterScreen = () => {
         </Box>
       </Box>
 
+      {/* Disposition Modal */}
       <Modal open={showDisposition} onClose={handleCloseDisposition}>
         <Box
           sx={{
@@ -452,12 +491,17 @@ const CallCenterScreen = () => {
           <DispositionModal
             onClose={handleCloseDisposition}
             onSaveSale={handleSaveSale}
+            onSaveCall={handleSaveCall}
             currentSale={currentSale}
             setCurrentSale={setCurrentSale}
+            formData={formData}
+            token={token}
+            setError={setError}
           />
         </Box>
       </Modal>
 
+      {/* Confirmation Modal */}
       <Modal open={showConfirmation} onClose={() => setShowConfirmation(false)}>
         <Box
           sx={{
@@ -479,6 +523,7 @@ const CallCenterScreen = () => {
         </Box>
       </Modal>
 
+      {/* Error Modal */}
       <ErrorModal
         open={error.open}
         onClose={() => setError({ ...error, open: false })}
@@ -488,6 +533,7 @@ const CallCenterScreen = () => {
   );
 };
 
+// Error Modal Component
 const ErrorModal = ({ open, onClose, errorMessage }) => {
   return (
     <Modal open={open} onClose={onClose}>
@@ -521,11 +567,16 @@ const ErrorModal = ({ open, onClose, errorMessage }) => {
   );
 };
 
+// Disposition Modal Component
 const DispositionModal = ({
   onClose,
   onSaveSale,
+  onSaveCall,
   currentSale,
   setCurrentSale,
+  formData,
+  token,
+  setError,
 }) => {
   const [checkedItems, setCheckedItems] = useState({
     A: false,
@@ -553,17 +604,90 @@ const DispositionModal = ({
     }));
   };
 
-  const handleSubmit = () => {
-    const isAnyChecked = Object.values(checkedItems).some((item) => item);
-    if (isAnyChecked) {
-      if (checkedItems.SALE) {
-        onSaveSale();
-      } else {
-        onClose();
+  // Function to handle saving the call
+  const handleSaveCall = async (dispositionSelected) => {
+    console.log(`Requesting form data for phone number: ${formData.phone}`);
+
+    try {
+      // Fetch form data based on the phone number
+      const formResponse = await axios.get(
+        `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const formDataFromServer = formResponse.data;
+
+      if (!formDataFromServer || !formDataFromServer.formId) {
+        setError({
+          open: true,
+          message: "Form not found for the provided phone number.",
+        });
+        return;
       }
-    } else {
-      alert("Please select at least one option before submitting.");
+
+      // Update the call with form ID and agent data and save the call
+      const updatedCall = {
+        phoneNumber: formData.phone,
+        form: formDataFromServer.formId || null, // Assign form ID if it exists, otherwise null
+        agent: currentSale.agent.agentID, // Use the agent's ID from currentSale
+        campaign: currentSale.campaign || null, // Handle campaign as null if not provided
+        duration: 120, // Replace with actual call duration
+        sentiment: currentSale.sentiment,
+        disposition: dispositionSelected, // The selected disposition
+        transcription: "Call transcription text", // Replace with actual transcription if available
+      };
+
+      console.log("Updated Call Data:", updatedCall);
+
+      // Now save the call
+      const callResponse = await axios.post(
+        "http://localhost:4000/api/v5/calls",
+        updatedCall,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Call saved successfully");
+      console.log("Call saved successfully:", callResponse.data);
+    } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to save call. Please check the fields and try again.",
+      });
+      console.error(
+        "Error saving call:",
+        error.response?.data || error.message
+      );
     }
+  }; 
+
+  // Handle Submit
+  const handleSubmit = async () => {
+    const selectedDispositions = Object.keys(checkedItems).filter(
+      (key) => checkedItems[key]
+    );
+
+    if (selectedDispositions.length === 0) {
+      alert("Please select at least one option before submitting.");
+      return;
+    }
+
+    // Save the call
+    await onSaveCall(selectedDispositions.join(", "));
+
+    // If SALE is selected, save the sale
+    if (checkedItems.SALE) {
+      await onSaveSale();
+    }
+
+    onClose();
   };
 
   const handleClearDispositionForm = () => {
@@ -580,6 +704,10 @@ const DispositionModal = ({
       SALE: false,
       XFER: false,
     });
+    setCurrentSale((prevSale) => ({
+      ...prevSale,
+      amount: "",
+    }));
   };
 
   return (
@@ -630,6 +758,7 @@ const DispositionModal = ({
   );
 };
 
+// Helper function to get labels
 const getLabel = (key) => {
   const labels = {
     A: "Answering Machine",
@@ -647,6 +776,7 @@ const getLabel = (key) => {
   return labels[key];
 };
 
+// Confirmation Modal Component
 const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
   return (
     <Paper sx={{ padding: 3, borderRadius: 2 }}>
@@ -667,6 +797,7 @@ const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
   );
 };
 
+// Dialer Component
 const Dialer = ({ handleHangup }) => {
   const [dialerInput, setDialerInput] = useState("");
 
@@ -747,6 +878,7 @@ const Dialer = ({ handleHangup }) => {
   );
 };
 
+// Customer Form Component
 const CustomerForm = ({
   formData,
   onFormChange,

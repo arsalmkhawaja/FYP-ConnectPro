@@ -63,7 +63,7 @@ def display_sentiment_results(sentiment_results, option):
         if option == "Sentiment Only":
             sentiment_text += f"{sentiment} {emoji}\n"
         elif option == "Sentiment + Score":
-            sentiment_text += f"{sentiment} {emoji}: {score}\n"
+            sentiment_text += f"{sentiment} {emoji}: {score*100}\n"
     return sentiment_text
 
 @app.route('/inference', methods=['POST'])

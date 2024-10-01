@@ -1,30 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const {
-  createCall,
-  getCallById,
-  updateCall,
-  deleteCall,
-  getAllCalls,
-  getCallsByAgent,
-} = require("../controllers/calls");
+const callController = require("../controllers/calls");
+const authMiddleware = require("../middleware/auth"); // Assuming you have authentication middleware
 
 // Route to create a new call
-router.post("/", createCall);
-
-// Route to get a call by its ID
-router.get("/:id", getCallById);
-
-// Route to update a call by its ID
-router.put("/:id", updateCall);
-
-// Route to delete a call by its ID
-router.delete("/:id", deleteCall);
+router.post("/calls", authMiddleware, callController.createCall);
 
 // Route to get all calls
-router.get("/", getAllCalls);
+router.get("/calls", authMiddleware, callController.getAllCalls);
 
-// Route to get all calls made by a specific agent
-router.get("/agent/:agentId", getCallsByAgent);
+// Route to get a specific call by ID
+router.get("/calls/:id", authMiddleware, callController.getCallById);
+
+// Route to update a call by ID
+router.put("/calls/:id", authMiddleware, callController.updateCall);
+
+// Route to delete a call by ID
+router.delete("/calls/:id", authMiddleware, callController.deleteCall);
+
+router.get("/agent/:id", authMiddleware, callController.getCallsByAgent);
 
 module.exports = router;

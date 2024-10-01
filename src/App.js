@@ -11,7 +11,7 @@ import AgentAnalyticsDashboard from "./components/Admin Side/Analytics";
 import AudioSentiment from "./components/Admin Side/QA";
 import DialingScreen from "./components/Agent Side/Dialler";
 import AgentHome from "./components/Agent Side/AgentHome";
-// import CallCenterScreen from "./components/Agent Side/Dialler2";
+import CallLogs from "./components/Agent Side/CallLogs";
 import CallCenterScreen from "./components/Agent Side/Dialler";
 import AgentLayout from "./components/Agent Side/AgentLayout/AgentLayout";
 import AgentAnalytics from "./components/Agent Side/AgentAnalytics";
@@ -53,6 +53,9 @@ const App = () => {
         </Route>
         <Route path="/agent-analytics" element={<AgentLayout />}>
           <Route index element={<AgentAnalytics loggedInAgent={"haris"} />} />
+        </Route>
+        <Route path="/call-logs" element={<AgentLayout />}>
+          <Route index element={<CallLogs/>} />
         </Route>
       </Routes>
     </Router>

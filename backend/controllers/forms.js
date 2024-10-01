@@ -43,6 +43,7 @@ exports.updateForm = async (req, res) => {
     const form = await Form.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+    
     if (form == null) {
       return res.status(404).json({ message: "Form not found" });
     }

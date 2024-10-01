@@ -2,15 +2,15 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const CallSchema = new Schema({
-  phoneNumber: { type: String, required: true },
-  form: { type: Schema.Types.ObjectId, ref: "Form", required: true }, // Refers to the associated form
-  agent: { type: Schema.Types.ObjectId, ref: "Agent", required: true }, // Refers to the agent handling the call
-  date: { type: Date, default: Date.now }, // The date and time of the call
-  duration: { type: Number, required: true }, // Duration of the call in seconds or minutes
-  sentiment: { type: String, required: false }, // Sentiment analysis result for the call
-  disposition: { type: String, required: true }, // Disposition after the call, such as 'Sale', 'No Sale', etc.
-  campaign: { type: Schema.Types.Mixed, required: false }, // Allows storing a string or ObjectId for the campaign
-  transcription: { type: String, required: false }, // Text transcription of the call
+  phoneNumber: { type: String, required: true },  // Phone number of the call
+  form: { type: Schema.Types.ObjectId, ref: "Form", required: false }, // Form can be optional
+  agent: { type: Schema.Types.ObjectId, ref: "Agent", required: true }, // Agent handling the call
+  campaign: { type: Schema.Types.Mixed, required: false },  // Campaign ID (can be a string or ObjectId)
+  duration: { type: Number, required: true },  // Duration of the call
+  date: { type: Date, default: Date.now },  // Date of the call
+  sentiment: { type: String, required: false },  // Sentiment of the call
+  disposition: { type: String, required: true },  // Call disposition (e.g., SALE, NO ANSWER)
+  transcription: { type: String, required: false },  // Transcription of the call
 });
 
 module.exports = mongoose.model("Call", CallSchema);
