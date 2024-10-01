@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "../../../theme";
 import Navbar from "./Navbar";
-import SideBar from "./sidebar/Sidebar"; // Import the SideBar component
+import SideBar from "./sidebar/Sidebar";
 import { Outlet } from "react-router-dom";
 
-export const ToggledContext = React.createContext(null); // Export the context
+export const ToggledContext = React.createContext(null);
 
 const AdminLayout = () => {
   const [theme, colorMode] = useMode();
@@ -18,14 +18,20 @@ const AdminLayout = () => {
         <CssBaseline />
         <ToggledContext.Provider value={values}>
           <Box sx={{ position: "relative", height: "100vh", width: "100vw" }}>
-            {/* Navbar positioned at the top with a lower z-index */}
-            <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1,
+              }}
+            >
               <Navbar />
             </Box>
-            {/* Sidebar positioned above the navbar */}
             <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
               <Box sx={{ zIndex: 2, position: "relative" }}>
-                <SideBar /> {/* Include the SideBar below the Navbar */}
+                <SideBar />
               </Box>
               <Box
                 sx={{
@@ -41,7 +47,7 @@ const AdminLayout = () => {
                     overflowY: "auto",
                     flex: 1,
                     maxWidth: "100%",
-                    mt: "60px", // Adjust content positioning to account for Navbar height
+                    mt: "60px",
                   }}
                 >
                   <Outlet />

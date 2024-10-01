@@ -1,10 +1,5 @@
 import React, { useContext } from "react";
-import {
-  Box,
-  IconButton,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import { tokens, ColorModeContext } from "../../../theme";
 import {
   DarkModeOutlined,
@@ -35,7 +30,7 @@ const Navbar = () => {
         right: 0,
         zIndex: 1100,
         backgroundColor: theme.palette.background.default,
-        // boxShadow: "0 2px 4px rgba(0,0,0,0.1)", // Removed the boxShadow
+        // boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
       }}
     >
       <Box display="flex" alignItems="center" gap={2}>

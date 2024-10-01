@@ -10,7 +10,6 @@ const AgentAnalyticsDashboard = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
   useEffect(() => {
-    // Check if token exists and redirect if not
     if (!token) {
       toast.warn("Please login first to access the dashboard");
       navigate("/login");
@@ -107,7 +106,6 @@ const AgentAnalyticsDashboard = () => {
       setChartData(newAgentChartData);
       setComparisonData(newComparisonChartData);
 
-      // Set additional data if not in overall comparison mode
       if (selectedAgent !== "Overall Comparison") {
         setTotalCalls(agentsdata[selectedAgent].totalCalls);
         setCallDisposition(agentsdata[selectedAgent].callDisposition);
@@ -162,20 +160,20 @@ const AgentAnalyticsDashboard = () => {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        textAlign: "center", // Background color for the full div
-        width: "100%", // Full width
+        textAlign: "center",
+        width: "100%", 
         padding: "20px",
         paddingTop: "80px",
       }}
     >
       <div
         style={{
-          backgroundColor: colors.primary[400], // Background for the content wrapper
+          backgroundColor: colors.primary[400], 
           padding: "20px",
-          width: "120%", // Control the width here
-          maxWidth: "1200px", // Optional, set a max width
-          margin: "0 auto", // Center horizontally
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Optional, for better styling
+          width: "120%", 
+          maxWidth: "1200px",
+          margin: "0 auto",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
           borderRadius: "10px",
         }}
       >

@@ -88,7 +88,6 @@ const Dashboard = () => {
           gridAutoRows="140px"
           gap="20px"
         >
-          {/* Statistic Items */}
           <Box
             gridColumn="span 6"
             bgcolor={colors.primary[400]}
@@ -128,7 +127,6 @@ const Dashboard = () => {
             />
           </Box>
 
-          {/* Line Chart */}
           <Box
             gridColumn={
               isXlDevices ? "span 12" : isMdDevices ? "span 8" : "span 6"

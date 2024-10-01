@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 
-// Register chart components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const CampaignsManager = () => {
@@ -31,7 +30,6 @@ const CampaignsManager = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  // Retrieve token from storage
   const token = JSON.parse(localStorage.getItem("auth")) || "";
 
   useEffect(() => {
@@ -69,7 +67,7 @@ const CampaignsManager = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(response.data.data); // Check the structure of the response
+      console.log(response.data.data);
       setAgents(response.data.data);
     } catch (error) {
       console.error("Error fetching agents:", error);
@@ -306,7 +304,7 @@ const CampaignsManager = () => {
           style={{
             marginRight: "10px",
             padding: "10px 20px",
-            backgroundColor: colors.greenAccent[500], // Use theme color for button
+            backgroundColor: colors.greenAccent[500],
             color: "white",
             border: "none",
             borderRadius: "5px",
@@ -324,10 +322,7 @@ const CampaignsManager = () => {
           datasets: [
             {
               data: [campaign.sales, campaign.targetSales - campaign.sales],
-              backgroundColor: [
-                "rgba(54,162,235,0.5)", // Use theme color for chart
-                "rgba(255,99,132,0.5)", // Use theme color for chart
-              ],
+              backgroundColor: ["rgba(54,162,235,0.5)", "rgba(255,99,132,0.5)"],
             },
           ],
         };
@@ -340,11 +335,11 @@ const CampaignsManager = () => {
               flexDirection: "row",
               justifyContent: "space-between",
               width: "80%",
-              backgroundColor: colors.primary[400], // Apply theme background color
+              backgroundColor: colors.primary[400],
               borderRadius: "10px",
               padding: "20px",
               marginBottom: "20px",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.5)", // Add box shadow for depth
+              boxShadow: "0 4px 8px rgba(0,0,0,0.5)",
             }}
           >
             <div style={{ flex: 1, paddingLeft: "200px" }}>
@@ -366,7 +361,7 @@ const CampaignsManager = () => {
                 style={{
                   marginBottom: "10px",
                   padding: "10px 20px",
-                  backgroundColor: colors.blueAccent[600], // Use theme color for button
+                  backgroundColor: colors.blueAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -380,7 +375,7 @@ const CampaignsManager = () => {
                 style={{
                   marginBottom: "10px",
                   padding: "10px 20px",
-                  backgroundColor: colors.greenAccent[500], // Use theme color for button
+                  backgroundColor: colors.greenAccent[500],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -394,7 +389,7 @@ const CampaignsManager = () => {
                 style={{
                   marginBottom: "10px",
                   padding: "10px 20px",
-                  backgroundColor: colors.blueAccent[600], // Use theme color for button
+                  backgroundColor: colors.blueAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -408,7 +403,7 @@ const CampaignsManager = () => {
                 style={{
                   marginBottom: "10px",
                   padding: "10px 20px",
-                  backgroundColor: colors.redAccent[600], // Use theme color for button
+                  backgroundColor: colors.redAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -421,7 +416,7 @@ const CampaignsManager = () => {
               <button
                 style={{
                   padding: "10px 20px",
-                  backgroundColor: colors.redAccent[600], // Use theme color for button
+                  backgroundColor: colors.redAccent[600],
                   color: "white",
                   border: "none",
                   borderRadius: "5px",
@@ -443,7 +438,6 @@ const CampaignsManager = () => {
         );
       })}
 
-      {/* Modal for Editing/Adding Campaign */}
       {modalVisible && (
         <div
           style={{
@@ -465,7 +459,7 @@ const CampaignsManager = () => {
               borderRadius: "10px",
               width: "400px",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : "inherit", // Set text color based on mode
+              color: theme.palette.mode === "dark" ? "black" : "inherit",
             }}
           >
             <h2>{selectedCampaign ? "Edit Campaign" : "Add Campaign"}</h2>
@@ -482,7 +476,7 @@ const CampaignsManager = () => {
               value={sales}
               onChange={(e) =>
                 setSales(e.target.value === "" ? "" : Number(e.target.value))
-              } // Modified to handle empty string
+              }
               style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
             />
 
@@ -494,14 +488,14 @@ const CampaignsManager = () => {
                 setTargetSales(
                   e.target.value === "" ? "" : Number(e.target.value)
                 )
-              } // Modified to handle empty string
+              }
               style={{ width: "100%", padding: "10px", marginBottom: "20px" }}
             />
 
             <button
               style={{
                 padding: "10px 20px",
-                backgroundColor: colors.greenAccent[500], // Use theme color for button
+                backgroundColor: colors.greenAccent[500],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -515,7 +509,7 @@ const CampaignsManager = () => {
               style={{
                 marginLeft: "10px",
                 padding: "10px 20px",
-                backgroundColor: colors.redAccent[600], // Use theme color for button
+                backgroundColor: colors.redAccent[600],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -529,7 +523,6 @@ const CampaignsManager = () => {
         </div>
       )}
 
-      {/* Modal for Adding Agent */}
       {addAgentVisible && (
         <div
           style={{
@@ -551,7 +544,7 @@ const CampaignsManager = () => {
               borderRadius: "10px",
               width: "400px",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : "inherit", // Set text color based on mode
+              color: theme.palette.mode === "dark" ? "black" : "inherit",
             }}
           >
             <h2>Add Agent to Campaign</h2>
@@ -565,7 +558,7 @@ const CampaignsManager = () => {
             <button
               style={{
                 padding: "10px 20px",
-                backgroundColor: colors.greenAccent[500], // Use theme color for button
+                backgroundColor: colors.greenAccent[500],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -579,7 +572,7 @@ const CampaignsManager = () => {
               style={{
                 marginLeft: "10px",
                 padding: "10px 20px",
-                backgroundColor: colors.redAccent[600], // Use theme color for button
+                backgroundColor: colors.redAccent[600],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -593,7 +586,6 @@ const CampaignsManager = () => {
         </div>
       )}
 
-      {/* Modal for Viewing Agents */}
       {viewAgentsVisible && (
         <div
           style={{
@@ -615,7 +607,7 @@ const CampaignsManager = () => {
               borderRadius: "10px",
               width: "400px",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : "inherit", // Set text color based on mode
+              color: theme.palette.mode === "dark" ? "black" : "inherit", 
             }}
           >
             <h2>Agents in {selectedCampaign?.name}</h2>
@@ -711,7 +703,6 @@ const CampaignsManager = () => {
         </div>
       )}
 
-      {/* Modal for Removing Agent */}
       {removeAgentVisible && (
         <div
           style={{
@@ -733,7 +724,7 @@ const CampaignsManager = () => {
               borderRadius: "10px",
               width: "400px",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : colors.gray[900], // Set text color based on mode
+              color: theme.palette.mode === "dark" ? "black" : colors.gray[900], 
             }}
           >
             <h2>Remove Agent from Campaign</h2>
@@ -747,7 +738,7 @@ const CampaignsManager = () => {
             <button
               style={{
                 padding: "10px 20px",
-                backgroundColor: colors.redAccent[600], // Use theme color for button
+                backgroundColor: colors.redAccent[600], 
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -761,7 +752,7 @@ const CampaignsManager = () => {
               style={{
                 marginLeft: "10px",
                 padding: "10px 20px",
-                backgroundColor: colors.redAccent[600], // Use theme color for button
+                backgroundColor: colors.redAccent[600], 
                 color: "white",
                 border: "none",
                 borderRadius: "5px",

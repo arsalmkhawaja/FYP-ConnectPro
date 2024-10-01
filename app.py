@@ -1,14 +1,13 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS 
 import whisper
 from transformers import pipeline
 import os
 import tempfile
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app) 
 
-# Load models
 model = whisper.load_model("base")
 sentiment_analysis = pipeline(
     "sentiment-analysis",
@@ -74,13 +73,11 @@ def inference():
     audio_file = request.files['audio']
     sentiment_option = request.form.get('sentimentOption', 'Sentiment Only')
 
-    # Create a temporary file to save the uploaded audio
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
         audio_file.save(temp_file.name)
         temp_file_path = temp_file.name
 
     try:
-        # Process the audio file
         audio = whisper.load_audio(temp_file_path)
         audio = whisper.pad_or_trim(audio)
         mel = whisper.log_mel_spectrogram(audio).to(model.device)
@@ -98,7 +95,6 @@ def inference():
             'sentiment': sentiment_output
         })
     finally:
-        # Clean up the temporary file
         os.remove(temp_file_path)
 
 if __name__ == '__main__':

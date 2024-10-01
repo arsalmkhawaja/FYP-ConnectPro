@@ -32,7 +32,7 @@ const CallCenterScreen = () => {
   const [currentSale, setCurrentSale] = useState({
     agent: { agentID: "", fullName: "" },
     form: "",
-    campaign: "Default Campaign ID", // Replace with actual campaign ID
+    campaign: "Default Campaign ID",
     amount: "",
     saleDate: new Date().toISOString(),
     score: "",
@@ -54,7 +54,7 @@ const CallCenterScreen = () => {
     comments: "",
   });
 
-  const [error, setError] = useState({ open: false, message: "" }); // State for error modal
+  const [error, setError] = useState({ open: false, message: "" });
 
   const token = JSON.parse(localStorage.getItem("auth")) || "";
 
@@ -70,7 +70,7 @@ const CallCenterScreen = () => {
         setCurrentSale((prevSale) => ({
           ...prevSale,
           agent: {
-            agentID: agentData._id, // Assuming you want to use the ObjectId as agentID
+            agentID: agentData._id,
             fullName: agentData.fullName,
           },
         }));
@@ -169,7 +169,6 @@ const CallCenterScreen = () => {
     console.log(`Requesting form data for phone number: ${formData.phone}`);
 
     try {
-      // Fetch form data based on the phone number
       const formResponse = await axios.get(
         `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
         {
@@ -189,16 +188,14 @@ const CallCenterScreen = () => {
         return;
       }
 
-      // Update the sale with form ID and save the sale
       const updatedSale = {
         ...currentSale,
-        form: formDataFromServer.formId, // Assign only the form ID
-        campaign: currentSale.campaign || null, // Handle campaign as null if not provided
+        form: formDataFromServer.formId,
+        campaign: currentSale.campaign || null,
       };
 
       console.log("Updated Sale Data:", updatedSale);
 
-      // Now save the sale
       const saleResponse = await axios.post(
         "http://localhost:4000/api/v4/sales",
         updatedSale,
@@ -223,17 +220,16 @@ const CallCenterScreen = () => {
     }
   };
 
-  // New function to save the call
   const handleSaveCall = async (dispositionSelected) => {
     const callData = {
       phoneNumber: formData.phone,
       form: currentSale.form,
       agent: currentSale.agent.agentID,
-      duration: 120, // Example duration, replace with actual duration
+      duration: 120,
       sentiment: currentSale.sentiment,
       disposition: dispositionSelected,
       campaign: currentSale.campaign || null,
-      transcription: "Call transcription text", // Replace with actual transcription if available
+      transcription: "Call transcription text",
     };
 
     try {
@@ -242,7 +238,7 @@ const CallCenterScreen = () => {
         callData,
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Ensure token is valid
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -422,7 +418,7 @@ const CallCenterScreen = () => {
                     onFormChange={handleFormChange}
                     handleClearForm={handleClearForm}
                     twoColumns
-                    setError={setError} // Pass setError to handle errors in form submission
+                    setError={setError}
                   />
                 </Paper>
               </Grid>
@@ -462,7 +458,7 @@ const CallCenterScreen = () => {
                     <CustomerForm
                       formData={formData}
                       onFormChange={handleFormChange}
-                      handleClearForm={handleClearForm} // Pass handleClearForm here for Manual Dial
+                      handleClearForm={handleClearForm}
                       twoColumns
                       setError={setError}
                     />
@@ -474,7 +470,6 @@ const CallCenterScreen = () => {
         </Box>
       </Box>
 
-      {/* Disposition Modal */}
       <Modal open={showDisposition} onClose={handleCloseDisposition}>
         <Box
           sx={{
@@ -501,7 +496,6 @@ const CallCenterScreen = () => {
         </Box>
       </Modal>
 
-      {/* Confirmation Modal */}
       <Modal open={showConfirmation} onClose={() => setShowConfirmation(false)}>
         <Box
           sx={{
@@ -523,7 +517,6 @@ const CallCenterScreen = () => {
         </Box>
       </Modal>
 
-      {/* Error Modal */}
       <ErrorModal
         open={error.open}
         onClose={() => setError({ ...error, open: false })}
@@ -533,7 +526,6 @@ const CallCenterScreen = () => {
   );
 };
 
-// Error Modal Component
 const ErrorModal = ({ open, onClose, errorMessage }) => {
   return (
     <Modal open={open} onClose={onClose}>
@@ -567,7 +559,6 @@ const ErrorModal = ({ open, onClose, errorMessage }) => {
   );
 };
 
-// Disposition Modal Component
 const DispositionModal = ({
   onClose,
   onSaveSale,
@@ -604,12 +595,10 @@ const DispositionModal = ({
     }));
   };
 
-  // Function to handle saving the call
   const handleSaveCall = async (dispositionSelected) => {
     console.log(`Requesting form data for phone number: ${formData.phone}`);
 
     try {
-      // Fetch form data based on the phone number
       const formResponse = await axios.get(
         `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
         {
@@ -629,21 +618,19 @@ const DispositionModal = ({
         return;
       }
 
-      // Update the call with form ID and agent data and save the call
       const updatedCall = {
         phoneNumber: formData.phone,
-        form: formDataFromServer.formId || null, // Assign form ID if it exists, otherwise null
-        agent: currentSale.agent.agentID, // Use the agent's ID from currentSale
-        campaign: currentSale.campaign || null, // Handle campaign as null if not provided
-        duration: 120, // Replace with actual call duration
+        form: formDataFromServer.formId || null,
+        agent: currentSale.agent.agentID,
+        campaign: currentSale.campaign || null,
+        duration: 120,
         sentiment: currentSale.sentiment,
-        disposition: dispositionSelected, // The selected disposition
-        transcription: "Call transcription text", // Replace with actual transcription if available
+        disposition: dispositionSelected,
+        transcription: "Call transcription text",
       };
 
       console.log("Updated Call Data:", updatedCall);
 
-      // Now save the call
       const callResponse = await axios.post(
         "http://localhost:4000/api/v5/calls",
         updatedCall,
@@ -666,9 +653,8 @@ const DispositionModal = ({
         error.response?.data || error.message
       );
     }
-  }; 
+  };
 
-  // Handle Submit
   const handleSubmit = async () => {
     const selectedDispositions = Object.keys(checkedItems).filter(
       (key) => checkedItems[key]
@@ -679,10 +665,8 @@ const DispositionModal = ({
       return;
     }
 
-    // Save the call
     await onSaveCall(selectedDispositions.join(", "));
 
-    // If SALE is selected, save the sale
     if (checkedItems.SALE) {
       await onSaveSale();
     }
@@ -758,7 +742,6 @@ const DispositionModal = ({
   );
 };
 
-// Helper function to get labels
 const getLabel = (key) => {
   const labels = {
     A: "Answering Machine",
@@ -776,7 +759,6 @@ const getLabel = (key) => {
   return labels[key];
 };
 
-// Confirmation Modal Component
 const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
   return (
     <Paper sx={{ padding: 3, borderRadius: 2 }}>
@@ -797,7 +779,6 @@ const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
   );
 };
 
-// Dialer Component
 const Dialer = ({ handleHangup }) => {
   const [dialerInput, setDialerInput] = useState("");
 
@@ -878,13 +859,12 @@ const Dialer = ({ handleHangup }) => {
   );
 };
 
-// Customer Form Component
 const CustomerForm = ({
   formData,
   onFormChange,
   handleClearForm,
   twoColumns,
-  setError, // Pass setError from the parent component to display errors
+  setError,
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;

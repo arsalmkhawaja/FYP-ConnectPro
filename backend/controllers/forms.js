@@ -1,6 +1,5 @@
 const Form = require("../models/Forms");
 
-// Create a new form entry
 exports.createForm = async (req, res) => {
   try {
     const form = new Form(req.body);
@@ -14,7 +13,6 @@ exports.createForm = async (req, res) => {
   }
 };
 
-// Get all form entries
 exports.getAllForms = async (req, res) => {
   try {
     const forms = await Form.find();
@@ -24,7 +22,6 @@ exports.getAllForms = async (req, res) => {
   }
 };
 
-// Get a specific form entry by ID
 exports.getFormById = async (req, res) => {
   try {
     const form = await Form.findById(req.params.id);
@@ -37,13 +34,12 @@ exports.getFormById = async (req, res) => {
   }
 };
 
-// Update a form entry by ID
 exports.updateForm = async (req, res) => {
   try {
     const form = await Form.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    
+
     if (form == null) {
       return res.status(404).json({ message: "Form not found" });
     }
@@ -53,7 +49,6 @@ exports.updateForm = async (req, res) => {
   }
 };
 
-// Delete a form entry by ID
 exports.deleteForm = async (req, res) => {
   try {
     const form = await Form.findByIdAndDelete(req.params.id);
@@ -68,18 +63,15 @@ exports.deleteForm = async (req, res) => {
 exports.getFormByPhoneNumber = async (req, res) => {
   try {
     const phoneNumber = req.params.phoneNumber;
-    console.log("Received phone number:", phoneNumber); // Debugging line
+    console.log("Received phone number:", phoneNumber);
 
-    // Find the form by phone number
     const form = await Form.findOne({
       phoneNumber: Number(phoneNumber),
-    }).select("_id"); // Only select the _id field
-
+    }).select("_id");
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
 
-    // Return the ObjectId
     res.status(200).json({ formId: form._id });
   } catch (error) {
     console.error("Error fetching form:", error);

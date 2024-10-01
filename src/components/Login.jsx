@@ -46,13 +46,12 @@ const Login = () => {
           formData
         );
 
-        // Store the token in localStorage
         localStorage.setItem("auth", JSON.stringify(response.data.token));
 
         if (role === "agent") {
           const agentInfo = {
-            agentID: response.data.agentID || "", // Ensure these fields exist
-            fullName: response.data.fullName || "", // Ensure these fields exist
+            agentID: response.data.agentID || "",
+            fullName: response.data.fullName || "",
           };
           console.log("Agent Info to be stored:", agentInfo);
           localStorage.setItem("agentInfo", JSON.stringify(agentInfo));

@@ -3,17 +3,22 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useTheme } from "@mui/material";
+import { tokens } from "../../theme";
 
 const SentimentAnalysis = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const token = JSON.parse(localStorage.getItem("auth")) || "";
+
   useEffect(() => {
-    // Check if token exists and redirect if not
     if (!token) {
       toast.warn("Please login first to access the dashboard");
       navigate("/login");
     }
   }, [token, navigate]);
+
   const [audioFile, setAudioFile] = useState(null);
   const [sentimentOption, setSentimentOption] = useState("Sentiment Only");
   const [language, setLanguage] = useState("");
@@ -64,7 +69,7 @@ const SentimentAnalysis = () => {
           mediaRecorderRef.current = mediaRecorder;
           mediaRecorder.ondataavailable = (event) => {
             setRecordedBlob(event.data);
-            setAudioFile(null); // Clear any previously selected file
+            setAudioFile(null);
           };
           mediaRecorder.start();
           setIsRecording(true);
@@ -76,54 +81,110 @@ const SentimentAnalysis = () => {
   };
 
   return (
-    <div className="container">
-      <h1 className="title">Sentiment Analysis</h1>
-      <div className="input-group">
-        <input
-          type="file"
-          accept="audio/*"
-          onChange={handleFileChange}
-          disabled={isRecording}
-          className="file-input"
-        />
-        <button onClick={handleRecord} className="record-button">
-          {isRecording ? "Stop Recording" : "Start Recording"}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: colors.primary[400],
+          borderRadius: "10px",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.5)",
+          padding: "40px",
+          maxWidth: "600px",
+          textAlign: "center",
+        }}
+      >
+        <h1 style={{ color: colors.greenAccent[500], marginBottom: "20px" }}>
+          Sentiment Analysis
+        </h1>
+
+        <div style={{ marginBottom: "20px" }}>
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={handleFileChange}
+            disabled={isRecording}
+            style={{
+              padding: "10px",
+              border: `1px solid ${colors.blueAccent[600]}`,
+              borderRadius: "5px",
+              marginBottom: "10px",
+              display: "block",
+              width: "100%",
+            }}
+          />
+          <button
+            onClick={handleRecord}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: colors.greenAccent[500],
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              width: "100%",
+            }}
+          >
+            {isRecording ? "Stop Recording" : "Start Recording"}
+          </button>
+        </div>
+
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ marginRight: "10px" }}>
+            <input
+              type="radio"
+              value="Sentiment Only"
+              checked={sentimentOption === "Sentiment Only"}
+              onChange={handleOptionChange}
+            />
+            Sentiment Only
+          </label>
+          <label>
+            <input
+              type="radio"
+              value="Sentiment + Score"
+              checked={sentimentOption === "Sentiment + Score"}
+              onChange={handleOptionChange}
+            />
+            Sentiment + Score
+          </label>
+        </div>
+
+        <button
+          onClick={handleSubmit}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: colors.blueAccent[600],
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginBottom: "20px",
+            width: "100%",
+          }}
+        >
+          Transcribe
         </button>
-      </div>
-      <div className="options-group">
-        <label className="radio-container">
-          <input
-            type="radio"
-            value="Sentiment Only"
-            checked={sentimentOption === "Sentiment Only"}
-            onChange={handleOptionChange}
-          />
-          Sentiment Only
-        </label>
-        <label className="radio-container">
-          <input
-            type="radio"
-            value="Sentiment + Score"
-            checked={sentimentOption === "Sentiment + Score"}
-            onChange={handleOptionChange}
-          />
-          Sentiment + Score
-        </label>
-      </div>
-      <button onClick={handleSubmit} className="submit-button">
-        Transcribe
-      </button>
-      <div className="output-group">
-        <h2 className="output-title">Detected Language</h2>
-        <p>{language}</p>
-      </div>
-      <div className="output-group">
-        <h2 className="output-title">Transcription</h2>
-        <p>{transcription}</p>
-      </div>
-      <div className="output-group">
-        <h2 className="output-title">Sentiment Analysis</h2>
-        <p>{sentiment}</p>
+
+        <div style={{ marginBottom: "20px", backgroundColor: colors.primary[600], padding: "20px", borderRadius: "8px" }}>
+          <h2 style={{ color: colors.greenAccent[500] }}>Detected Language</h2>
+          <p>{language}</p>
+        </div>
+
+        <div style={{ marginBottom: "20px", backgroundColor: colors.primary[600], padding: "20px", borderRadius: "8px" }}>
+          <h2 style={{ color: colors.greenAccent[500] }}>Transcription</h2>
+          <p>{transcription}</p>
+        </div>
+
+        <div style={{ backgroundColor: colors.primary[600], padding: "20px", borderRadius: "8px" }}>
+          <h2 style={{ color: colors.greenAccent[500] }}>Sentiment Analysis</h2>
+          <p>{sentiment}</p>
+        </div>
       </div>
     </div>
   );

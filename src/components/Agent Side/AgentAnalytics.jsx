@@ -1,10 +1,9 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
 import { Box, Typography, useTheme } from "@mui/material";
-import { tokens } from "../../theme"; // Adjust path if necessary
-import data from "./data.json"; // Directly importing the data
+import { tokens } from "../../theme";
+import data from "./data.json";
 
-// Register the components for Chart.js
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -27,20 +26,18 @@ ChartJS.register(
 
 const AgentAnalytics = ({ loggedInAgent }) => {
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode) || {}; // Ensure colors is defined
-  const blueAccent = colors.blueAccent ? colors.blueAccent[500] : "#0000FF"; // Fallback to blue
+  const colors = tokens(theme.palette.mode) || {};
+  const blueAccent = colors.blueAccent ? colors.blueAccent[500] : "#0000FF";
   const purpleAccent = colors.purpleAccent
     ? colors.purpleAccent[500]
-    : "#800080"; // Fallback to purple
-  const primary = colors.primary ? colors.primary[500] : "#333333"; // Fallback to a dark color
-  const gray = colors.gray ? colors.gray[100] : "#FFFFFF"; // Fallback to white
+    : "#800080";
+  const primary = colors.primary ? colors.primary[500] : "#333333";
+  const gray = colors.gray ? colors.gray[100] : "#FFFFFF";
 
-  // Add a check to ensure data is defined
   if (!data || !data.agents) {
     return <div>No data available.</div>;
   }
 
-  // Find the agent's data
   const agentData = data.agents.find((agent) => agent.name === loggedInAgent);
 
   if (!agentData) {
@@ -54,7 +51,7 @@ const AgentAnalytics = ({ loggedInAgent }) => {
         label: "Incoming Calls",
         data: agentData.callsVolume.incomingCalls,
         borderColor: blueAccent,
-        backgroundColor: `${blueAccent}1A`, // Adjust opacity for the background
+        backgroundColor: `${blueAccent}1A`,
         tension: 0.4,
         fill: true,
       },
@@ -62,7 +59,7 @@ const AgentAnalytics = ({ loggedInAgent }) => {
         label: "Answered Calls",
         data: agentData.callsVolume.answeredCalls,
         borderColor: purpleAccent,
-        backgroundColor: `${purpleAccent}1A`, // Adjust opacity for the background
+        backgroundColor: `${purpleAccent}1A`,
         tension: 0.4,
         fill: true,
       },
@@ -105,5 +102,4 @@ const AgentAnalytics = ({ loggedInAgent }) => {
   );
 };
 
-export default AgentAnalytics
-;
+export default AgentAnalytics;

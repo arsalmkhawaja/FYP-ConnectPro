@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { MenuItem } from "react-pro-sidebar";
 import { Link, useLocation } from "react-router-dom";
 

@@ -24,7 +24,6 @@ const UserSchema = new mongoose.Schema({
   profileImage: {
     type: String,
   },
-  // Fields for agents only
   agentID: {
     type: String,
     required: function () {

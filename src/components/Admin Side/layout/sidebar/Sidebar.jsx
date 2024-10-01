@@ -8,7 +8,7 @@ import {
   useTheme,
   Button,
 } from "@mui/material";
-import { tokens } from "../../../../theme"; // Adjust path if necessary
+import { tokens } from "../../../../theme";
 import { Menu, MenuItem, Sidebar } from "react-pro-sidebar";
 import {
   BarChartOutlined,
@@ -20,8 +20,8 @@ import {
   VerifiedOutlined,
   ExitToAppOutlined,
 } from "@mui/icons-material";
-import defaultAvatar from "../../../../assets/Circle CV Picture.png"; // Fallback avatar
-import logo from "../../../../assets/logo name.jpg"; // Adjust path if necessary
+import defaultAvatar from "../../../../assets/no-user-image.gif";
+import logo from "../../../../assets/logo name.jpg";
 import Item from "./Item";
 import { ToggledContext } from "../AdminLayout";
 import axios from "axios";
@@ -29,26 +29,25 @@ import { toast } from "react-toastify";
 
 const SideBar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [user, setUser] = useState(null); // Initialize user state
+  const [user, setUser] = useState(null);
   const { toggled, setToggled } = useContext(ToggledContext);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
 
-  // Fetch admin profile data when the component mounts
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
         const token = JSON.parse(localStorage.getItem("auth")) || "";
         if (token) {
           const response = await axios.get(
-            "http://localhost:4000/api/v1/admin", // Adjusted to fetch specific admin
+            "http://localhost:4000/api/v1/admin",
             {
               headers: { Authorization: `Bearer ${token}` },
             }
           );
-          const adminData = response.data.admin; // Access the admin object directly
-          setUser(adminData); // Set user data
+          const adminData = response.data.admin;
+          setUser(adminData);
         } else {
           toast.warn("No token found");
         }
@@ -61,11 +60,9 @@ const SideBar = () => {
   }, []);
   const handleLogout = () => {
     try {
-      // Remove the authentication token from localStorage
       localStorage.removeItem("auth");
       console.log("Token removed from localStorage");
 
-      // Redirect the user to the login page
       navigate("/login");
       toast.info("Logged out successfully.");
     } catch (error) {
@@ -184,7 +181,7 @@ const SideBar = () => {
         >
           <Item
             title="Dashboard"
-            path="/dashboard" // Adjust path if necessary
+            path="/dashboard"
             colors={colors}
             icon={<DashboardOutlined />}
           />
@@ -259,7 +256,6 @@ const SideBar = () => {
         </Menu>
       </Box>
 
-      {/* Logout button with icon and text when expanded, and icon only when collapsed */}
       <Box sx={{ mt: "auto", p: 2 }}>
         <Button
           variant="contained"
@@ -276,9 +272,9 @@ const SideBar = () => {
             padding: collapsed ? "8px" : "8px 16px",
             mt: collapsed ? 47.6 : 17.2,
             paddingLeft: collapsed ? "18px" : "65px",
-            width: collapsed ? "35px" : "100%", // Adjust width in collapsed mode
-            minWidth: collapsed ? "25px" : "auto", // Ensure the button doesn't shrink too much
-            transition: "all 0.3s ease", // Smooth transition for all properties
+            width: collapsed ? "35px" : "100%",
+            minWidth: collapsed ? "25px" : "auto",
+            transition: "all 0.3s ease",
           }}
         >
           {!collapsed && "Logout"}

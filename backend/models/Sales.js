@@ -3,8 +3,8 @@ const { Schema } = mongoose;
 
 const SalesSchema = new Schema({
   agent: { type: Schema.Types.ObjectId, ref: "Agent", required: true },
-  form: { type: Schema.Types.ObjectId, required: true, unique: true }, // Allows storing the entire form object
-  campaign: { type: Schema.Types.Mixed, required: false }, // Allows storing a string or ObjectId
+  form: { type: Schema.Types.ObjectId, required: true, unique: true },
+  campaign: { type: Schema.Types.Mixed, required: false },
   amount: { type: Number, required: true },
   saleDate: { type: Date, default: Date.now },
   score: { type: Number, required: false },

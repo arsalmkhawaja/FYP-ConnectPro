@@ -7,18 +7,15 @@ exports.createSale = async (req, res) => {
   try {
     const { form, campaign, amount, saleDate, score, sentiment } = req.body;
 
-    // Fetch the current agent profile using the agent ID from the token
     const agentData = await Agent.findById(req.user.id);
     if (!agentData) {
       return res.status(404).json({ message: "Agent not found" });
     }
 
-    // Validate that form is an ObjectId
     if (!mongoose.Types.ObjectId.isValid(form)) {
       return res.status(400).json({ message: "Invalid form ID" });
     }
 
-    // Handle campaign - check if it's a valid ObjectId
     let campaignData = null;
     if (mongoose.Types.ObjectId.isValid(campaign)) {
       campaignData = campaign;
@@ -26,11 +23,10 @@ exports.createSale = async (req, res) => {
       campaignData = null;
     }
 
-    // Create the sale using the validated agent, form, and campaign
     const sale = new Sales({
-      agent: agentData._id, // Use the agent's ObjectId
-      form: form, // Directly use the form ID passed from frontend
-      campaign: campaignData, // Use campaignData which might be null or an ObjectId
+      agent: agentData._id,
+      form: form,
+      campaign: campaignData,
       amount,
       saleDate,
       score,
@@ -45,7 +41,6 @@ exports.createSale = async (req, res) => {
   }
 };
 
-// Get all sales
 exports.getAllSales = async (req, res) => {
   try {
     const sales = await Sales.find()
@@ -59,7 +54,6 @@ exports.getAllSales = async (req, res) => {
   }
 };
 
-// Get a specific sale by ID
 exports.getSaleById = async (req, res) => {
   try {
     const sale = await Sales.findById(req.params.id)
@@ -75,7 +69,6 @@ exports.getSaleById = async (req, res) => {
   }
 };
 
-// Update a sale by ID
 exports.updateSale = async (req, res) => {
   try {
     const sale = await Sales.findByIdAndUpdate(req.params.id, req.body, {
@@ -90,7 +83,6 @@ exports.updateSale = async (req, res) => {
   }
 };
 
-// Delete a sale by ID
 exports.deleteSale = async (req, res) => {
   try {
     const sale = await Sales.findByIdAndDelete(req.params.id);

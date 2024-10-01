@@ -19,7 +19,6 @@ const CallLogs = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  // Fetch agent profile like in the CallCenterScreen
   useEffect(() => {
     const fetchAgentProfile = async () => {
       try {
@@ -36,10 +35,10 @@ const CallLogs = () => {
         const agentData = response.data.agent;
         if (agentData) {
           setAgent({
-            _id: agentData._id, // Assuming the agent ID is stored as _id
+            _id: agentData._id,
             fullName: agentData.fullName,
           });
-          setAgentLoaded(true); // Set agentLoaded to true once agent data is fetched
+          setAgentLoaded(true);
           console.log("Agent data set:", {
             _id: agentData._id,
             fullName: agentData.fullName,
@@ -50,7 +49,7 @@ const CallLogs = () => {
       } catch (error) {
         console.error("Error fetching agent profile:", error);
         toast.error("Failed to fetch agent profile");
-        navigate("/login"); // Redirect if the agent profile cannot be fetched
+        navigate("/login");
       }
     };
 
@@ -62,7 +61,6 @@ const CallLogs = () => {
     }
   }, [token, navigate]);
 
-  // Fetch calls data using the agent ID after agent profile has been loaded
   useEffect(() => {
     if (agentLoaded && agent._id) {
       fetchAgentCallsData();
@@ -72,7 +70,7 @@ const CallLogs = () => {
   const fetchAgentCallsData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/v5/calls/agent/${agent._id}`, // Assuming the backend route is /calls/agent/:agentId
+        `http://localhost:4000/api/v5/calls/agent/${agent._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -90,7 +88,6 @@ const CallLogs = () => {
     }
   };
 
-  // Function to handle the download of call data as an Excel file
   const handleDownload = () => {
     const data = [
       [

@@ -14,24 +14,21 @@ exports.createCall = async (req, res) => {
       transcription,
     } = req.body;
 
-    // Fetch the current agent profile using the agent ID from the token
     const agentData = await Agent.findById(req.user.id);
     if (!agentData) {
       return res.status(404).json({ message: "Agent not found" });
     }
 
-    // If form ID is provided, validate it; otherwise, set it to null
     let formId = null;
     if (form && mongoose.Types.ObjectId.isValid(form)) {
       formId = form;
     }
 
-    // Create the call using the validated agent, form (if available), and other data
     const newCall = new Call({
       phoneNumber,
-      agent: agentData._id, // Use the agent's ObjectId
-      form: formId, // Form might be null if not provided or invalid
-      campaign, // Campaign could be null or an ObjectId
+      agent: agentData._id,
+      form: formId,
+      campaign,
       duration,
       sentiment,
       disposition,
@@ -46,7 +43,6 @@ exports.createCall = async (req, res) => {
   }
 };
 
-// Get all calls
 exports.getAllCalls = async (req, res) => {
   try {
     const calls = await Call.find()
@@ -60,7 +56,6 @@ exports.getAllCalls = async (req, res) => {
   }
 };
 
-// Get a specific call by ID
 exports.getCallById = async (req, res) => {
   try {
     const call = await Call.findById(req.params.id)
@@ -76,7 +71,6 @@ exports.getCallById = async (req, res) => {
   }
 };
 
-// Update a call by ID
 exports.updateCall = async (req, res) => {
   try {
     const call = await Call.findByIdAndUpdate(req.params.id, req.body, {
@@ -91,7 +85,6 @@ exports.updateCall = async (req, res) => {
   }
 };
 
-// Delete a call by ID
 exports.deleteCall = async (req, res) => {
   try {
     const call = await Call.findByIdAndDelete(req.params.id);
@@ -107,7 +100,6 @@ exports.getCallsByAgent = async (req, res) => {
   try {
     const agentId = req.params.agentId;
 
-    // Validate the agentId
     if (!mongoose.Types.ObjectId.isValid(agentId)) {
       return res.status(400).json({ message: "Invalid agent ID" });
     }

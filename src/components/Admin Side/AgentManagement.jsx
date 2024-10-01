@@ -517,7 +517,6 @@ const AgentManagement = () => {
         </tbody>
       </table>
 
-      {/* Add/Edit User Modal */}
       {showModal && (
         <div
           style={{
@@ -851,7 +850,6 @@ const AgentManagement = () => {
         </div>
       )}
 
-      {/* View User Details Modal */}
       {showViewModal && (
         <div
           style={{
@@ -1099,7 +1097,6 @@ const AgentManagement = () => {
         </div>
       )}
 
-      {/* Confirmation Modal for Deleting User */}
       {confirmDeleteVisible && (
         <div
           id="confirm-delete-modal"
@@ -1167,7 +1164,6 @@ const AgentManagement = () => {
         </div>
       )}
 
-      {/* Error Modal for Validation Errors */}
       <ErrorModal
         show={showErrorModal}
         message={errorMessage}

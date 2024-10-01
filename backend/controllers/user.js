@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const Agent = require("../models/Agents");
 
-// Register an Admin
 const registerAdmin = async (req, res) => {
   const {
     fullName,
@@ -56,7 +55,6 @@ const registerAdmin = async (req, res) => {
   }
 };
 
-// Register an Agent
 const registerAgent = async (req, res) => {
   const {
     agentID,
@@ -117,7 +115,6 @@ const registerAgent = async (req, res) => {
   }
 };
 
-// Edit Agent
 const editAgent = async (req, res) => {
   const {
     agentID,
@@ -133,7 +130,7 @@ const editAgent = async (req, res) => {
     department,
     education,
     username,
-    password, // Handle password only if it's provided
+    password,
   } = req.body;
 
   try {
@@ -142,7 +139,6 @@ const editAgent = async (req, res) => {
       return res.status(404).json({ msg: "Agent not found" });
     }
 
-    // Update fields if provided
     if (agentID) agent.agentID = agentID;
     if (fullName) agent.fullName = fullName;
     if (dateOfBirth) agent.dateOfBirth = dateOfBirth;
@@ -159,7 +155,7 @@ const editAgent = async (req, res) => {
     if (password) agent.password = password;
 
     if (req.file) {
-      agent.profileImage = req.file.path; // Update profile image if provided
+      agent.profileImage = req.file.path;
     }
 
     await agent.save();
@@ -170,7 +166,6 @@ const editAgent = async (req, res) => {
   }
 };
 
-// Delete Agent
 const deleteAgent = async (req, res) => {
   try {
     const agent = await Agent.findById(req.params.id);
@@ -178,7 +173,6 @@ const deleteAgent = async (req, res) => {
       return res.status(404).json({ msg: "Agent not found" });
     }
 
-    // Use findByIdAndDelete instead of agent.remove()
     await Agent.findByIdAndDelete(req.params.id);
 
     res.status(200).json({ msg: "Agent removed successfully" });
@@ -188,8 +182,6 @@ const deleteAgent = async (req, res) => {
   }
 };
 
-// Login for both Admin and Agent
-// Login for both Admin and Agent
 const login = async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -215,11 +207,9 @@ const login = async (req, res) => {
         .json({ msg: "Invalid credentials - User not found" });
     }
 
-    // Log stored hashed password and incoming password
     console.log("Stored hashed password for user:", user.password);
     console.log("Incoming password:", password);
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
     console.log("Password match result:", isMatch);
 
@@ -227,12 +217,10 @@ const login = async (req, res) => {
       return res.status(400).json({ msg: "Invalid password" });
     }
 
-    // Generate JWT token
     const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, {
       expiresIn: "30d",
     });
 
-    // Return the token along with user data (agentID/fullName for agents, etc.)
     res.status(200).json({
       token,
       agentID: role === "agent" ? user.agentID : null,
@@ -244,7 +232,6 @@ const login = async (req, res) => {
   }
 };
 
-// Get all Admins and Agents
 const getAllAgents = async (req, res) => {
   try {
     const agents = await Agent.find({});
@@ -267,7 +254,7 @@ const getAllAdmins = async (req, res) => {
 const getAdminProfile = async (req, res) => {
   try {
     console.log("User ID from token:", req.user.id);
-    const admin = await Admin.findById(req.user.id); // Fetch the admin using the ID from the token
+    const admin = await Admin.findById(req.user.id);
     if (!admin) {
       return res.status(404).json({ msg: "Admin not found" });
     }
@@ -279,8 +266,8 @@ const getAdminProfile = async (req, res) => {
 };
 const getAgentProfile = async (req, res) => {
   try {
-    console.log("User ID from token:", req.user.id); // Add this line
-    const agent = await Agent.findById(req.user.id); // Adjust based on your middleware
+    console.log("User ID from token:", req.user.id);
+    const agent = await Agent.findById(req.user.id);
     if (!agent) {
       return res.status(404).json({ msg: "Agent not found" });
     }

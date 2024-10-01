@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Campaign = require("../models/Campaigns");
 const Agent = require("../models/Agents");
 
-// Create a new campaign
 const createCampaign = async (req, res) => {
   console.log("Request body: ", req.body);
 
@@ -14,14 +13,13 @@ const createCampaign = async (req, res) => {
   }
 
   try {
-    // Assuming agentID is a unique field in your Agent schema
     const agents = await Agent.find({ agentID: { $in: agentIds } });
     const numberOfAgents = agents.length;
 
     const newCampaign = new Campaign({
       name,
       numberOfAgents,
-      agents: agents.map((agent) => agent._id), // Store ObjectIds in the campaign
+      agents: agents.map((agent) => agent._id),
       sales,
       targetSales,
     });
@@ -35,7 +33,6 @@ const createCampaign = async (req, res) => {
   }
 };
 
-// Get all campaigns
 const getCampaigns = async (req, res) => {
   try {
     const campaigns = await Campaign.find().populate("agents");
@@ -46,9 +43,8 @@ const getCampaigns = async (req, res) => {
   }
 };
 
-// Get a single campaign by name
 const getCampaign = async (req, res) => {
-  const { name } = req.params; // Expect the name in the URL
+  const { name } = req.params;
 
   try {
     const campaign = await Campaign.findOne({ name }).populate("agents");
@@ -62,13 +58,11 @@ const getCampaign = async (req, res) => {
   }
 };
 
-// Update a campaign by name
 const updateCampaign = async (req, res) => {
-  const { name, agentIds = [], sales, targetSales } = req.body; // Default agentIds to an empty array if not provided
+  const { name, agentIds = [], sales, targetSales } = req.body;
   const { campaignName } = req.params;
 
   try {
-    // Only check for agents if agentIds is provided and is an array
     let agents = [];
     if (Array.isArray(agentIds) && agentIds.length > 0) {
       agents = await Agent.find({ agentID: { $in: agentIds } });
@@ -102,9 +96,8 @@ const updateCampaign = async (req, res) => {
   }
 };
 
-// Delete a campaign by name
 const deleteCampaign = async (req, res) => {
-  const { name } = req.params; // Use the campaign name from the params
+  const { name } = req.params;
 
   try {
     const campaign = await Campaign.findOneAndDelete({ name });
@@ -122,9 +115,8 @@ const deleteCampaign = async (req, res) => {
   }
 };
 
-// Add an agent to a campaign
 const addAgentToCampaign = async (req, res) => {
-  const { agentId } = req.body; // agentId here refers to your custom ID like "1001"
+  const { agentId } = req.body;
   const { name } = req.params;
 
   try {
@@ -133,13 +125,11 @@ const addAgentToCampaign = async (req, res) => {
       return res.status(404).json({ error: "Campaign not found." });
     }
 
-    // Find the agent by the custom agentID field
     const agent = await Agent.findOne({ agentID: agentId });
     if (!agent) {
       return res.status(404).json({ error: "Agent not found." });
     }
 
-    // Check if the agent is already added to the campaign
     if (campaign.agents.includes(agent._id)) {
       return res
         .status(400)
@@ -157,33 +147,27 @@ const addAgentToCampaign = async (req, res) => {
   }
 };
 
-// Remove an agent from a campaign
 const removeAgentFromCampaign = async (req, res) => {
-  const { agentId } = req.body; // The custom agentID, like "1001"
+  const { agentId } = req.body;
   const { name } = req.params;
 
   try {
-    // Find the campaign by name
     const campaign = await Campaign.findOne({ name });
     if (!campaign) {
       return res.status(404).json({ error: "Campaign not found." });
     }
 
-    // Find the agent by the custom agentID field
     const agent = await Agent.findOne({ agentID: agentId });
     if (!agent) {
       return res.status(404).json({ error: "Agent not found." });
     }
 
-    // Remove the agent's ObjectId from the campaign's agents array
     campaign.agents = campaign.agents.filter(
       (agentObjId) => agentObjId.toString() !== agent._id.toString()
     );
 
-    // Decrement the number of agents
     campaign.numberOfAgents -= 1;
 
-    // Save the updated campaign
     await campaign.save();
 
     res.status(200).json({ success: true, data: campaign });
@@ -192,7 +176,6 @@ const removeAgentFromCampaign = async (req, res) => {
     res.status(500).json({ error: "Failed to remove agent from campaign." });
   }
 };
-// Get all agents for a specific campaign by name
 const getCampaignAgents = async (req, res) => {
   const { name } = req.params;
 
