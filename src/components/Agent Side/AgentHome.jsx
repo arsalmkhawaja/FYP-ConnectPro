@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -10,6 +11,7 @@ import {
   FaTimesCircle,
   FaPhoneAlt,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 
@@ -34,6 +36,14 @@ ChartJS.register(
 );
 
 const AgentHome = ({ loggedInAgent }) => {
+  const navigate = useNavigate();
+  const token = JSON.parse(localStorage.getItem("auth")) || "";
+  useEffect(() => {
+    if (!token) {
+      toast.warn("Please login first to access the dashboard");
+      navigate("/login");
+    }
+  }, [token, navigate]);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode) || {};
   const blueAccent = colors.blueAccent ? colors.blueAccent[500] : "#0000FF";
