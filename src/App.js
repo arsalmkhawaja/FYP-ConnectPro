@@ -8,6 +8,7 @@ import AgentManagement from "./components/Admin Side/AgentManagement";
 import CampaignDashboard from "./components/Admin Side/campaigndashboard";
 import DownloadSalesReport from "./components/Admin Side/DownloadSalesReport";
 import AgentAnalyticsDashboard from "./components/Admin Side/Analytics";
+import ScriptViewer from "./components/Admin Side/ScriptViewerAdmin";
 import AudioSentiment from "./components/Admin Side/QA";
 import DialingScreen from "./components/Agent Side/Dialler";
 import AgentHome from "./components/Agent Side/AgentHome";
@@ -15,6 +16,7 @@ import CallLogs from "./components/Agent Side/CallLogs";
 import CallCenterScreen from "./components/Agent Side/Dialler";
 import AgentLayout from "./components/Agent Side/AgentLayout/AgentLayout";
 import AgentAnalytics from "./components/Agent Side/AgentAnalytics";
+import ScriptViewerAgent from "./components/Agent Side/ScriptViewerAgent";
 
 const App = () => {
   return (
@@ -44,6 +46,9 @@ const App = () => {
         <Route path="/qa" element={<Layout />}>
           <Route index element={<AudioSentiment />} />
         </Route>
+        <Route path="/scripts-admin" element={<Layout />}>
+          <Route index element={<ScriptViewer />} />
+        </Route>
         {/* Agent Dialer */}
         <Route path="/dialler" element={<AgentLayout />}>
           <Route index element={<CallCenterScreen />} />
@@ -55,7 +60,10 @@ const App = () => {
           <Route index element={<AgentAnalytics loggedInAgent={"haris"} />} />
         </Route>
         <Route path="/call-logs" element={<AgentLayout />}>
-          <Route index element={<CallLogs/>} />
+          <Route index element={<CallLogs />} />
+        </Route>
+        <Route path="/scripts-agent" element={<AgentLayout />}>
+          <Route index element={<ScriptViewerAgent />} />
         </Route>
       </Routes>
     </Router>

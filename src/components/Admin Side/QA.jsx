@@ -80,6 +80,17 @@ const SentimentAnalysis = () => {
     }
   };
 
+  const handleDownload = () => {
+    const content = `Transcription: ${transcription} -- Sentiment: ${sentiment}`;
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "transcription_sentiment.txt";
+    a.click();
+    URL.revokeObjectURL(url); 
+  };
+
   return (
     <div
       style={{
@@ -171,20 +182,56 @@ const SentimentAnalysis = () => {
           Transcribe
         </button>
 
-        <div style={{ marginBottom: "20px", backgroundColor: colors.primary[600], padding: "20px", borderRadius: "8px" }}>
+        <div
+          style={{
+            marginBottom: "20px",
+            backgroundColor: colors.primary[600],
+            padding: "20px",
+            borderRadius: "8px",
+          }}
+        >
           <h2 style={{ color: colors.greenAccent[500] }}>Detected Language</h2>
           <p>{language}</p>
         </div>
 
-        <div style={{ marginBottom: "20px", backgroundColor: colors.primary[600], padding: "20px", borderRadius: "8px" }}>
+        <div
+          style={{
+            marginBottom: "20px",
+            backgroundColor: colors.primary[600],
+            padding: "20px",
+            borderRadius: "8px",
+          }}
+        >
           <h2 style={{ color: colors.greenAccent[500] }}>Transcription</h2>
           <p>{transcription}</p>
         </div>
 
-        <div style={{ backgroundColor: colors.primary[600], padding: "20px", borderRadius: "8px" }}>
+        <div
+          style={{
+            backgroundColor: colors.primary[600],
+            padding: "20px",
+            borderRadius: "8px",
+          }}
+        >
           <h2 style={{ color: colors.greenAccent[500] }}>Sentiment Analysis</h2>
           <p>{sentiment}</p>
         </div>
+
+        <button
+          onClick={handleDownload}
+          style={{
+            padding: "10px 20px",
+            backgroundColor: colors.greenAccent[500],
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginTop: "20px",
+            width: "100%",
+          }}
+        >
+          Download Transcription & Sentiment
+        </button>
       </div>
     </div>
   );

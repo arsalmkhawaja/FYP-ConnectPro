@@ -16,9 +16,8 @@ import {
   CallReceivedOutlined,
   MenuOutlined,
   PhoneInTalkOutlined,
-  ReceiptOutlined,
-  VerifiedOutlined,
   ExitToAppOutlined,
+  DescriptionOutlined,
 } from "@mui/icons-material";
 import defaultAvatar from "../../../../assets/no-user-image.gif";
 import logo from "../../../../assets/logo name.jpg";
@@ -219,6 +218,12 @@ const SideBar = () => {
             path="/agent-analytics"
             colors={colors}
             icon={<BarChartOutlined />}
+          />
+          <Item
+            title="Scripts"
+            path="/scripts-agent"
+            colors={colors}
+            icon={<DescriptionOutlined />}
           />
         </Menu>
       </Box>

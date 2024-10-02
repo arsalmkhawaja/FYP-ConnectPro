@@ -50,9 +50,9 @@ const Navbar = () => {
             <DarkModeOutlined />
           )}
         </IconButton>
-        <IconButton>
+        {/* <IconButton>
           <PersonOutlined />
-        </IconButton>
+        </IconButton> */}
       </Box>
     </Box>
   );

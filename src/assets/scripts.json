@@ -1,0 +1,21 @@
+[
+  {
+    "id": 1,
+    "title": "Insurance",
+    "content": "Hi, this is (AGENT NAME) with Senior Services. Im calling to let you know of a NEW LOW-COST Final Expense Insurance plan that hasjust been approved in [STATE]. This plan is designed to cover 100% of your funeralexpenses.Our local agent can contact you in a day or two with more information.Would morning or afternoon better for you?(If Not interested ONE Rebuttal allowed. If the answer is still NO after rebuttal, POLITELY end the call.) 1. Confirm name on file. ( If spouse, get NAME )2. This new plan offers a few options, would you like information on 5 thousand, 10 thousand or 20 thousand in coverage? 3. And one last thing, for security purposes, I would also like to set up a keyword so you know its my licensed burial specialist calling you back, the keyword will be a color.Please choose between red, blue or green?Please remember your keyword and expect to be contacted by our local agent within thenext day or two about this Final Expense Insurance plan. Have a wonderful day!"
+  },
+  {
+    "id": 2,
+    "title": "Solar Script",
+    "content": "Hi, this is (AGENT NAME) with Senior Services. Im calling to let you know of a NEW LOW-COST Final Expense Insurance plan that hasjust been approved in [STATE]. This plan is designed to cover 100% of your funeralexpenses.Our local agent can contact you in a day or two with more information.Would morning or afternoon better for you?(If Not interested ONE Rebuttal allowed. If the answer is still NO after rebuttal, POLITELY end the call.) 1. Confirm name on file. ( If spouse, get NAME )2. This new plan offers a few options, would you like information on 5 thousand, 10 thousand or 20 thousand in coverage? 3. And one last thing, for security purposes, I would also like to set up a keyword so you know its my licensed burial specialist calling you back, the keyword will be a color.Please choose between red, blue or green?Please remember your keyword and expect to be contacted by our local agent within thenext day or two about this Final Expense Insurance plan. Have a wonderful day!"
+  },
+  {
+    "id": 3,
+    "title": "Final Expense Script",
+    "content": "This is the content of Script 3"
+  },
+  { "id": 4, 
+  "title": "Medicare Script", 
+  "content": "This is the content of Script 3" }
+]
+  

@@ -19,6 +19,7 @@ import {
   ReceiptOutlined,
   VerifiedOutlined,
   ExitToAppOutlined,
+  DescriptionOutlined,
 } from "@mui/icons-material";
 import defaultAvatar from "../../../../assets/no-user-image.gif";
 import logo from "../../../../assets/logo name.jpg";
@@ -252,6 +253,12 @@ const SideBar = () => {
             path="/qa"
             colors={colors}
             icon={<VerifiedOutlined />}
+          />
+          <Item
+            title="Scripts"
+            path="/scripts-admin"
+            colors={colors}
+            icon={<DescriptionOutlined />}
           />
         </Menu>
       </Box>
