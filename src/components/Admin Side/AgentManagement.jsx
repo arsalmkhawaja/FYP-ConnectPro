@@ -198,7 +198,26 @@ const AgentManagement = () => {
   };
 
   const handleEditUser = async () => {
-    if (!validateUser()) return;
+    if (
+      selectedUser.email !== newUser.email &&
+      users.some((user) => user.email === newUser.email)
+    ) {
+      setErrorMessage("This email is already in use.");
+      return;
+    }
+
+    if (
+      selectedUser.agentID !== newUser.agentID &&
+      users.some((user) => user.agentID === newUser.agentID)
+    ) {
+      setErrorMessage("This Agent ID is already in use.");
+      return;
+    }
+
+    if (!/^\d{10,15}$/.test(newUser.phoneNumber)) {
+      setErrorMessage("Phone number must be between 10 to 15 digits.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("fullName", newUser.fullName);
@@ -214,10 +233,12 @@ const AgentManagement = () => {
     formData.append("education", newUser.education);
     formData.append("username", newUser.username);
 
-    if (newUser.password !== "") {
+    // Only append password if it's being changed
+    if (newUser.password) {
       formData.append("password", newUser.password);
     }
 
+    // Only append profile image if a new one is selected
     if (newUser.profileImage) {
       formData.append("profileImage", newUser.profileImage);
     }
@@ -233,9 +254,11 @@ const AgentManagement = () => {
           },
         }
       );
+
       const updatedUsers = users.map((user) =>
         user._id === selectedUser._id ? response.data.agent : user
       );
+
       setUsers(updatedUsers);
       setShowModal(false);
       toast.success("Agent updated successfully");

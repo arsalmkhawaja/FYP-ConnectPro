@@ -8,11 +8,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import {
-  DownloadOutlined,
-  PersonAdd,
-  PointOfSale,
-} from "@mui/icons-material";
+import { DownloadOutlined, PersonAdd, PointOfSale } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import StatBox from "./components/StatBox";
 import LineChart from "./components/LineChart";
@@ -55,23 +51,6 @@ const Dashboard = () => {
         <Typography variant="h3" color={colors.primary[100]}>
           DASHBOARD
         </Typography>
-        <Button
-          variant="contained"
-          sx={{
-            bgcolor: colors.blueAccent[700],
-            color: "#fcfcfc",
-            fontSize: isMdDevices ? "14px" : "10px",
-            fontWeight: "bold",
-            p: "10px 20px",
-            transition: ".3s ease",
-            ":hover": {
-              bgcolor: colors.blueAccent[800],
-            },
-          }}
-          startIcon={<DownloadOutlined />}
-        >
-          DOWNLOAD REPORTS
-        </Button>
       </Box>
 
       {/* Grid Layout */}
@@ -156,11 +135,6 @@ const Dashboard = () => {
                   $59,342.32
                 </Typography>
               </Box>
-              <IconButton>
-                <DownloadOutlined
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
-              </IconButton>
             </Box>
             <Box height="250px" mt="-20px">
               <LineChart isDashboard={true} />
