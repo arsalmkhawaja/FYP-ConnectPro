@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout code from the repository
+                // Checkout code from GitHub
                 git branch: 'main', url: 'https://github.com/arsalmkhawaja/FYP-ConnectPro.git'
             }
         }
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Start Backend') {
             steps {
-                dir('server') {
+                dir('backend') {
                     // Start the backend (Node.js/Express)
                     sh 'npm start &'
                 }
@@ -38,7 +38,7 @@ pipeline {
 
         stage('Start Frontend') {
             steps {
-                dir('client') {
+                dir('.') {
                     // Start the frontend (React)
                     sh 'npm start &'
                 }
