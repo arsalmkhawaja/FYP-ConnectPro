@@ -63,7 +63,7 @@ exports.getCallById = async (req, res) => {
       .populate("form")
       .populate("campaign");
     if (!call) {
-      return res.status(404).json({ message: "Call not found" });
+      return res.status(404).json({ message: "Call not found yaaar" });
     }
     res.status(200).json(call);
   } catch (error) {
@@ -98,15 +98,20 @@ exports.deleteCall = async (req, res) => {
 };
 exports.getCallsByAgent = async (req, res) => {
   try {
-    const agentId = req.params.agentId;
+    // Extract the agent's _id from the URL params
+    const agentId = req.params._id;
 
+    // Check if the provided ID is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(agentId)) {
       return res.status(400).json({ message: "Invalid agent ID" });
     }
 
+    // Fetch calls that are associated with the given agent ID
     const calls = await Call.find({ agent: agentId })
-      .populate("agent")
-      .populate("campaign");
+      .populate("agent") // Populating agent field to get agent details
+      .populate("campaign"); // Populating campaign field if needed
+
+    // Return the fetched calls
     res.status(200).json(calls);
   } catch (error) {
     console.error("Error fetching calls for agent:", error);

@@ -83,11 +83,6 @@ const registerAgent = async (req, res) => {
       return res.status(400).json({ msg: "Email already in use" });
     }
 
-    console.log("Incoming password (plain text):", password);
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Hashed password for agent:", hashedPassword);
-
     const profileImage = req.file ? req.file.path : undefined;
     const agent = new Agent({
       agentID,
@@ -105,10 +100,47 @@ const registerAgent = async (req, res) => {
       username,
       password,
       profileImage,
+      status: "Offline", // Default to "offline" if status is not provided
     });
     await agent.save();
 
     res.status(201).json({ agent });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+const updateAgentStatus = async (req, res) => {
+  const { status } = req.body;
+  const { agentID } = req.params;
+  const validStatuses = ["In-Call", "Offline", "Paused", "Online"];
+
+  if (!status || !validStatuses.includes(status)) {
+    return res.status(400).json({
+      msg: "Invalid status. Valid statuses are: 'in call', 'offline', 'paused', 'online'",
+    });
+  }
+
+  try {
+    // Use findOneAndUpdate to update only the status field
+    const agent = await Agent.findOneAndUpdate(
+      { agentID },
+      { $set: { status } }, // Explicitly set the status field
+      { new: true } // Return the updated document
+    );
+
+    if (!agent) {
+      return res.status(404).json({ msg: "Agent not found" });
+    }
+
+    res.status(200).json({
+      msg: "Agent status updated successfully",
+      agent: {
+        agentID: agent.agentID,
+        fullName: agent.fullName,
+        status: agent.status,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Server error" });
@@ -195,10 +227,8 @@ const login = async (req, res) => {
     let user;
     if (role === "admin") {
       user = await Admin.findOne({ email });
-      console.log("Admin user:", user);
     } else if (role === "agent") {
       user = await Agent.findOne({ email });
-      console.log("Agent user:", user);
     }
 
     if (!user) {
@@ -207,12 +237,7 @@ const login = async (req, res) => {
         .json({ msg: "Invalid credentials - User not found" });
     }
 
-    console.log("Stored hashed password for user:", user.password);
-    console.log("Incoming password:", password);
-
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match result:", isMatch);
-
     if (!isMatch) {
       return res.status(400).json({ msg: "Invalid password" });
     }
@@ -225,9 +250,10 @@ const login = async (req, res) => {
       token,
       agentID: role === "agent" ? user.agentID : null,
       fullName: user.fullName,
+      status: role === "agent" ? user.status : null, // Include status in login response for agents
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error(error);
     res.status(500).json({ msg: "Server error" });
   }
 };
@@ -241,6 +267,7 @@ const getAllAgents = async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 };
+
 const getAllAdmins = async (req, res) => {
   try {
     const admins = await Admin.find({});
@@ -253,7 +280,6 @@ const getAllAdmins = async (req, res) => {
 
 const getAdminProfile = async (req, res) => {
   try {
-    console.log("User ID from token:", req.user.id);
     const admin = await Admin.findById(req.user.id);
     if (!admin) {
       return res.status(404).json({ msg: "Admin not found" });
@@ -264,9 +290,9 @@ const getAdminProfile = async (req, res) => {
     res.status(500).json({ msg: "Server error" });
   }
 };
+
 const getAgentProfile = async (req, res) => {
   try {
-    console.log("User ID from token:", req.user.id);
     const agent = await Agent.findById(req.user.id);
     if (!agent) {
       return res.status(404).json({ msg: "Agent not found" });
@@ -288,4 +314,5 @@ module.exports = {
   getAllAgents,
   getAllAdmins,
   getAgentProfile,
+  updateAgentStatus,
 };

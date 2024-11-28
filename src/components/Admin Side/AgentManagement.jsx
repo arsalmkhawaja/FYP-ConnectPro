@@ -129,7 +129,12 @@ const AgentManagement = () => {
       }
     };
 
-    fetchUsers();
+    const interval = setInterval(() => {
+      fetchUsers();
+    }, 500);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, [token]);
 
   const validateUser = () => {
@@ -443,6 +448,15 @@ const AgentManagement = () => {
                 color: colors.primary[600],
               }}
             >
+              Status
+            </th>
+            <th
+              style={{
+                padding: "10px",
+                borderBottom: `1px solid ${colors.primary[300]}`,
+                color: colors.primary[600],
+              }}
+            >
               Actions
             </th>
           </tr>
@@ -493,6 +507,15 @@ const AgentManagement = () => {
                     color: colors.gray[100],
                   }}
                 >
+                  {user.status}
+                </td>
+                <td
+                  style={{
+                    padding: "10px",
+                    borderBottom: `1px solid ${colors.primary[300]}`,
+                    color: colors.gray[100],
+                  }}
+                >
                   <button
                     style={{
                       padding: "5px 10px",
@@ -526,7 +549,7 @@ const AgentManagement = () => {
           ) : (
             <tr>
               <td
-                colSpan="4"
+                colSpan="5"
                 style={{
                   textAlign: "center",
                   padding: "20px",

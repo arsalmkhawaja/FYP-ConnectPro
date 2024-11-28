@@ -74,9 +74,9 @@ const ScriptViewerAdmin = () => {
 
   const scriptTitleStyle = {
     cursor: "pointer",
-    color: "#007bff",
     fontWeight: "bold",
     fontSize: "18px",
+    color: "#4cceac",
   };
 
   const removeButtonStyle = {

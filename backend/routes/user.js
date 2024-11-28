@@ -11,6 +11,7 @@ const {
   getAllAdmins,
   getAllAgents,
   getAgentProfile,
+  updateAgentStatus,
 } = require("../controllers/user");
 const authMiddleware = require("../middleware/auth");
 const storage = multer.diskStorage({
@@ -31,6 +32,7 @@ router.get("/users", authMiddleware, getAllAgents);
 router.get("/admins", authMiddleware, getAllAdmins);
 router.get("/admin", authMiddleware, getAdminProfile);
 router.get("/agent", authMiddleware, getAgentProfile);
+router.patch("/agent/status/:agentID", authMiddleware, updateAgentStatus);
 
 router.put(
   "/agent/:id",

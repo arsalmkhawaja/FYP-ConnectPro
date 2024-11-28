@@ -28,7 +28,6 @@ const AgentSchema = new mongoose.Schema({
     required: [true, "Please provide a phone number"],
     match: [/^\+?\d{10,15}$/, "Please provide a valid phone number"],
   },
-  
   email: {
     type: String,
     required: [true, "Please provide an email"],
@@ -69,6 +68,11 @@ const AgentSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
+  },
+  status: {
+    type: String,
+    enum: ["In-Call", "Offline", "Paused", "Online"],
+    default: "Offline",
   },
 });
 

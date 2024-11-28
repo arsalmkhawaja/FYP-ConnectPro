@@ -58,12 +58,33 @@ const SideBar = () => {
     fetchAgentProfile();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
+      const token = JSON.parse(localStorage.getItem("auth"));
+      const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+
+      if (agentInfo && agentInfo.agentID && token) {
+        // Change agent status to "offline"
+        await axios.patch(
+          `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+          { status: "Offline" },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("Agent status set to offline");
+      } else {
+        console.warn("No agent information found for status update");
+      }
+
+      // Clear localStorage
       localStorage.removeItem("auth");
       localStorage.removeItem("agentInfo");
       console.log("Token removed from localStorage");
 
+      // Navigate to login page
       navigate("/login");
       toast.info("Logged out successfully.");
     } catch (error) {

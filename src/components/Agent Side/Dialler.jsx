@@ -291,24 +291,60 @@ const CallCenterScreen = () => {
     }
   };
 
-  const dialNumber = (number) => {
+  const dialNumber = async (number) => {
     console.log(`Calling ${number}...`);
     if (window.Twilio) {
       window.Twilio.Device.connect({ To: number });
     }
     setCurrentNumberIndex(currentNumberIndex + 1);
+    const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+    await axios.patch(
+      `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+      { status: "In-Call" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Status updated to online");
   };
 
-  const handlePause = () => {
+  const handlePause = async () => {
     setIsPaused(true);
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
+    const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+    await axios.patch(
+      `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+      { status: "Paused" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Status updated to online");
   };
 
-  const handleResume = () => {
+  const handleResume = async () => {
     setIsPaused(false);
     dialNextNumber();
+    const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+    await axios.patch(
+      `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+      { status: "In-Call" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Status updated to online");
   };
 
   const handleConfirmDial = () => {

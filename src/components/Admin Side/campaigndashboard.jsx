@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -24,6 +24,7 @@ const CampaignsManager = () => {
   const [campaignToDelete, setCampaignToDelete] = useState(null);
   const [viewAgentsVisible, setViewAgentsVisible] = useState(false);
   const [agents, setAgents] = useState([]);
+  const dropdownRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -31,6 +32,39 @@ const CampaignsManager = () => {
   const colors = tokens(theme.palette.mode);
 
   const token = JSON.parse(localStorage.getItem("auth")) || "";
+  const [availableAgents, setAvailableAgents] = useState([]);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownVisible(false); // Close dropdown if clicked outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/api/v1/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setAvailableAgents(response.data.agents); // Update availableAgents with the fetched agents
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Failed to load available agents.");
+      }
+    };
+
+    fetchUsers();
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -58,7 +92,6 @@ const CampaignsManager = () => {
       }
     }
   };
-
   const fetchAgents = async (campaignName) => {
     try {
       const response = await axios.get(
@@ -67,8 +100,15 @@ const CampaignsManager = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(response.data.data);
-      setAgents(response.data.data);
+      setAgents(response.data.data); // Update the list of agents
+      // You can also update the number of agents for this campaign
+      setCampaigns((prevCampaigns) =>
+        prevCampaigns.map((campaign) =>
+          campaign.name === campaignName
+            ? { ...campaign, numberOfAgents: response.data.data.length } // Update the number of agents
+            : campaign
+        )
+      );
     } catch (error) {
       console.error("Error fetching agents:", error);
       if (error.response && error.response.status === 404) {
@@ -199,6 +239,7 @@ const CampaignsManager = () => {
     }
 
     try {
+      // Remove the agent from the campaign using the DELETE API
       const response = await axios.delete(
         `http://localhost:4000/api/v2/campaigns/${selectedCampaign.name}/agents`,
         {
@@ -206,20 +247,22 @@ const CampaignsManager = () => {
           data: { agentId: removeAgentId },
         }
       );
-      setCampaigns(
-        campaigns.map((campaign) =>
-          campaign.name === selectedCampaign.name
-            ? response.data.data
-            : campaign
-        )
+
+      // Update the campaigns list in the frontend
+      const updatedCampaigns = campaigns.map((campaign) =>
+        campaign.name === selectedCampaign.name
+          ? { ...campaign, numberOfAgents: campaign.numberOfAgents - 1 } // Decrease the number of agents
+          : campaign
       );
+      setCampaigns(updatedCampaigns);
+
+      // Refetch the agents list after agent removal
+      fetchAgents(selectedCampaign.name);
+
       toast.success("Agent removed successfully.");
       closeRemoveAgentModal();
     } catch (error) {
-      console.error(
-        "Error removing agent from campaign:",
-        error.response || error.message
-      );
+      console.error("Error removing agent from campaign:", error);
       if (error.response && error.response.status === 401) {
         toast.error("Unauthorized access. Please login again.");
         navigate("/login");
@@ -334,38 +377,52 @@ const CampaignsManager = () => {
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
-              width: "80%",
+              alignItems: "center",
+              width: "85%",
               backgroundColor: colors.primary[400],
-              borderRadius: "10px",
+              borderRadius: "12px",
               padding: "20px",
               marginBottom: "20px",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.5)",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
             }}
           >
-            <div style={{ flex: 1, paddingLeft: "200px" }}>
-              <h3>{campaign.name} Data</h3>
-              <p>Number of Agents: {campaign.numberOfAgents}</p>
-              <p>Sales Made: {campaign.sales}</p>
-              <p>Target Sales: {campaign.targetSales}</p>
-            </div>
+            {/* Campaign Details */}
+            <div style={{ flex: 1, padding: "0 20px" }}>
+              <h3
+                style={{ color: colors.greenAccent[500], marginBottom: "10px" }}
+              >
+                {campaign.name} Data
+              </h3>
+              <p style={{ margin: "5px 0", color: colors.gray[300] }}>
+                <strong>Number of Agents:</strong> {campaign.numberOfAgents}
+              </p>
 
+              <p style={{ margin: "5px 0", color: colors.gray[300] }}>
+                <strong>Sales Made:</strong> {campaign.sales}
+              </p>
+              <p style={{ margin: "5px 0", color: colors.gray[300] }}>
+                <strong>Target Sales:</strong> {campaign.targetSales}
+              </p>
+            </div>
+            {/* Action Buttons */}
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                gap: "10px",
                 flex: 1,
               }}
             >
               <button
                 style={{
-                  marginBottom: "10px",
                   padding: "10px 20px",
                   backgroundColor: colors.blueAccent[600],
                   color: "white",
                   border: "none",
-                  borderRadius: "5px",
+                  borderRadius: "6px",
                   cursor: "pointer",
+                  fontWeight: "bold",
                 }}
                 onClick={() => handleEditClick(campaign)}
               >
@@ -373,27 +430,13 @@ const CampaignsManager = () => {
               </button>
               <button
                 style={{
-                  marginBottom: "10px",
-                  padding: "10px 20px",
-                  backgroundColor: colors.greenAccent[500],
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-                onClick={() => openAddAgentModal(campaign)}
-              >
-                Add Agent
-              </button>
-              <button
-                style={{
-                  marginBottom: "10px",
                   padding: "10px 20px",
                   backgroundColor: colors.blueAccent[600],
                   color: "white",
                   border: "none",
-                  borderRadius: "5px",
+                  borderRadius: "6px",
                   cursor: "pointer",
+                  fontWeight: "bold",
                 }}
                 onClick={() => handleViewAgentsClick(campaign)}
               >
@@ -401,37 +444,35 @@ const CampaignsManager = () => {
               </button>
               <button
                 style={{
-                  marginBottom: "10px",
                   padding: "10px 20px",
                   backgroundColor: colors.redAccent[600],
                   color: "white",
                   border: "none",
-                  borderRadius: "5px",
+                  borderRadius: "6px",
                   cursor: "pointer",
-                }}
-                onClick={() => openRemoveAgentModal(campaign)}
-              >
-                Remove Agent
-              </button>
-              <button
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: colors.redAccent[600],
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
+                  fontWeight: "bold",
                 }}
                 onClick={() => openConfirmDeleteModal(campaign)}
               >
                 Delete Campaign
               </button>
             </div>
-
-            <div style={{ flex: 2, height: "300px" }}>
+            {/* Doughnut Chart */}
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "250px",
+              }}
+            >
               <Doughnut
                 data={data}
-                options={{ responsive: true, maintainAspectRatio: false }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                }}
               />
             </div>
           </div>
@@ -605,26 +646,211 @@ const CampaignsManager = () => {
               backgroundColor: "white",
               padding: "20px",
               borderRadius: "10px",
-              width: "400px",
+              width: "50%",
+              maxHeight: "90%",
+              overflowY: "auto",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : "inherit", 
             }}
           >
-            <h2>Agents in {selectedCampaign?.name}</h2>
-            <ol>
-              {agents.length > 0 ? (
-                agents.map((agent) => (
-                  <li key={agent._id}>
-                    {agent.fullName} (ID: {agent.agentID})
-                  </li>
-                ))
-              ) : (
-                <p>No agents found in this campaign.</p>
+            <h2 style={{ marginBottom: "20px" }}>
+              Agents in {selectedCampaign?.name}
+            </h2>
+
+            {/* Input for adding a new agent */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: "20px",
+                position: "relative", // Needed for dropdown positioning
+              }}
+              ref={dropdownRef} // Attach ref to the dropdown container
+            >
+              <input
+                type="text"
+                placeholder="Search or Select Agent ID"
+                value={newAgentId}
+                onChange={(e) => setNewAgentId(e.target.value)}
+                onFocus={() => setDropdownVisible(true)} // Show dropdown when input is focused
+                style={{
+                  padding: "10px",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
+                  width: "100%",
+                }}
+              />
+              {dropdownVisible && (
+                <ul
+                  style={{
+                    position: "absolute",
+                    top: "45px",
+                    left: "0",
+                    right: "0",
+                    maxHeight: "150px",
+                    overflowY: "auto",
+                    border: "1px solid #ccc",
+                    borderRadius: "5px",
+                    backgroundColor: "white",
+                    listStyleType: "none",
+                    margin: "0",
+                    padding: "10px",
+                    zIndex: 1000,
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                    color: colors.primary[600],
+                  }}
+                >
+                  {availableAgents
+                    .filter(
+                      (agent) =>
+                        agent.fullName
+                          .toLowerCase()
+                          .includes(newAgentId.toLowerCase()) ||
+                        agent.agentID
+                          .toString()
+                          .includes(newAgentId.toLowerCase())
+                    )
+                    .map((agent) => (
+                      <li
+                        key={agent.agentID}
+                        style={{
+                          padding: "5px 10px",
+                          cursor: "pointer",
+                          borderBottom: "1px solid #f0f0f0",
+                        }}
+                        onClick={() => {
+                          setNewAgentId(agent.agentID); // Set the selected agent ID
+                          setDropdownVisible(false); // Close the dropdown
+                        }}
+                      >
+                        {agent.fullName} (ID: {agent.agentID})
+                      </li>
+                    ))}
+                </ul>
               )}
-            </ol>
+              <button
+                style={{
+                  padding: "10px 20px",
+                  marginTop: "10px",
+                  backgroundColor: colors.greenAccent[500],
+                  color: "white",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                }}
+                onClick={async () => {
+                  await addAgentToCampaign(); // Add the new agent
+                  fetchAgents(selectedCampaign.name); // Fetch the updated list of agents
+                }}
+              >
+                Add Agent
+              </button>
+            </div>
+
+            {/* Table for Agents */}
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                textAlign: "left",
+                marginBottom: "20px",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th
+                    style={{
+                      padding: "10px",
+                      borderBottom: `1px solid ${colors.primary[300]}`,
+                      color: colors.primary[600],
+                    }}
+                  >
+                    Agent ID
+                  </th>
+                  <th
+                    style={{
+                      padding: "10px",
+                      borderBottom: `1px solid ${colors.primary[300]}`,
+                      color: colors.primary[600],
+                    }}
+                  >
+                    Agent Name
+                  </th>
+                  <th
+                    style={{
+                      padding: "10px",
+                      borderBottom: `1px solid ${colors.primary[300]}`,
+                      color: colors.primary[600],
+                    }}
+                  >
+                    Email
+                  </th>
+                  <th
+                    style={{
+                      padding: "10px",
+                      borderBottom: `1px solid ${colors.primary[300]}`,
+                      color: colors.primary[600],
+                    }}
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {agents.length > 0 ? (
+                  agents.map((agent) => (
+                    <tr key={agent._id}>
+                      <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                        {agent.agentID}
+                      </td>
+                      <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                        {agent.fullName}
+                      </td>
+                      <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                        {agent.email}
+                      </td>
+                      <td
+                        style={{
+                          border: "1px solid #ccc",
+                          padding: "10px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <button
+                          style={{
+                            padding: "5px 10px",
+                            backgroundColor: colors.redAccent[600],
+                            color: "white",
+                            border: "none",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                          }}
+                          onClick={async () => {
+                            setRemoveAgentId(agent.agentID);
+                            await removeAgentFromCampaign(agent.agentID); // Remove agent
+                            fetchAgents(selectedCampaign.name); // Refresh the agents list
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      style={{ textAlign: "center", padding: "20px" }}
+                    >
+                      No agents found in this campaign.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Close button */}
             <button
               style={{
-                marginTop: "20px",
                 padding: "10px 20px",
                 backgroundColor: colors.blueAccent[600],
                 color: "white",
@@ -724,7 +950,7 @@ const CampaignsManager = () => {
               borderRadius: "10px",
               width: "400px",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : colors.gray[900], 
+              color: theme.palette.mode === "dark" ? "black" : colors.gray[900],
             }}
           >
             <h2>Remove Agent from Campaign</h2>
@@ -738,7 +964,7 @@ const CampaignsManager = () => {
             <button
               style={{
                 padding: "10px 20px",
-                backgroundColor: colors.redAccent[600], 
+                backgroundColor: colors.redAccent[600],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
@@ -752,7 +978,7 @@ const CampaignsManager = () => {
               style={{
                 marginLeft: "10px",
                 padding: "10px 20px",
-                backgroundColor: colors.redAccent[600], 
+                backgroundColor: colors.redAccent[600],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",

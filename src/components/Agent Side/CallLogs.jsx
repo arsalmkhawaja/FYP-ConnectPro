@@ -19,18 +19,15 @@ const CallLogs = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  // Fetch agent profile
   useEffect(() => {
     const fetchAgentProfile = async () => {
       try {
-        console.log("Fetching agent profile...");
-
         const response = await axios.get("http://localhost:4000/api/v1/agent", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        console.log("Agent API response:", response.data);
 
         const agentData = response.data.agent;
         if (agentData) {
@@ -39,10 +36,6 @@ const CallLogs = () => {
             fullName: agentData.fullName,
           });
           setAgentLoaded(true);
-          console.log("Agent data set:", {
-            _id: agentData._id,
-            fullName: agentData.fullName,
-          });
         } else {
           console.log("No agent data returned from API.");
         }
@@ -61,23 +54,25 @@ const CallLogs = () => {
     }
   }, [token, navigate]);
 
+  // Fetch calls for the logged-in agent
   useEffect(() => {
     if (agentLoaded && agent._id) {
+      console.log("Fetching calls for agent with ID:", agent._id); // Log agent._id for debugging
       fetchAgentCallsData();
     }
-  }, [agentLoaded, agent.agentID]);
+  }, [agentLoaded, agent._id]); // Make sure you're using agent._id here
 
   const fetchAgentCallsData = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/v5/calls/agent/${agent._id}`,
+        `http://localhost:4000/api/v5/agent/${agent._id}`, // Correct API endpoint
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setCallsData(response.data);
+      setCallsData(response.data); // Update calls data state
       console.log("Fetched Calls Data:", response.data);
     } catch (error) {
       toast.error("Failed to fetch call data");

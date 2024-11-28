@@ -12,6 +12,7 @@ router.put("/calls/:id", authMiddleware, callController.updateCall);
 
 router.delete("/calls/:id", authMiddleware, callController.deleteCall);
 
-router.get("/agent/:id", authMiddleware, callController.getCallsByAgent);
+// Route handler
+router.get("/agent/:_id", authMiddleware, callController.getCallsByAgent);
 
 module.exports = router;

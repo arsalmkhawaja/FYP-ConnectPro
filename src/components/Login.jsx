@@ -53,8 +53,20 @@ const Login = () => {
             agentID: response.data.agentID || "",
             fullName: response.data.fullName || "",
           };
-          console.log("Agent Info to be stored:", agentInfo);
           localStorage.setItem("agentInfo", JSON.stringify(agentInfo));
+
+          // Change agent status to "online"
+          await axios.patch(
+            `http://localhost:4000/api/v1/agent/status/${response.data.agentID}`,
+            { status: "Online" },
+            {
+              headers: {
+                Authorization: `Bearer ${response.data.token}`,
+              },
+            }
+          );
+
+          toast.success("Status updated to online");
         }
 
         toast.success("Login successful");
