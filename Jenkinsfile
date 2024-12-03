@@ -12,12 +12,6 @@ pipeline {
         MONGO_URI = 'mongodb://localhost:27017/connectpro'
     }
     stages {
-        stage('Checkout') {
-      steps {
-        // Check out the repository from GitHub
-        git branch: 'main', url: 'https://github.com/arsalmkhawaja/FYP-ConnectPro.git'
-      }
-        }
 
         stage('Install Client Dependencies') {
       steps {
