@@ -1,63 +1,60 @@
 pipeline {
     agent any
 
+    // Define tools to be installed
+    tools {
+        // Install Node.js tool with a specific version
+        nodejs 'node:latest'
+    }
+
+    environment {
+        JWT_SECRET = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+        MONGO_URI = 'mongodb://localhost:27017/connectpro'
+    }
     stages {
         stage('Checkout') {
-            steps {
-                // Checkout code from GitHub
-                git branch: 'main', url: 'https://github.com/arsalmkhawaja/FYP-ConnectPro.git'
-            }
+      steps {
+        // Check out the repository from GitHub
+        git branch: 'main', url: 'https://github.com/arsalmkhawaja/FYP-ConnectPro.git'
+      }
         }
 
-        stage('Install Dependencies - Backend') {
-            steps {
-                dir('backend') {
-                    // Install backend dependencies
-                    sh 'npm install'
-                }
-            }
+        stage('Install Client Dependencies') {
+      steps {
+        // Change to the client directory and install dependencies
+        dir('client') {
+          sh 'npm install'
+        }
+      }
         }
 
-        stage('Install Dependencies - Frontend') {
-            steps {
-                dir('.') {
-                    // Install frontend dependencies
-                    sh 'npm install'
-                }
-            }
+        stage('Build Client') {
+      steps {
+        // Change to the client directory and run the build command
+        dir('client') {
+          sh 'npm run build'
+        }
+      }
         }
 
-        stage('Start Backend') {
-            steps {
-                dir('backend') {
-                    // Start the backend (Node.js/Express)
-                    sh 'npm start &'
-                }
-            }
+        stage('Install Backend Dependencies') {
+      steps {
+        // Change to the backend directory and install dependencies
+        dir('api') {
+          sh 'npm install'
+          sh 'export MONGODB_URI=$MONGODB_URI'
+          sh 'export TOKEN_KEY=$TOKEN_KEY'
         }
-
-        stage('Start Frontend') {
-            steps {
-                dir('.') {
-                    // Start the frontend (React)
-                    sh 'npm start &'
-                }
-            }
+      }
         }
     }
 
     post {
-        always {
-            // Clean up after the build, e.g., delete workspace
-            cleanWs()
-        }
-
         success {
-            echo 'Frontend and Backend started successfully!'
+      echo 'Pipeline completed successfully!'
         }
-
         failure {
-            echo 'There was an issue starting the frontend or backend.'
+      echo 'Pipeline failed.'
         }
     }
 }
