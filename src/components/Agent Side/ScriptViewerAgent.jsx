@@ -9,7 +9,6 @@ const ScriptViewerAgent = () => {
   const [scripts, setScripts] = useState([]);
   const [expandedScriptId, setExpandedScriptId] = useState(null); // Tracks which script is expanded
 
-  // Fetch scripts from the backend on component mount
   useEffect(() => {
     if (!token) {
       toast.warn("Please login first to access the dashboard");
