@@ -347,7 +347,7 @@ const CampaignsManager = () => {
           style={{
             marginRight: "10px",
             padding: "10px 20px",
-            backgroundColor: colors.greenAccent[500],
+            backgroundColor: colors.blueAccent[700],
             color: "white",
             border: "none",
             borderRadius: "5px",
@@ -417,7 +417,7 @@ const CampaignsManager = () => {
               <button
                 style={{
                   padding: "10px 20px",
-                  backgroundColor: colors.blueAccent[600],
+                  backgroundColor: colors.blueAccent[700],
                   color: "white",
                   border: "none",
                   borderRadius: "6px",
@@ -431,7 +431,7 @@ const CampaignsManager = () => {
               <button
                 style={{
                   padding: "10px 20px",
-                  backgroundColor: colors.blueAccent[600],
+                  backgroundColor: colors.blueAccent[700],
                   color: "white",
                   border: "none",
                   borderRadius: "6px",

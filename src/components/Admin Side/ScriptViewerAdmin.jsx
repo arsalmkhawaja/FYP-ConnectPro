@@ -1,43 +1,87 @@
 import React, { useState, useEffect } from "react";
-import scriptsData from "../../assets/scripts.json";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const ScriptViewerAdmin = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
-  const [scripts, setScripts] = useState(scriptsData);
+  const [scripts, setScripts] = useState([]);
   const [newScriptTitle, setNewScriptTitle] = useState("");
   const [newScriptContent, setNewScriptContent] = useState("");
-  const [activeScript, setActiveScript] = useState(null);
+
+  // Fetch all scripts from the backend on component mount
   useEffect(() => {
     if (!token) {
       toast.warn("Please login first to access the dashboard");
       navigate("/login");
+    } else {
+      fetchScripts(); // Call the function to fetch scripts
     }
   }, [token, navigate]);
-  const handleAddScript = () => {
-    if (newScriptTitle && newScriptContent) {
-      const newScript = {
-        id: scripts.length + 1,
-        title: newScriptTitle,
-        content: newScriptContent,
-      };
-      setScripts([...scripts, newScript]);
-      setNewScriptTitle("");
-      setNewScriptContent("");
+
+  const fetchScripts = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/v7/scripts", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setScripts(response.data); // Update state with fetched scripts
+    } catch (error) {
+      console.error("Error fetching scripts:", error);
+      toast.error("Failed to load scripts.");
     }
   };
 
-  const handleRemoveScript = (id) => {
-    const updatedScripts = scripts.filter((script) => script.id !== id);
-    setScripts(updatedScripts);
+  // Add a new script to the backend
+  const handleAddScript = async () => {
+    if (newScriptTitle && newScriptContent) {
+      try {
+        const response = await axios.post(
+          "http://localhost:4000/api/v7/scripts",
+          { name: newScriptTitle, script: newScriptContent },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setScripts([...scripts, response.data]); // Add the new script to the state
+        setNewScriptTitle("");
+        setNewScriptContent("");
+        toast.success("Script added successfully!");
+      } catch (error) {
+        console.error("Error adding script:", error);
+        toast.error("Failed to add script.");
+      }
+    } else {
+      toast.warn("Please provide both title and content for the script.");
+    }
   };
 
+  // Remove a script by ID
+  const handleRemoveScript = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/v7/scripts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setScripts(scripts.filter((script) => script._id !== id)); // Remove script from the state
+      toast.success("Script deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting script:", error);
+      toast.error("Failed to delete script.");
+    }
+  };
+
+  // Handle clicking on a script (optional enhancement)
   const handleScriptClick = (script) => {
-    setActiveScript(script);
+    console.log("Clicked script:", script); // Future feature can show detailed view
   };
 
+  // Styles
   const scriptButtonStyle = {
     margin: "10px",
     padding: "10px 20px",
@@ -106,7 +150,7 @@ const ScriptViewerAdmin = () => {
       {scripts.length > 0 ? (
         scripts.map((script) => (
           <div
-            key={script.id}
+            key={script._id}
             style={scriptItemStyle}
             onMouseOver={(e) =>
               (e.currentTarget.style.backgroundColor = "#e9ecef")
@@ -119,14 +163,14 @@ const ScriptViewerAdmin = () => {
               style={scriptTitleStyle}
               onClick={() => handleScriptClick(script)}
             >
-              {script.title}
+              {script.name}
             </h4>
             <p style={{ fontSize: "16px", color: "#6c757d" }}>
-              {script.content}
+              {script.script}
             </p>
             <button
               style={removeButtonStyle}
-              onClick={() => handleRemoveScript(script.id)}
+              onClick={() => handleRemoveScript(script._id)}
             >
               Remove Script
             </button>
