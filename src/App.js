@@ -11,6 +11,7 @@ import AgentAnalyticsDashboard from "./components/Admin Side/Analytics";
 import ScriptViewer from "./components/Admin Side/ScriptViewerAdmin";
 import AudioSentiment from "./components/Admin Side/QA";
 import DialingScreen from "./components/Agent Side/Dialler";
+import DialingScreen2 from "./components/Agent Side/Dialler2";
 import AgentHome from "./components/Agent Side/AgentHome";
 import CallLogs from "./components/Agent Side/CallLogs";
 import CallCenterScreen from "./components/Agent Side/Dialler";
@@ -22,6 +23,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        <Route path="dialler2" element={<DialingScreen2 />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/adminregister" element={<AdminRegister />} />

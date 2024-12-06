@@ -7,7 +7,7 @@ const ScriptViewerAgent = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
   const [scripts, setScripts] = useState([]);
-  const [expandedScriptId, setExpandedScriptId] = useState(null); // Tracks which script is expanded
+  const [selectedScript, setSelectedScript] = useState(null); // For the popup box
 
   useEffect(() => {
     if (!token) {
@@ -32,67 +32,158 @@ const ScriptViewerAgent = () => {
     }
   };
 
-  // Toggle the expanded script view
-  const handleScriptClick = (id) => {
-    setExpandedScriptId(expandedScriptId === id ? null : id);
+  // Open the popup for a selected script
+  const handleScriptClick = (script) => {
+    setSelectedScript(script);
   };
 
-  // Styles
-  const scriptItemStyle = {
-    marginBottom: "10px",
-    padding: "15px",
-    border: "1px solid #007bff",
-    borderRadius: "8px",
+  // Close the popup
+  const handleClosePopup = () => {
+    setSelectedScript(null);
+  };
+
+  // Updated Styles
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)", // Maximum of 3 cards per row
+    gap: "25px",
+    marginTop: "30px",
+  };
+
+  const cardStyle = {
+    padding: "20px",
+    borderRadius: "15px",
     backgroundColor: "#f8f9fa",
+    color: "black",
+    textAlign: "center",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
     cursor: "pointer",
-    textAlign: "left",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    transition: "all 0.2s ease",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
   };
 
-  const scriptTitleStyle = {
-    fontWeight: "bold",
-    fontSize: "18px",
-    color: "#007bff",
+  const cardHoverStyle = {
+    ...cardStyle,
+    transform: "scale(1.08)",
+    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.2)",
   };
 
-  const scriptContentStyle = {
-    marginTop: "10px",
+  const cardTitleStyle = {
+    fontWeight: "600",
+    fontSize: "22px",
+    marginBottom: "15px",
+    color: "black",
+  };
+
+  const popupStyle = {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "#ffffff",
+    padding: "30px",
+    borderRadius: "15px",
+    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.4)",
+    zIndex: 1000,
+    width: "90%",
+    maxWidth: "600px",
+    overflow: "hidden", // Ensures content stays within the box
+    textAlign: "center",
+  };
+
+  const popupContentStyle = {
+    wordWrap: "break-word", // Prevents text from overflowing
+    maxHeight: "400px", // Ensures the text doesn't extend too far
+    overflowY: "auto", // Adds a scroll bar if content exceeds the max height
+    color: "#495057",
+  };
+
+  const overlayStyle = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    zIndex: 999,
+  };
+
+  const closeButtonStyle = {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    background: "#ff6b6b",
+    border: "none",
+    color: "#ffffff",
+    borderRadius: "50%",
+    width: "30px",
+    height: "30px",
     fontSize: "16px",
-    color: "#6c757d",
-    whiteSpace: "pre-wrap", // Ensures line breaks are respected
+    fontWeight: "bold",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  };
+
+  const noScriptsStyle = {
+    fontSize: "18px",
+    color: "#adb5bd",
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "30px" }}>
       <h3
         style={{
           fontWeight: "bold",
-          marginBottom: "20px",
-          fontSize: "40px",
-          color: "#4cceac",
+          marginBottom: "30px",
+          fontSize: "36px",
+          color: "#20c997",
+          textAlign: "center",
         }}
       >
-        Scripts
+        Available Scripts
       </h3>
 
-      {scripts.length > 0 ? (
-        scripts.map((script) => (
-          <div
-            key={script._id}
-            style={scriptItemStyle}
-            onClick={() => handleScriptClick(script._id)}
-          >
-            <h4 style={scriptTitleStyle}>{script.name}</h4>
-            {expandedScriptId === script._id && (
-              <p style={scriptContentStyle}>{script.script}</p>
-            )}
+      <div style={gridStyle}>
+        {scripts.length > 0 ? (
+          scripts.map((script) => (
+            <div
+              key={script._id}
+              style={cardStyle}
+              onClick={() => handleScriptClick(script)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.08)";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 20px rgba(0, 0, 0, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow =
+                  "0 4px 12px rgba(0, 0, 0, 0.1)";
+              }}
+            >
+              <h4 style={cardTitleStyle}>{script.name}</h4>
+              <p>{script.description || "Click to view details"}</p>
+            </div>
+          ))
+        ) : (
+          <p style={noScriptsStyle}>No scripts available.</p>
+        )}
+      </div>
+
+      {selectedScript && (
+        <>
+          <div style={overlayStyle} onClick={handleClosePopup}></div>
+          <div style={popupStyle}>
+            <button style={closeButtonStyle} onClick={handleClosePopup}>
+              &times;
+            </button>
+            <h4 style={cardTitleStyle}>{selectedScript.name}</h4>
+            <div style={popupContentStyle}>
+              <p>{selectedScript.script}</p>
+            </div>
           </div>
-        ))
-      ) : (
-        <p style={{ fontSize: "16px", color: "#6c757d" }}>
-          No scripts available.
-        </p>
+        </>
       )}
     </div>
   );

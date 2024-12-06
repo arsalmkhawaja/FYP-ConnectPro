@@ -32,7 +32,7 @@ const CallCenterScreen = () => {
   const [currentSale, setCurrentSale] = useState({
     agent: { agentID: "", fullName: "" },
     form: "",
-    campaign: "Default Campaign ID", // Replace with actual campaign ID
+    campaign: "Default Campaign ID",
     amount: "",
     saleDate: new Date().toISOString(),
     score: "",
@@ -54,7 +54,7 @@ const CallCenterScreen = () => {
     comments: "",
   });
 
-  const [error, setError] = useState({ open: false, message: "" }); // State for error modal
+  const [error, setError] = useState({ open: false, message: "" });
 
   const token = JSON.parse(localStorage.getItem("auth")) || "";
 
@@ -70,7 +70,7 @@ const CallCenterScreen = () => {
         setCurrentSale((prevSale) => ({
           ...prevSale,
           agent: {
-            agentID: agentData._id, // Assuming you want to use the ObjectId as agentID
+            agentID: agentData._id,
             fullName: agentData.fullName,
           },
         }));
@@ -157,6 +157,7 @@ const CallCenterScreen = () => {
     setShowDisposition(false);
   };
 
+  // Function to save the sale
   const handleSaveSale = async () => {
     if (!currentSale.amount) {
       setError({
@@ -168,7 +169,6 @@ const CallCenterScreen = () => {
     console.log(`Requesting form data for phone number: ${formData.phone}`);
 
     try {
-      // Fetch form data based on the phone number
       const formResponse = await axios.get(
         `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
         {
@@ -188,16 +188,14 @@ const CallCenterScreen = () => {
         return;
       }
 
-      // Update the sale with form ID and save the sale
       const updatedSale = {
         ...currentSale,
-        form: formDataFromServer.formId, // Assign only the form ID
-        campaign: currentSale.campaign || null, // Handle campaign as null if not provided
+        form: formDataFromServer.formId,
+        campaign: currentSale.campaign || null,
       };
 
       console.log("Updated Sale Data:", updatedSale);
 
-      // Now save the sale
       const saleResponse = await axios.post(
         "http://localhost:4000/api/v4/sales",
         updatedSale,
@@ -217,6 +215,41 @@ const CallCenterScreen = () => {
       });
       console.error(
         "Error saving sale:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  const handleSaveCall = async (dispositionSelected) => {
+    const callData = {
+      phoneNumber: formData.phone,
+      form: currentSale.form,
+      agent: currentSale.agent.agentID,
+      duration: 120,
+      sentiment: currentSale.sentiment,
+      disposition: dispositionSelected,
+      campaign: currentSale.campaign || null,
+      transcription: "Call transcription text",
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/v5/calls",
+        callData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Call saved successfully");
+    } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to save call. Please try again.",
+      });
+      console.error(
+        "Error saving call:",
         error.response?.data || error.message
       );
     }
@@ -258,24 +291,60 @@ const CallCenterScreen = () => {
     }
   };
 
-  const dialNumber = (number) => {
+  const dialNumber = async (number) => {
     console.log(`Calling ${number}...`);
     if (window.Twilio) {
       window.Twilio.Device.connect({ To: number });
     }
     setCurrentNumberIndex(currentNumberIndex + 1);
+    const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+    await axios.patch(
+      `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+      { status: "In-Call" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Status updated to online");
   };
 
-  const handlePause = () => {
+  const handlePause = async () => {
     setIsPaused(true);
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
+    const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+    await axios.patch(
+      `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+      { status: "Paused" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Status updated to online");
   };
 
-  const handleResume = () => {
+  const handleResume = async () => {
     setIsPaused(false);
     dialNextNumber();
+    const agentInfo = JSON.parse(localStorage.getItem("agentInfo"));
+    await axios.patch(
+      `http://localhost:4000/api/v1/agent/status/${agentInfo.agentID}`,
+      { status: "In-Call" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    toast.success("Status updated to online");
   };
 
   const handleConfirmDial = () => {
@@ -385,7 +454,7 @@ const CallCenterScreen = () => {
                     onFormChange={handleFormChange}
                     handleClearForm={handleClearForm}
                     twoColumns
-                    setError={setError} // Pass setError to handle errors in form submission
+                    setError={setError}
                   />
                 </Paper>
               </Grid>
@@ -425,8 +494,9 @@ const CallCenterScreen = () => {
                     <CustomerForm
                       formData={formData}
                       onFormChange={handleFormChange}
-                      handleClearForm={handleClearForm} // Pass handleClearForm here for Manual Dial
+                      handleClearForm={handleClearForm}
                       twoColumns
+                      setError={setError}
                     />
                   </Box>
                 </Paper>
@@ -452,8 +522,12 @@ const CallCenterScreen = () => {
           <DispositionModal
             onClose={handleCloseDisposition}
             onSaveSale={handleSaveSale}
+            onSaveCall={handleSaveCall}
             currentSale={currentSale}
             setCurrentSale={setCurrentSale}
+            formData={formData}
+            token={token}
+            setError={setError}
           />
         </Box>
       </Modal>
@@ -524,8 +598,12 @@ const ErrorModal = ({ open, onClose, errorMessage }) => {
 const DispositionModal = ({
   onClose,
   onSaveSale,
+  onSaveCall,
   currentSale,
   setCurrentSale,
+  formData,
+  token,
+  setError,
 }) => {
   const [checkedItems, setCheckedItems] = useState({
     A: false,
@@ -553,17 +631,83 @@ const DispositionModal = ({
     }));
   };
 
-  const handleSubmit = () => {
-    const isAnyChecked = Object.values(checkedItems).some((item) => item);
-    if (isAnyChecked) {
-      if (checkedItems.SALE) {
-        onSaveSale();
-      } else {
-        onClose();
+  const handleSaveCall = async (dispositionSelected) => {
+    console.log(`Requesting form data for phone number: ${formData.phone}`);
+
+    try {
+      const formResponse = await axios.get(
+        `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const formDataFromServer = formResponse.data;
+
+      if (!formDataFromServer || !formDataFromServer.formId) {
+        setError({
+          open: true,
+          message: "Form not found for the provided phone number.",
+        });
+        return;
       }
-    } else {
-      alert("Please select at least one option before submitting.");
+
+      const updatedCall = {
+        phoneNumber: formData.phone,
+        form: formDataFromServer.formId || null,
+        agent: currentSale.agent.agentID,
+        campaign: currentSale.campaign || null,
+        duration: 120,
+        sentiment: currentSale.sentiment,
+        disposition: dispositionSelected,
+        transcription: "Call transcription text",
+      };
+
+      console.log("Updated Call Data:", updatedCall);
+
+      const callResponse = await axios.post(
+        "http://localhost:4000/api/v5/calls",
+        updatedCall,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success("Call saved successfully");
+      console.log("Call saved successfully:", callResponse.data);
+    } catch (error) {
+      setError({
+        open: true,
+        message: "Failed to save call. Please check the fields and try again.",
+      });
+      console.error(
+        "Error saving call:",
+        error.response?.data || error.message
+      );
     }
+  };
+
+  const handleSubmit = async () => {
+    const selectedDispositions = Object.keys(checkedItems).filter(
+      (key) => checkedItems[key]
+    );
+
+    if (selectedDispositions.length === 0) {
+      alert("Please select at least one option before submitting.");
+      return;
+    }
+
+    await onSaveCall(selectedDispositions.join(", "));
+
+    if (checkedItems.SALE) {
+      await onSaveSale();
+    }
+
+    onClose();
   };
 
   const handleClearDispositionForm = () => {
@@ -580,6 +724,10 @@ const DispositionModal = ({
       SALE: false,
       XFER: false,
     });
+    setCurrentSale((prevSale) => ({
+      ...prevSale,
+      amount: "",
+    }));
   };
 
   return (
@@ -752,7 +900,7 @@ const CustomerForm = ({
   onFormChange,
   handleClearForm,
   twoColumns,
-  setError, // Pass setError from the parent component to display errors
+  setError,
 }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
