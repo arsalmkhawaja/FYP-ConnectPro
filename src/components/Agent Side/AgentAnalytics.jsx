@@ -124,25 +124,22 @@ const AgentAnalytics = () => {
       answeredCalls.push(analyticsByDate[date].answered);
     });
 
-    const blueAccent = colors?.blueAccent?.[500] || "#0000FF";
-    const purpleAccent = colors?.purpleAccent?.[500] || "#800080";
-
     return {
       labels,
       datasets: [
         {
           label: "Incoming Calls",
           data: incomingCalls,
-          borderColor: blueAccent,
-          backgroundColor: `${blueAccent}1A`,
+          borderColor: "#1f77b4", // Vibrant blue
+          backgroundColor: "rgba(31, 119, 180, 0.2)",
           tension: 0.4,
           fill: true,
         },
         {
           label: "Answered Calls",
           data: answeredCalls,
-          borderColor: purpleAccent,
-          backgroundColor: `${purpleAccent}1A`,
+          borderColor: "#2ca02c", // Vibrant green
+          backgroundColor: "rgba(44, 160, 44, 0.2)",
           tension: 0.4,
           fill: true,
         },
@@ -166,15 +163,18 @@ const AgentAnalytics = () => {
     const labels = Object.keys(dispositionCounts);
     const counts = Object.values(dispositionCounts);
 
-    const greenAccent = colors?.greenAccent?.[500] || "#00FF00";
-
     return {
       labels,
       datasets: [
         {
           label: "Call Dispositions",
           data: counts,
-          backgroundColor: greenAccent,
+          backgroundColor: [
+            "#ff7f0e", // Vibrant orange
+            "#1f77b4", // Vibrant blue
+            "#2ca02c", // Vibrant green
+            "#d62728", // Bright red
+          ],
         },
       ],
     };
@@ -196,17 +196,19 @@ const AgentAnalytics = () => {
     const labels = Object.keys(dispositionCounts);
     const counts = Object.values(dispositionCounts);
 
-    const colorsArray = labels.map(
-      (_, index) => colors?.primary?.[index * 100 + 100] || `hsl(${index * 60}, 70%, 50%)`
-    );
-
     return {
       labels,
       datasets: [
         {
           label: "Disposition Distribution",
           data: counts,
-          backgroundColor: colorsArray,
+          backgroundColor: [
+            "#1f77b4", // Vibrant blue
+            "#ff7f0e", // Vibrant orange
+            "#2ca02c", // Vibrant green
+            "#d62728", // Bright red
+            "#9467bd", // Purple
+          ],
         },
       ],
     };
@@ -235,7 +237,7 @@ const AgentAnalytics = () => {
             answeredDuration / (answeredCount || 1), // Avoid division by zero
             missedCount,
           ],
-          backgroundColor: [colors?.blueAccent?.[500], colors?.redAccent?.[500]],
+          backgroundColor: ["#1f77b4", "#ff7f0e"], // Blue for answered, orange for missed
         },
       ],
     };
@@ -246,71 +248,104 @@ const AgentAnalytics = () => {
   }
 
   return (
-    <Grid container spacing={3}>
-      {/* Line Chart */}
-      <Grid item xs={12} md={6}>
-        <Box
-          sx={{
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: colors.primary[500],
-          }}
+    <Box sx={{ padding: "5px" }}>
+      {/* Heading */}
+      <Box
+        sx={{
+          padding: "10px",
+          marginBottom: "20px",
+          backgroundColor: colors.primary[500],
+          borderRadius: "8px",
+        }}
+      >
+        <Typography
+          variant="h3"
+          sx={{ color: colors.gray[100], fontWeight: "bold" }}
         >
-          <Typography variant="h6" sx={{ marginBottom: "10px", color: colors.gray[100] }}>
-            Incoming vs. Answered Calls Over Time
-          </Typography>
-          <Line data={lineChartData} options={{ responsive: true }} />
-        </Box>
-      </Grid>
+          Agent Analytics
+        </Typography>
+      </Box>
 
-      {/* Bar Chart */}
-      <Grid item xs={12} md={6}>
-        <Box
-          sx={{
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: colors.primary[500],
-          }}
-        >
-          <Typography variant="h6" sx={{ marginBottom: "10px", color: colors.gray[100] }}>
-            Call Dispositions
-          </Typography>
-          <Bar data={barChartData} options={{ responsive: true }} />
-        </Box>
-      </Grid>
+      {/* Main Grid Container */}
+      <Grid container spacing={8}>
+        {/* Line Chart */}
+        <Grid item xs={12} md={5}>
+          <Box
+            sx={{
+              padding: "25px",
+              borderRadius: "8px",
+              backgroundColor: colors.primary[500],
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ marginBottom: "10px", color: colors.gray[100] }}
+            >
+              Incoming vs. Answered Calls Over Time
+            </Typography>
+            <Line data={lineChartData} options={{ responsive: true }} />
+          </Box>
+        </Grid>
+        {/* Pie Chart */}
+        <Grid item xs={12} md={4}>
+          <Box
+            sx={{
+              padding: "10px",
+              borderRadius: "4px",
+              backgroundColor: colors.primary[500],
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ marginBottom: "10px", color: colors.gray[100] }}
+            >
+              Disposition Distribution
+            </Typography>
+            <Pie data={pieChartData} options={{ responsive: true }} />
+          </Box>
+        </Grid>
+        {/* Bar Chart */}
+        <Grid item xs={12} md={5}>
+          <Box
+            sx={{
+              padding: "25px",
+              borderRadius: "8px",
+              backgroundColor: colors.primary[500],
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ marginBottom: "10px", color: colors.gray[100] }}
+            >
+              Call Dispositions
+            </Typography>
+            <Bar data={barChartData} options={{ responsive: true }} />
+          </Box>
+        </Grid>
 
-      {/* Pie Chart */}
-      <Grid item xs={12} md={6}>
-        <Box
-          sx={{
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: colors.primary[500],
-          }}
-        >
-          <Typography variant="h6" sx={{ marginBottom: "10px", color: colors.gray[100] }}>
-            Disposition Distribution
-          </Typography>
-          <Pie data={pieChartData} options={{ responsive: true }} />
-        </Box>
+        {/* Horizontal Bar Chart */}
+        <Grid item xs={12} md={5}>
+          <Box
+            sx={{
+              padding: "20px",
+              borderRadius: "8px",
+              backgroundColor: colors.primary[500],
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ marginBottom: "10px", color: colors.gray[100] }}
+            >
+              Average Call Duration
+            </Typography>
+            <Bar
+              data={horizontalBarChartData}
+              options={{ responsive: true, indexAxis: "y" }}
+            />
+          </Box>
+        </Grid>
       </Grid>
-
-      {/* Horizontal Bar Chart */}
-      <Grid item xs={12} md={6}>
-        <Box
-          sx={{
-            padding: "20px",
-            borderRadius: "8px",
-            backgroundColor: colors.primary[500],
-          }}
-        >
-          <Typography variant="h6" sx={{ marginBottom: "10px", color: colors.gray[100] }}>
-            Average Call Duration
-          </Typography>
-          <Bar data={horizontalBarChartData} options={{ responsive: true, indexAxis: "y" }} />
-        </Box>
-      </Grid>
-    </Grid>
+    </Box>
   );
 };
 
