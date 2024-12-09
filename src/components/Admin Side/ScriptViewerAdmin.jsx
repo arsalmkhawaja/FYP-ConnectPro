@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { tokens } from "../../theme";
+import {
+  useTheme,
+} from "@mui/material";
 const ScriptViewerAdmin = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
@@ -10,6 +13,9 @@ const ScriptViewerAdmin = () => {
   const [newScriptTitle, setNewScriptTitle] = useState("");
   const [newScriptContent, setNewScriptContent] = useState("");
   const [selectedScript, setSelectedScript] = useState(null); // For popup
+  const [showAddScriptPopup, setShowAddScriptPopup] = useState(false);
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
 
   useEffect(() => {
     if (!token) {
@@ -50,6 +56,7 @@ const ScriptViewerAdmin = () => {
         setNewScriptTitle("");
         setNewScriptContent("");
         toast.success("Script added successfully!");
+        setShowAddScriptPopup(false);
       } catch (error) {
         console.error("Error adding script:", error);
         toast.error("Failed to add script.");
@@ -82,6 +89,14 @@ const ScriptViewerAdmin = () => {
     setSelectedScript(null); // Close popup
   };
 
+  const handleAddScriptButtonClick = () => {
+    setShowAddScriptPopup(true); // Open "Add Script" form popup
+  };
+
+  const handleCloseAddScriptPopup = () => {
+    setShowAddScriptPopup(false); // Close "Add Script" form popup
+  };
+
   // Styles
   const containerStyle = {
     display: "grid",
@@ -93,7 +108,7 @@ const ScriptViewerAdmin = () => {
 
   const scriptItemStyle = {
     padding: "15px",
-    border: "1px solid #007bff",
+    border: "1px solid black",
     borderRadius: "8px",
     backgroundColor: "#f8f9fa",
     textAlign: "left",
@@ -106,7 +121,7 @@ const ScriptViewerAdmin = () => {
     cursor: "pointer",
     fontWeight: "bold",
     fontSize: "18px",
-    color: "#4cceac",
+    color: "black",
   };
 
   const inputStyle = {
@@ -164,7 +179,7 @@ const ScriptViewerAdmin = () => {
     boxShadow: "0 4px 15px rgba(0, 0, 0, 0.4)",
     zIndex: 1000,
     width: "90%",
-    maxWidth: "600px",
+    maxWidth: "800px",
     overflow: "hidden",
     textAlign: "center",
   };
@@ -175,6 +190,7 @@ const ScriptViewerAdmin = () => {
     overflowY: "auto", // Adds a scroll bar if content exceeds the max height
     color: "black", // Updated to black text color
     padding: "10px",
+    fontSize: "18px",
   };
 
   const closeButtonStyle = {
@@ -195,7 +211,6 @@ const ScriptViewerAdmin = () => {
     justifyContent: "center",
   };
 
-  // Style for script content preview box (on hover, only a part of the content will be shown)
   const scriptPreviewStyle = {
     display: "block",
     whiteSpace: "nowrap",
@@ -206,6 +221,25 @@ const ScriptViewerAdmin = () => {
     marginTop: "10px",
   };
 
+  const addScriptButtonStyle = {
+    position: "fixed",
+    top: "80px",
+    right: "20px",
+    backgroundColor: "#007bff",
+    color: "white",
+    border: "none",
+    borderRadius: "50%",
+    width: "50px",
+    height: "50px",
+    fontSize: "30px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h3
@@ -213,7 +247,7 @@ const ScriptViewerAdmin = () => {
           fontWeight: "bold",
           marginBottom: "20px",
           fontSize: "40px",
-          color: "#4cceac",
+          colors:{colors},
         }}
       >
         Scripts
@@ -253,7 +287,7 @@ const ScriptViewerAdmin = () => {
         )}
       </div>
 
-      {/* Popup Overlay */}
+      {/* Popup Overlay for script details */}
       {selectedScript && (
         <>
           <div style={overlayStyle} onClick={handleClosePopup}></div>
@@ -261,7 +295,7 @@ const ScriptViewerAdmin = () => {
             <button style={closeButtonStyle} onClick={handleClosePopup}>
               X
             </button>
-            <h4 style={{ color: "#333", fontWeight: "bold" }}>
+            <h4 style={{ color: "#333", fontWeight: "bold", fontSize:"25px"}}>
               {selectedScript.name}
             </h4>
             <div style={popupContentStyle}>
@@ -271,26 +305,37 @@ const ScriptViewerAdmin = () => {
         </>
       )}
 
-      {/* Add Script Form */}
-      <div style={{ marginTop: "40px" }}>
-        <input
-          type="text"
-          placeholder="Enter script title"
-          style={inputStyle}
-          value={newScriptTitle}
-          onChange={(e) => setNewScriptTitle(e.target.value)}
-        />
-        <textarea
-          placeholder="Enter script content"
-          style={inputStyle}
-          rows="5"
-          value={newScriptContent}
-          onChange={(e) => setNewScriptContent(e.target.value)}
-        />
-        <button style={scriptButtonStyle} onClick={handleAddScript}>
-          Add Script
-        </button>
-      </div>
+      {/* Add Script Form Popup */}
+      {showAddScriptPopup && (
+        <div style={popupStyle}>
+          <button style={closeButtonStyle} onClick={handleCloseAddScriptPopup}>
+            X
+          </button>
+          <h4 style={{ color: "#333", fontWeight: "bold" }}>Add New Script</h4>
+          <input
+            type="text"
+            placeholder="Enter script title"
+            style={inputStyle}
+            value={newScriptTitle}
+            onChange={(e) => setNewScriptTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="Enter script content"
+            style={{ ...inputStyle, resize: "none" }} // Disable resizing
+            rows="5"
+            value={newScriptContent}
+            onChange={(e) => setNewScriptContent(e.target.value)}
+          />
+          <button style={scriptButtonStyle} onClick={handleAddScript}>
+            Add Script
+          </button>
+        </div>
+      )}
+
+      {/* Add Script Button */}
+      <button style={addScriptButtonStyle} onClick={handleAddScriptButtonClick}>
+        +
+      </button>
     </div>
   );
 };

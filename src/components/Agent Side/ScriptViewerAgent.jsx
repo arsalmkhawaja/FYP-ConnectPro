@@ -2,13 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { tokens } from "../../theme";
+import { useTheme } from "@mui/material";
 
 const ScriptViewerAgent = () => {
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem("auth")) || "";
   const [scripts, setScripts] = useState([]);
   const [selectedScript, setSelectedScript] = useState(null); // For the popup box
-
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   useEffect(() => {
     if (!token) {
       toast.warn("Please login first to access the dashboard");
@@ -85,8 +88,8 @@ const ScriptViewerAgent = () => {
     boxShadow: "0 4px 15px rgba(0, 0, 0, 0.4)",
     zIndex: 1000,
     width: "90%",
-    maxWidth: "600px",
-    overflow: "hidden", // Ensures content stays within the box
+    maxWidth: "800px",
+    overflow: "hidden",
     textAlign: "center",
   };
 
@@ -94,7 +97,9 @@ const ScriptViewerAgent = () => {
     wordWrap: "break-word", // Prevents text from overflowing
     maxHeight: "400px", // Ensures the text doesn't extend too far
     overflowY: "auto", // Adds a scroll bar if content exceeds the max height
-    color: "#495057",
+    color: "black",
+    fontSize: "18px",
+    padding: "10px",
   };
 
   const overlayStyle = {
@@ -135,13 +140,12 @@ const ScriptViewerAgent = () => {
       <h3
         style={{
           fontWeight: "bold",
-          marginBottom: "30px",
-          fontSize: "36px",
-          color: "#20c997",
-          textAlign: "center",
+          marginBottom: "20px",
+          fontSize: "40px",
+          colors: { colors },
         }}
       >
-        Available Scripts
+        Scripts
       </h3>
 
       <div style={gridStyle}>

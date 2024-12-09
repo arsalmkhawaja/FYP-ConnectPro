@@ -369,7 +369,16 @@ const AgentManagement = () => {
           marginBottom: "20px",
         }}
       >
-        <h2 style={{ color: colors.primary[100] }}>Agents</h2>
+        <h3
+        style={{
+          fontWeight: "bold",
+          marginBottom: "20px",
+          fontSize: "40px",
+          colors:{colors},
+        }}
+      >
+        Agents
+      </h3>
         <div>
           <input
             type="text"

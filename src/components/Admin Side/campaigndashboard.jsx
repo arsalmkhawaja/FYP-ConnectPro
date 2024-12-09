@@ -342,6 +342,17 @@ const CampaignsManager = () => {
         padding: "20px",
       }}
     >
+      <h3
+        style={{
+          fontWeight: "bold",
+          marginBottom: "20px",
+          fontSize: "40px",
+          colors: { colors },
+        }}
+      >
+        Manage Campaigns
+      </h3>
+
       <div style={{ marginBottom: "20px" }}>
         <button
           style={{
@@ -379,28 +390,29 @@ const CampaignsManager = () => {
               justifyContent: "space-between",
               alignItems: "center",
               width: "85%",
-              backgroundColor: colors.primary[400],
+              backgroundColor: { colors },
               borderRadius: "12px",
               padding: "20px",
               marginBottom: "20px",
               boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+              colors: { colors },
             }}
           >
             {/* Campaign Details */}
             <div style={{ flex: 1, padding: "0 20px" }}>
               <h3
-                style={{ color: colors.greenAccent[500], marginBottom: "10px" }}
+                style={{ color: { colors }, marginBottom: "10px" }}
               >
                 {campaign.name} Data
               </h3>
-              <p style={{ margin: "5px 0", color: colors.gray[300] }}>
+              <p style={{ margin: "5px 0", color: { colors } }}>
                 <strong>Number of Agents:</strong> {campaign.numberOfAgents}
               </p>
 
-              <p style={{ margin: "5px 0", color: colors.gray[300] }}>
+              <p style={{ margin: "5px 0", color: { colors } }}>
                 <strong>Sales Made:</strong> {campaign.sales}
               </p>
-              <p style={{ margin: "5px 0", color: colors.gray[300] }}>
+              <p style={{ margin: "5px 0", color: { colors } }}>
                 <strong>Target Sales:</strong> {campaign.targetSales}
               </p>
             </div>

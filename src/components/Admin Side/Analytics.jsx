@@ -142,7 +142,6 @@ const AgentAnalyticsDashboard = () => {
     <div
       style={{
         fontFamily: "Arial, sans-serif",
-        color: colors.primary[400],
         margin: 0,
         padding: 0,
         display: "flex",
@@ -171,7 +170,7 @@ const AgentAnalyticsDashboard = () => {
           style={{
             marginBottom: "20px",
             fontSize: "2.5em",
-            color: "#0e2b4e",
+            color: {colors},
             textShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
           }}
         >
@@ -212,7 +211,7 @@ const AgentAnalyticsDashboard = () => {
             flexDirection: "column",
             alignItems: "center",
             marginTop: "20px",
-            color: "white",
+            color: {colors},
           }}
         >
           <p>Total Number of Calls: {totalCalls}</p>

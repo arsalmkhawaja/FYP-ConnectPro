@@ -3,6 +3,8 @@ import Papa from "papaparse";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { tokens } from "../../theme";
+import { useTheme } from "@mui/material";
 import {
   Button,
   TextField,
@@ -21,6 +23,8 @@ import {
 } from "@mui/material";
 
 const CallCenterScreen = () => {
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
   const [isFlipped, setIsFlipped] = useState(false);
   const [showDisposition, setShowDisposition] = useState(false);
   const [phoneNumbers, setPhoneNumbers] = useState([]);
@@ -361,6 +365,16 @@ const CallCenterScreen = () => {
 
   return (
     <Container>
+      <h3
+        style={{
+          fontWeight: "bold",
+          marginBottom: "20px",
+          fontSize: "40px",
+          colors: { colors },
+        }}
+      >
+        Dialler
+      </h3>
       <Box
         sx={{
           perspective: "1000px",

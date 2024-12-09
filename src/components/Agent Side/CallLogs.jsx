@@ -120,15 +120,16 @@ const CallLogs = () => {
 
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1
+      <h3
         style={{
-          fontSize: "24px",
+          fontWeight: "bold",
           marginBottom: "20px",
-          color: colors.primary[100],
+          fontSize: "40px",
+          colors: { colors },
         }}
       >
         Agent Call Report for {agent.fullName}
-      </h1>
+      </h3>
       <table
         style={{
           width: "100%",
