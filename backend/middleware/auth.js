@@ -1,4 +1,3 @@
-
 const jwt = require("jsonwebtoken");
 
 const authenticationMiddleware = async (req, res, next) => {
@@ -15,12 +14,12 @@ const authenticationMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded Token:", decoded); 
+    console.log("Decoded Token:", decoded);
     const { id, name } = decoded;
     req.user = { id, name };
     next();
   } catch (error) {
-    console.error("Token Verification Error:", error); 
+    console.error("Token Verification Error:", error);
     return res.status(401).json({ msg: "Unauthorized. Invalid token" });
   }
 };
