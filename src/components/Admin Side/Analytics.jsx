@@ -1,321 +1,328 @@
 import React, { useState, useEffect } from "react";
-import Chart from "chart.js/auto";
-import agentsdata from "../../assets/analyticsagentsdata.json";
-import { useTheme } from "@mui/material";
-import { tokens } from "../../theme";
 import { useNavigate } from "react-router-dom";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import { toast } from "react-toastify";
+import axios from "axios";
+import {
+  Box,
+  Grid,
+  Typography,
+  useTheme,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import { tokens } from "../../theme";
 
-const AgentAnalyticsDashboard = () => {
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+const AgentAnalyticsWithDropdown = () => {
   const navigate = useNavigate();
-  const token = JSON.parse(localStorage.getItem("auth")) || "";
+  const [agents, setAgents] = useState([]); // Ensure it's an array
+  const [selectedAgent, setSelectedAgent] = useState("");
+  const [selectedChart, setSelectedChart] = useState("Line");
+  const [agentData, setAgentData] = useState([]);
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
+  const token = JSON.parse(localStorage.getItem("auth"));
+
   useEffect(() => {
     if (!token) {
       toast.warn("Please login first to access the dashboard");
       navigate("/login");
     }
   }, [token, navigate]);
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [selectedAgent, setSelectedAgent] = useState("agent1");
-  const [chartType, setChartType] = useState("attendance");
-  const [selectedChartType, setSelectedChartType] = useState("bar");
-  const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [],
-  });
-  const [comparisonData, setComparisonData] = useState({
-    labels: [],
-    datasets: [],
-  });
-  const [totalCalls, setTotalCalls] = useState(0);
-  const [callDisposition, setCallDisposition] = useState({});
-  const [workingHours, setWorkingHours] = useState(0);
+
+  // Fetch all agents for the dropdown
+  const fetchAgents = async () => {
+    try {
+      if (!token) {
+        throw new Error("No token available");
+      }
+  
+      const response = await axios.get("http://localhost:4000/api/v1/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      console.log("Fetched agents response:", response); // Log the response for inspection
+  
+      // Check if the response data is an object containing an array of agents
+      if (Array.isArray(response.data)) {
+        setAgents(response.data);
+      } else if (response.data && Array.isArray(response.data.agents)) {
+        setAgents(response.data.agents); // Adjust if the agents are inside a nested object
+      } else {
+        console.error("Expected array of agents, but received:", response.data);
+        toast.error("Failed to fetch agents: Invalid data structure");
+      }
+    } catch (error) {
+      console.error("Error fetching agents:", error);
+      toast.error("Failed to fetch agents");
+    }
+  };
+  
 
   useEffect(() => {
-    let agentChartInstance;
-    let comparisonChartInstance;
+    fetchAgents();
+  }, [token]);
 
-    const updateCharts = () => {
-      const agentCtx = document
-        .getElementById("agentChartCanvas")
-        .getContext("2d");
-      const comparisonCtx = document
-        .getElementById("comparisonChartCanvas")
-        .getContext("2d");
+  // Fetch agent-specific data when an agent is selected
+  useEffect(() => {
+    if (selectedAgent) {
+      const fetchAgentData = async () => {
+        try {
+          setLoading(true); // Start loading when agent is selected
+          const response = await axios.get(
+            `http://localhost:4000/api/v1/analytics/agent/${selectedAgent}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          console.log("Fetched agent data:", response.data); // Debugging
+          setAgentData(response.data);
+          setLoading(false); // Stop loading when data is fetched
+        } catch (error) {
+          console.error("Error fetching data for the selected agent:", error);
+          toast.error("Failed to fetch agent data");
+          setLoading(false); // Stop loading on error as well
+        }
+      };
 
-      const agentData =
-        selectedAgent === "Overall Comparison"
-          ? agentsdata.allagent[chartType]
-          : agentsdata[selectedAgent][chartType];
+      fetchAgentData();
+    }
+  }, [selectedAgent, token]);
 
-      const labels = agentData.labels;
-      const dataValues = agentData.values;
+  // Process chart data based on the selected chart type
+  useEffect(() => {
+    if (agentData.length) {
+      console.log("Processing chart data..."); // Debugging
+      switch (selectedChart) {
+        case "Line":
+          setChartData(processLineChartData(agentData));
+          break;
+        case "Bar":
+          setChartData(processBarChartData(agentData));
+          break;
+        case "Pie":
+          setChartData(processPieChartData(agentData));
+          break;
+        default:
+          break;
+      }
+    }
+  }, [agentData, selectedChart]);
 
-      const chartOptions = {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
+  const processLineChartData = (data) => {
+    const analyticsByDate = {};
+
+    data.forEach((call) => {
+      const callDate = new Date(call.date).toLocaleDateString();
+
+      if (!analyticsByDate[callDate]) {
+        analyticsByDate[callDate] = { total: 0, answered: 0 };
+      }
+
+      analyticsByDate[callDate].total += 1;
+
+      if (call.disposition === "Answered") {
+        analyticsByDate[callDate].answered += 1;
+      }
+    });
+
+    const labels = [];
+    const incomingCalls = [];
+    const answeredCalls = [];
+
+    Object.keys(analyticsByDate).forEach((date) => {
+      labels.push(date);
+      incomingCalls.push(analyticsByDate[date].total);
+      answeredCalls.push(analyticsByDate[date].answered);
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Incoming Calls",
+          data: incomingCalls,
+          borderColor: "#1f77b4",
+          backgroundColor: "rgba(31, 119, 180, 0.2)",
+          tension: 0.4,
+          fill: true,
         },
-      };
-
-      const newAgentChartData = {
-        labels,
-        datasets: [
-          {
-            label: `${agentData.chartLabel} for ${selectedAgent}`,
-            data: dataValues,
-            backgroundColor:
-              selectedChartType === "bar"
-                ? "rgba(75, 192, 192, 0.2)"
-                : "rgba(54, 162, 235, 0.2)",
-            borderColor:
-              selectedChartType === "bar"
-                ? "rgba(75, 192, 192, 1)"
-                : "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
-          },
-        ],
-      };
-
-      const overallData =
-        selectedAgent === "Overall Comparison"
-          ? agentsdata.allagent[chartType].values
-          : dataValues.map(() => Math.floor(Math.random() * 100));
-
-      const newComparisonChartData = {
-        labels,
-        datasets: [
-          {
-            label: `Overall ${agentData.chartLabel} Comparison`,
-            data: overallData,
-            backgroundColor:
-              selectedChartType === "bar"
-                ? "rgba(153, 102, 255, 0.2)"
-                : "rgba(255, 159, 64, 0.2)",
-            borderColor:
-              selectedChartType === "bar"
-                ? "rgba(153, 102, 255, 1)"
-                : "rgba(255, 159, 64, 1)",
-            borderWidth: 1,
-          },
-        ],
-      };
-
-      setChartData(newAgentChartData);
-      setComparisonData(newComparisonChartData);
-
-      if (selectedAgent !== "Overall Comparison") {
-        setTotalCalls(agentsdata[selectedAgent].totalCalls);
-        setCallDisposition(agentsdata[selectedAgent].callDisposition);
-        setWorkingHours(agentsdata[selectedAgent].workingHours);
-      } else {
-        setTotalCalls(agentsdata.allagent.totalCalls);
-        setCallDisposition(agentsdata.allagent.callDisposition);
-        setWorkingHours(agentsdata.allagent.workingHours);
-      }
-
-      if (agentChartInstance) {
-        agentChartInstance.destroy();
-      }
-      if (comparisonChartInstance) {
-        comparisonChartInstance.destroy();
-      }
-
-      agentChartInstance = new Chart(agentCtx, {
-        type: selectedChartType,
-        data: newAgentChartData,
-        options: chartOptions,
-      });
-
-      comparisonChartInstance = new Chart(comparisonCtx, {
-        type: selectedChartType,
-        data: newComparisonChartData,
-        options: chartOptions,
-      });
+        {
+          label: "Answered Calls",
+          data: answeredCalls,
+          borderColor: "#2ca02c",
+          backgroundColor: "rgba(44, 160, 44, 0.2)",
+          tension: 0.4,
+          fill: true,
+        },
+      ],
     };
+  };
 
-    updateCharts();
+  const processBarChartData = (data) => {
+    const dispositionCounts = {};
 
-    return () => {
-      if (agentChartInstance) {
-        agentChartInstance.destroy();
+    data.forEach((call) => {
+      const disposition = call.disposition || "Unknown";
+
+      if (!dispositionCounts[disposition]) {
+        dispositionCounts[disposition] = 0;
       }
-      if (comparisonChartInstance) {
-        comparisonChartInstance.destroy();
-      }
+
+      dispositionCounts[disposition] += 1;
+    });
+
+    const labels = Object.keys(dispositionCounts);
+    const counts = Object.values(dispositionCounts);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Call Dispositions",
+          data: counts,
+          backgroundColor: ["#ff7f0e", "#1f77b4", "#2ca02c", "#d62728"],
+        },
+      ],
     };
-  }, [selectedAgent, chartType, selectedChartType]);
+  };
+
+  const processPieChartData = (data) => {
+    const dispositionCounts = {};
+
+    data.forEach((call) => {
+      const disposition = call.disposition || "Unknown";
+
+      if (!dispositionCounts[disposition]) {
+        dispositionCounts[disposition] = 0;
+      }
+
+      dispositionCounts[disposition] += 1;
+    });
+
+    const labels = Object.keys(dispositionCounts);
+    const counts = Object.values(dispositionCounts);
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Disposition Distribution",
+          data: counts,
+          backgroundColor: [
+            "#1f77b4",
+            "#ff7f0e",
+            "#2ca02c",
+            "#d62728",
+            "#9467bd",
+          ],
+        },
+      ],
+    };
+  };
 
   return (
-    <div
-      style={{
-        fontFamily: "Arial, sans-serif",
-        color: colors.primary[400],
-        margin: 0,
-        padding: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        textAlign: "center",
-        width: "100%",
-        padding: "20px",
-        paddingTop: "80px",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: colors.primary[400],
-          padding: "20px",
-          width: "120%",
-          maxWidth: "1200px",
-          margin: "0 auto",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          borderRadius: "10px",
+    <Box sx={{ padding: "5px" }}>
+      <Box
+        sx={{
+          padding: "10px",
+          marginBottom: "20px",
+          backgroundColor: colors.primary[500],
+          borderRadius: "8px",
         }}
       >
-        <h1
-          style={{
-            marginBottom: "20px",
-            fontSize: "2.5em",
-            color: "#0e2b4e",
-            textShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
-          }}
+        <Typography
+          variant="h3"
+          sx={{ color: colors.gray[100], fontWeight: "bold" }}
         >
-          Agent Analytics Dashboard
-        </h1>
-        <div>
-          <select
+          Agent Analytics
+        </Typography>
+        <FormControl sx={{ minWidth: 200, marginTop: 2, marginRight: 2 }}>
+          <InputLabel id="agent-select-label">Select Agent</InputLabel>
+          <Select
+            labelId="agent-select-label"
             value={selectedAgent}
             onChange={(e) => setSelectedAgent(e.target.value)}
-            style={{
-              padding: "10px",
-              margin: "10px",
-              fontSize: "1.2em",
-              border: "2px solid #4e87c4",
-              borderRadius: "5px",
-              backgroundColor: "#fff",
-              color: "#0e2b4e",
-              outline: "none",
-              transition: "all 0.3s ease",
-            }}
           >
-            <option value="Overall Comparison">Overall Comparison</option>
-            {Object.keys(agentsdata)
-              .filter((agent) => agent !== "allagent")
-              .map((agent, index) => (
-                <option key={index} value={agent}>
-                  {agent}
-                </option>
-              ))}
-          </select>
-          <select
-            value={chartType}
-            onChange={(e) => setChartType(e.target.value)}
-            style={{
-              padding: "10px",
-              margin: "10px",
-              fontSize: "1.2em",
-              border: "2px solid #4e87c4",
-              borderRadius: "5px",
-              backgroundColor: "#fff",
-              color: "#0e2b4e",
-              outline: "none",
-              transition: "all 0.3s ease",
-            }}
+            {Array.isArray(agents) && agents.length > 0 ? (
+              agents.map((agent) => (
+                <MenuItem key={agent.id} value={agent.id}>
+                  {agent.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No agents found</MenuItem>
+            )}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ minWidth: 200, marginTop: 2 }}>
+          <InputLabel id="chart-type-select-label">Select Chart</InputLabel>
+          <Select
+            labelId="chart-type-select-label"
+            value={selectedChart}
+            onChange={(e) => setSelectedChart(e.target.value)}
           >
-            <option value="attendance">Attendance</option>
-            <option value="salesComparative">Sales Comparative</option>
-            <option value="performanceAnalysis">Performance Analysis</option>
-            <option value="inboundCalls">Inbound Calls</option>
-            <option value="outboundCalls">Outbound Calls</option>
-            <option value="callsTransferred">Calls Transferred</option>
-            <option value="comparativeCampaignSales">
-              Comparative Campaign Sales
-            </option>
-            <option value="campaignSuccess">Campaign Success</option>
-            <option value="scorecard">Scorecard</option>
-            <option value="lateEntry">Late Entry</option>
-            <option value="targetsAchieved">Targets Achieved</option>
-          </select>
-          <select
-            value={selectedChartType}
-            onChange={(e) => setSelectedChartType(e.target.value)}
-            style={{
-              padding: "10px",
-              margin: "10px",
-              fontSize: "1.2em",
-              border: "2px solid #4e87c4",
-              borderRadius: "5px",
-              backgroundColor: "#fff",
-              color: "#0e2b4e",
-              outline: "none",
-              transition: "all 0.3s ease",
-            }}
-          >
-            <option value="bar">Bar</option>
-            <option value="line">Line</option>
-            <option value="pie">Pie</option>
-            <option value="doughnut">Doughnut</option>
-            <option value="radar">Radar</option>
-            <option value="polarArea">Polar Area</option>
-          </select>
-        </div>
+            <MenuItem value="Line">Line</MenuItem>
+            <MenuItem value="Bar">Bar</MenuItem>
+            <MenuItem value="Pie">Pie</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginTop: "20px",
-            color: "white",
-          }}
-        >
-          <p>Total Number of Calls: {totalCalls}</p>
-          <p>
-            Call Disposition: Answered: {callDisposition.answered}, Unanswered:{" "}
-            {callDisposition.unanswered}
-          </p>
-          <p>Working Hours: {workingHours} hours</p>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-around",
-            width: "100%",
-            marginTop: "20px",
-          }}
-        >
-          <canvas
-            id="agentChartCanvas"
-            style={{
-              maxWidth: "45%",
-              maxHeight: "70vh",
-              border: "2px solid #4e87c4",
-              borderRadius: "10px",
-              backgroundColor: "#fff",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              padding: "25px",
+              borderRadius: "8px",
+              backgroundColor: colors.primary[500],
             }}
-          ></canvas>
-          <canvas
-            id="comparisonChartCanvas"
-            style={{
-              maxWidth: "45%",
-              maxHeight: "70vh",
-              border: "2px solid #4e87c4",
-              borderRadius: "10px",
-              backgroundColor: "#fff",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-          ></canvas>
-        </div>
-      </div>
-    </div>
+          >
+            {chartData && selectedChart === "Line" && (
+              <Line data={chartData} options={{ responsive: true }} />
+            )}
+            {chartData && selectedChart === "Bar" && (
+              <Bar data={chartData} options={{ responsive: true }} />
+            )}
+            {chartData && selectedChart === "Pie" && (
+              <Pie data={chartData} options={{ responsive: true }} />
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
-export default AgentAnalyticsDashboard;
+export default AgentAnalyticsWithDropdown;

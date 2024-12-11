@@ -15,7 +15,6 @@ const callsRouter = require("./routes/calls");
 const analyticsRouter = require("./routes/analytics"); // Add this line
 const scriptRouter = require("./routes/scripts"); // Add this line
 
-
 // Middleware
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -29,7 +28,6 @@ app.use("/api/v4", salesRouter);
 app.use("/api/v5", callsRouter);
 app.use("/api/v6/analytics", analyticsRouter); // Add this line for the analytics route
 app.use("/api/v7", scriptRouter); // Add this line
-
 
 // Server startup
 const port = process.env.PORT || 4000;

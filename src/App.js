@@ -18,11 +18,13 @@ import CallCenterScreen from "./components/Agent Side/Dialler";
 import AgentLayout from "./components/Agent Side/AgentLayout/AgentLayout";
 import AgentAnalytics from "./components/Agent Side/AgentAnalytics";
 import ScriptViewerAgent from "./components/Agent Side/ScriptViewerAgent";
+import AudioRecorder from "./components/RecordingTest";
 
 const App = () => {
   return (
     <Router>
       <Routes>
+        <Route path="record" element={<AudioRecorder />} />
         <Route path="dialler2" element={<DialingScreen2 />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />

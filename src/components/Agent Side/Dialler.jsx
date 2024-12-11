@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Papa from "papaparse";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -61,6 +61,61 @@ const CallCenterScreen = () => {
   const [error, setError] = useState({ open: false, message: "" });
 
   const token = JSON.parse(localStorage.getItem("auth")) || "";
+  const [isRecording, setIsRecording] = useState(false);
+  const micStreamRef = useRef(null);
+  const micRecorderRef = useRef(null);
+  const micChunksRef = useRef([]);
+  const [dialerInput, setDialerInput] = useState("");
+
+  const startRecording = async () => {
+    try {
+      setIsRecording(true);
+
+      // Access the microphone
+      const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      micStreamRef.current = micStream;
+
+      // Set up MediaRecorder for microphone
+      micRecorderRef.current = new MediaRecorder(micStream);
+      micRecorderRef.current.ondataavailable = (e) => {
+        micChunksRef.current.push(e.data);
+      };
+
+      micRecorderRef.current.start();
+      console.log("Recording microphone audio");
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+
+    // Stop microphone recording
+    if (micRecorderRef.current) {
+      micRecorderRef.current.stop();
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+
+      micRecorderRef.current.onstop = () => {
+        const micBlob = new Blob(micChunksRef.current, { type: "audio/wav" });
+        downloadFile(micBlob, "mic-audio.wav");
+        micChunksRef.current = [];
+      };
+    }
+  };
+
+  const downloadFile = (blob, fileName) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
   useEffect(() => {
     const fetchAgentProfile = async () => {
@@ -155,6 +210,7 @@ const CallCenterScreen = () => {
     if (window.Twilio) {
       window.Twilio.Device.disconnectAll();
     }
+    stopRecording();
   };
 
   const handleCloseDisposition = () => {
@@ -297,6 +353,7 @@ const CallCenterScreen = () => {
 
   const dialNumber = async (number) => {
     console.log(`Calling ${number}...`);
+    startRecording();
     if (window.Twilio) {
       window.Twilio.Device.connect({ To: number });
     }
@@ -830,7 +887,61 @@ const ConfirmationModal = ({ text, onConfirm, onCancel }) => {
 };
 
 const Dialer = ({ handleHangup }) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const micStreamRef = useRef(null);
+  const micRecorderRef = useRef(null);
+  const micChunksRef = useRef([]);
   const [dialerInput, setDialerInput] = useState("");
+
+  const startRecording = async () => {
+    try {
+      setIsRecording(true);
+
+      // Access the microphone
+      const micStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      micStreamRef.current = micStream;
+
+      // Set up MediaRecorder for microphone
+      micRecorderRef.current = new MediaRecorder(micStream);
+      micRecorderRef.current.ondataavailable = (e) => {
+        micChunksRef.current.push(e.data);
+      };
+
+      micRecorderRef.current.start();
+      console.log("Recording microphone audio");
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+
+    // Stop microphone recording
+    if (micRecorderRef.current) {
+      micRecorderRef.current.stop();
+      micStreamRef.current.getTracks().forEach((track) => track.stop());
+
+      micRecorderRef.current.onstop = () => {
+        const micBlob = new Blob(micChunksRef.current, { type: "audio/wav" });
+        downloadFile(micBlob, "mic-audio.wav");
+        micChunksRef.current = [];
+      };
+    }
+  };
+
+  const downloadFile = (blob, fileName) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
   const handleDialerButtonClick = (value) => {
     setDialerInput(dialerInput + value);
@@ -892,7 +1003,10 @@ const Dialer = ({ handleHangup }) => {
           variant="contained"
           color="success"
           sx={{ height: 80, width: 80, fontSize: 32 }}
-          onClick={handleCallButtonClick}
+          onClick={() => {
+            startRecording();
+            handleCallButtonClick();
+          }}
         >
           📞
         </Button>
@@ -900,7 +1014,10 @@ const Dialer = ({ handleHangup }) => {
           variant="contained"
           color="error"
           sx={{ height: 80, width: 80, fontSize: 32 }}
-          onClick={handleHangupButtonClick}
+          onClick={() => {
+            stopRecording();
+            handleHangupButtonClick();
+          }}
         >
           ✖
         </Button>
