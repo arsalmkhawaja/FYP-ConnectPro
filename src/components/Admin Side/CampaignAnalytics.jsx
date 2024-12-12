@@ -203,7 +203,6 @@ const AgentAnalyticsDashboard = () => {
               transition: "all 0.3s ease",
             }}
           >
-            <option value="Overall Comparison">Overall Comparison</option>
             {Object.keys(agentsdata)
               .filter((agent) => agent !== "allagent")
               .map((agent, index) => (
@@ -271,7 +270,7 @@ const AgentAnalyticsDashboard = () => {
             flexDirection: "column",
             alignItems: "center",
             marginTop: "20px",
-            color:"black",
+            color: "black",
           }}
         >
           <p>Total Number of Calls: {totalCalls}</p>
