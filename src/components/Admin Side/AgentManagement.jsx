@@ -138,7 +138,7 @@ const AgentManagement = () => {
   }, [token]);
 
   const validateUser = () => {
-    const { phoneNumber, email, agentID } = newUser;
+    const { phoneNumber, email, agentID, password } = newUser;
 
     if (!/^\d{10,15}$/.test(phoneNumber)) {
       setErrorMessage("Phone number must be between 10 to 15 digits.");
@@ -151,13 +151,23 @@ const AgentManagement = () => {
       setShowErrorModal(true);
       return false;
     }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    if (!emailRegex.test(email)) {
+      setErrorMessage("Please enter a valid email.");
+      setShowErrorModal(true);
+      return false;
+    }
     if (users.some((user) => user.agentID === agentID)) {
       setErrorMessage("This Agent ID is already in use.");
       setShowErrorModal(true);
       return false;
     }
-
+    if (!password || password.trim() === "") {
+      setErrorMessage("Password cannot be empty.");
+      setShowErrorModal(true);
+      return false;
+    }
     return true;
   };
 
@@ -370,15 +380,15 @@ const AgentManagement = () => {
         }}
       >
         <h3
-        style={{
-          fontWeight: "bold",
-          marginBottom: "20px",
-          fontSize: "40px",
-          colors:{colors},
-        }}
-      >
-        Agents
-      </h3>
+          style={{
+            fontWeight: "bold",
+            marginBottom: "20px",
+            fontSize: "40px",
+            colors: { colors },
+          }}
+        >
+          Agents
+        </h3>
         <div>
           <input
             type="text"
