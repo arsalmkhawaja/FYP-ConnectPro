@@ -82,6 +82,18 @@ const AgentAnalyticsWithDropdown = () => {
   useEffect(() => {
     fetchAgents();
   }, [token]);
+  useEffect(() => {
+    fetchAgents();
+  }, [token]);
+
+  useEffect(() => {
+    if (agents.length > 0) {
+      // Set the first agent as selected by default
+      setSelectedAgents([agents[0]._id]);
+      // Set the first chart (e.g., Line Chart) to be selected by default
+      setSelectedCharts(["line", "bar", "pie"]);
+    }
+  }, [agents]);
 
   const fetchAgents = async () => {
     try {
