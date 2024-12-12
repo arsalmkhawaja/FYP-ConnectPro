@@ -15,7 +15,6 @@ import {
   Checkbox,
   ListItemText,
   OutlinedInput,
-  CircularProgress,
 } from "@mui/material";
 import { tokens } from "../../theme";
 
@@ -30,7 +29,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
 } from "chart.js";
 
 // Register Chart.js components
@@ -43,8 +41,7 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend,
-  Filler
+  Legend
 );
 
 // Constants for menu properties
@@ -59,84 +56,22 @@ const MenuProps = {
   },
 };
 
-// Utility functions for colors
-const getColor = (index) => {
-  const colorsArray = [
-    "#1f77b4", // Blue
-    "#ff7f0e", // Orange
-    "#2ca02c", // Green
-    "#d62728", // Red
-    "#9467bd", // Purple
-    "#8c564b", // Brown
-    "#e377c2", // Pink
-    "#7f7f7f", // Gray
-    "#bcbd22", // Lime
-    "#17becf", // Cyan
-  ];
-  return colorsArray[index % colorsArray.length];
-};
-
-const shadeColor = (color, percent) => {
-  // Simple function to darken or lighten a color
-  let R = parseInt(color.substring(1, 3), 16);
-  let G = parseInt(color.substring(3, 5), 16);
-  let B = parseInt(color.substring(5, 7), 16);
-
-  R = parseInt((R * (100 + percent)) / 100);
-  G = parseInt((G * (100 + percent)) / 100);
-  B = parseInt((B * (100 + percent)) / 100);
-
-  R = R < 255 ? R : 255;
-  G = G < 255 ? G : 255;
-  B = B < 255 ? B : 255;
-
-  const RR = R.toString(16).padStart(2, "0");
-  const GG = G.toString(16).padStart(2, "0");
-  const BB = B.toString(16).padStart(2, "0");
-
-  return `#${RR}${GG}${BB}`;
-};
-
-const hexToRGBA = (hex, alpha) => {
-  let r = 0,
-    g = 0,
-    b = 0;
-  if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (hex.length === 7) {
-    r = parseInt(hex.substring(1, 3), 16);
-    g = parseInt(hex.substring(3, 5), 16);
-    b = parseInt(hex.substring(5, 7), 16);
-  }
-  return `rgba(${r},${g},${b},${alpha})`;
-};
-
-const generateColorPalette = (numColors, baseColor) => {
-  // Generate distinct colors based on baseColor
-  const shades = [];
-  for (let i = 0; i < numColors; i++) {
-    // Alternate shading for variety
-    shades.push(shadeColor(baseColor, i % 2 === 0 ? 0 : -20));
-  }
-  return shades;
-};
-
 const AgentAnalyticsWithDropdown = () => {
   const navigate = useNavigate();
-  const [agents, setAgents] = useState([]); // Array of agents
-  const [selectedAgents, setSelectedAgents] = useState([]); // Multiple selected agents
-  const [selectedCharts, setSelectedCharts] = useState([]); // Selected chart types
-  const [agentsData, setAgentsData] = useState({}); // Data for each agent
+  const [agents, setAgents] = useState([]);
+  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [selectedCharts, setSelectedCharts] = useState([]);
+  const [agentsData, setAgentsData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const token = JSON.parse(localStorage.getItem("auth"));
-
-  // Effect to check authentication
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
   useEffect(() => {
     if (!token) {
       toast.warn("Please login first to access the dashboard");
@@ -144,7 +79,10 @@ const AgentAnalyticsWithDropdown = () => {
     }
   }, [token, navigate]);
 
-  // Fetch all agents for the dropdown
+  useEffect(() => {
+    fetchAgents();
+  }, [token]);
+
   const fetchAgents = async () => {
     try {
       if (!token) {
@@ -155,47 +93,34 @@ const AgentAnalyticsWithDropdown = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Fetched agents response:", response.data); // Log the response for inspection
-
-      // Check if the response data is an array or contains agents inside a nested object
       if (Array.isArray(response.data)) {
         setAgents(response.data);
       } else if (response.data && Array.isArray(response.data.agents)) {
         setAgents(response.data.agents);
       } else {
-        console.error("Expected array of agents, but received:", response.data);
         toast.error("Failed to fetch agents: Invalid data structure");
       }
     } catch (error) {
-      console.error("Error fetching agents:", error);
       toast.error("Failed to fetch agents");
     }
   };
 
-  // Fetch agents on component mount
-  useEffect(() => {
-    fetchAgents();
-  }, [token]);
+  const fetchAgentData = async (agentId) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/api/v5/agent/${agentId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      toast.error(`Failed to fetch data for agent ID: ${agentId}`);
+      return null;
+    }
+  };
 
-  // Fetch data for selected agents
   useEffect(() => {
-    const fetchAgentData = async (agentId) => {
-      try {
-        const response = await axios.get(
-          `http://localhost:4000/api/v5/agent/${agentId}`, // Ensure this endpoint is correct
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        console.log(`Fetched data for agent ${agentId}:`, response.data);
-        return response.data;
-      } catch (error) {
-        console.error(`Error fetching data for agent ${agentId}:`, error);
-        toast.error(`Failed to fetch data for agent ID: ${agentId}`);
-        return null;
-      }
-    };
-
     const fetchAllSelectedAgentsData = async () => {
       if (selectedAgents.length === 0) {
         setAgentsData({});
@@ -222,12 +147,23 @@ const AgentAnalyticsWithDropdown = () => {
     fetchAllSelectedAgentsData();
   }, [selectedAgents, token]);
 
-  // Handlers for selection changes
   const handleAgentChange = (event) => {
     const {
       target: { value },
     } = event;
-    setSelectedAgents(typeof value === "string" ? value.split(",") : value);
+
+    // Convert the selection to an array if it's not already (handle string values)
+    const newSelection = typeof value === "string" ? value.split(",") : value;
+
+    // Limit the number of selectable agents to 2
+    if (newSelection.length > 2) {
+      toast.warn("You can only select up to 2 agents.");
+    } else {
+      setSelectedAgents(newSelection);
+
+      // Clear chart selection when agent selection changes
+      setSelectedCharts([]);
+    }
   };
 
   const handleChartChange = (event) => {
@@ -237,453 +173,360 @@ const AgentAnalyticsWithDropdown = () => {
     setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
 
-  // Processing functions for charts
+  const getColor = (index) => {
+    // Expanded and more diverse set of colors for charts
+    const colorPalette = [
+      "#3498db", // Blue
+      "#e74c3c", // Red
+      "#2ecc71", // Green
+      "#f39c12", // Yellow
+      "#9b59b6", // Purple
+      "#1abc9c", // Turquoise
+      "#34495e", // Dark Gray
+      "#f1c40f", // Gold
+      "#e67e22", // Orange
+      "#8e44ad", // Violet
+      "#16a085", // Mint
+      "#d35400", // Pumpkin
+      "#c0392b", // Strong Red
+      "#27ae60", // Strong Green
+      "#2980b9", // Strong Blue
+    ];
+
+    // Return the color from the palette, ensuring it's unique for each dataset
+    return colorPalette[index % colorPalette.length];
+  };
+
   const processLineChartData = () => {
+    // Color palette for agents
+    const agentBaseColors = [
+      "#2ecc71", // Green
+      "#9b59b6", // Purple
+      "#f39c12", // Yellow
+      "#e67e22", // Orange
+      "#1abc9c", // Turquoise
+    ];
+
     const analyticsByAgent = {};
-  
     selectedAgents.forEach((agentId) => {
       const data = agentsData[agentId];
-      if (!data || !Array.isArray(data.calls)) return; // Ensure data exists and has 'calls'
-  
-      console.log(`Processing data for agent ${agentId}:`, data);  // Log agent data
-  
-      data.calls.forEach((call) => {
-        if (!call.date) return; // Ensure call has a date
-  
+      if (!data) return;
+
+      data.forEach((call) => {
         const callDate = new Date(call.date).toLocaleDateString();
         if (!analyticsByAgent[agentId]) {
           analyticsByAgent[agentId] = {};
         }
-  
+
         if (!analyticsByAgent[agentId][callDate]) {
           analyticsByAgent[agentId][callDate] = { total: 0, answered: 0 };
         }
-  
+
         analyticsByAgent[agentId][callDate].total += 1;
-  
+
         if (call.disposition === "Answered") {
           analyticsByAgent[agentId][callDate].answered += 1;
         }
       });
     });
-  
-    console.log('Aggregated Line Chart Data:', analyticsByAgent);
-  
-    // Determine all unique dates across agents
-    const allDatesSet = new Set();
-    Object.values(analyticsByAgent).forEach((agentData) => {
-      Object.keys(agentData).forEach((date) => allDatesSet.add(date));
-    });
-    const allDates = Array.from(allDatesSet).sort(
-      (a, b) => new Date(a) - new Date(b)
-    );
-  
-    // Prepare datasets
-    const datasetsIncoming = [];
-    const datasetsAnswered = [];
-  
-    selectedAgents.forEach((agentId, index) => {
-      const agent = agents.find((agent) => agent._id === agentId);
-      const agentName = agent ? agent.name : agentId;
-  
-      const incomingCalls = [];
-      const answeredCalls = [];
-  
-      allDates.forEach((date) => {
-        const agentDateData = analyticsByAgent[agentId][date] || {
-          total: 0,
-          answered: 0,
-        };
-        incomingCalls.push(agentDateData.total);
-        answeredCalls.push(agentDateData.answered);
-      });
-  
-      // Generate colors for each agent
-      const baseColor = getColor(index);
-      const incomingColor = hexToRGBA(baseColor, 0.6);
-      const answeredColor = hexToRGBA(shadeColor(baseColor, -20), 0.6);
-  
-      datasetsIncoming.push({
-        label: `${agentName} - Incoming Calls`,
-        data: incomingCalls,
-        borderColor: baseColor,
-        backgroundColor: hexToRGBA(baseColor, 0.2),
-        tension: 0.4,
-        fill: true,
-      });
-  
-      datasetsAnswered.push({
-        label: `${agentName} - Answered Calls`,
-        data: answeredCalls,
-        borderColor: shadeColor(baseColor, -20),
-        backgroundColor: hexToRGBA(shadeColor(baseColor, -20), 0.2),
-        tension: 0.4,
-        fill: true,
-      });
-    });
-  
-    return {
-      labels: allDates,
-      datasets: [...datasetsIncoming, ...datasetsAnswered],
-    };
+
+    const allDates = [
+      ...new Set(
+        Object.values(analyticsByAgent).flatMap((agent) => Object.keys(agent))
+      ),
+    ].sort((a, b) => new Date(a) - new Date(b));
+
+    const datasets = selectedAgents
+      .map((agentId, agentIndex) => {
+        const agentData = analyticsByAgent[agentId];
+        const incomingData = allDates.map(
+          (date) => agentData[date]?.total || 0
+        );
+        const answeredData = allDates.map(
+          (date) => agentData[date]?.answered || 0
+        );
+
+        const baseColor = agentBaseColors[agentIndex % agentBaseColors.length];
+
+        return [
+          {
+            label: `${
+              agents.find((agent) => agent._id === agentId).fullName
+            } - Incoming Calls`,
+            data: incomingData,
+            borderColor: lightenDarkenColor(baseColor, 40),
+            backgroundColor: hexToRGBA(lightenDarkenColor(baseColor, 40), 0.3),
+            tension: 0.4,
+            fill: true,
+          },
+          {
+            label: `${
+              agents.find((agent) => agent._id === agentId).fullName
+            } - Answered Calls`,
+            data: answeredData,
+            borderColor: lightenDarkenColor(baseColor, -40),
+            backgroundColor: hexToRGBA(lightenDarkenColor(baseColor, -40), 0.3),
+            tension: 0.4,
+            fill: true,
+          },
+        ];
+      })
+      .flat();
+
+    return { labels: allDates, datasets };
   };
-  
-  
 
   const processBarChartData = () => {
-    const dispositionCountsByAgent = {};
+    // Use a gradient color generator
+    const gradientColors = [
+      "#2ecc71", // Green
+      "#3498db", // Blue
+      "#9b59b6", // Purple
+      "#34495e", // Dark Blue
+      "#f1c40f", // Yellow
+      "#e67e22", // Orange
+      "#e74c3c", // Red
+      "#95a5a6", // Grey
+    ];
 
+    const dispositionCounts = {};
     selectedAgents.forEach((agentId) => {
-      const data = agentsData[agentId];
-      if (!data || !Array.isArray(data.calls)) return; // Ensure data exists and has 'calls'
-
-      if (!dispositionCountsByAgent[agentId]) {
-        dispositionCountsByAgent[agentId] = {};
-      }
-
-      data.calls.forEach((call) => {
+      agentsData[agentId]?.forEach((call) => {
         const disposition = call.disposition || "Unknown";
-        if (!dispositionCountsByAgent[agentId][disposition]) {
-          dispositionCountsByAgent[agentId][disposition] = 0;
-        }
-        dispositionCountsByAgent[agentId][disposition] += 1;
+        dispositionCounts[disposition] =
+          (dispositionCounts[disposition] || 0) + 1;
       });
     });
 
-    // Determine all unique dispositions
-    const allDispositionsSet = new Set();
-    Object.values(dispositionCountsByAgent).forEach((agentData) => {
-      Object.keys(agentData).forEach((disp) => allDispositionsSet.add(disp));
-    });
-    const allDispositions = Array.from(allDispositionsSet);
+    const labels = Object.keys(dispositionCounts);
+    const data = Object.values(dispositionCounts);
 
-    // Prepare datasets
-    const datasets = [];
+    const datasets = [
+      {
+        label: "Dispositions",
+        data,
+        backgroundColor: labels.map(
+          (_, index) => gradientColors[index % gradientColors.length]
+        ),
+      },
+    ];
 
-    selectedAgents.forEach((agentId, index) => {
-      const agent = agents.find((agent) => agent._id === agentId);
-      const agentName = agent ? agent.name : agentId;
-      const counts = allDispositions.map(
-        (disp) => dispositionCountsByAgent[agentId][disp] || 0
-      );
-
-      const baseColor = getColor(index);
-      const colorPalette = generateColorPalette(
-        allDispositions.length,
-        baseColor
-      );
-
-      datasets.push({
-        label: agentName,
-        data: counts,
-        backgroundColor: colorPalette,
-      });
-    });
-
-    return {
-      labels: allDispositions,
-      datasets,
-    };
+    return { labels, datasets };
   };
 
   const processPieChartData = () => {
-    // For Pie charts, display separate Pie charts for each agent.
+    const dispositionCounts = {};
 
-    // Prepare data for each agent
-    const pieDatasets = selectedAgents.map((agentId, index) => {
+    selectedAgents.forEach((agentId) => {
       const data = agentsData[agentId];
-      if (!data || !Array.isArray(data.calls)) return null; // Ensure data exists and has 'calls'
+      if (!data) return;
 
-      const dispositionCounts = {};
-      data.calls.forEach((call) => {
+      data.forEach((call) => {
         const disposition = call.disposition || "Unknown";
         if (!dispositionCounts[disposition]) {
           dispositionCounts[disposition] = 0;
         }
         dispositionCounts[disposition] += 1;
       });
-
-      const labels = Object.keys(dispositionCounts);
-      const counts = Object.values(dispositionCounts);
-
-      const baseColor = getColor(index);
-      const colorPalette = generateColorPalette(counts.length, baseColor);
-
-      const agent = agents.find((agent) => agent._id === agentId);
-      const agentName = agent ? agent.name : agentId;
-
-      return {
-        labels,
-        datasets: [
-          {
-            label: `${agentName} - Disposition Distribution`,
-            data: counts,
-            backgroundColor: colorPalette,
-          },
-        ],
-      };
     });
 
-    return pieDatasets.filter((dataset) => dataset !== null);
+    const labels = Object.keys(dispositionCounts);
+    const data = Object.values(dispositionCounts);
+    const backgroundColors = labels.map((_, index) => getColor(index));
+
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: backgroundColors,
+        },
+      ],
+    };
   };
 
+  const hexToRGBA = (hex, alpha) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const shadeColor = (color, percent) => {
+    const num = parseInt(color.slice(1), 16);
+    const r = (num >> 16) + percent;
+    const g = ((num >> 8) & 0x00ff) + percent;
+    const b = (num & 0x0000ff) + percent;
+    return `#${(
+      0x1000000 +
+      (Math.min(255, Math.max(0, r)) << 16) +
+      (Math.min(255, Math.max(0, g)) << 8) +
+      Math.min(255, Math.max(0, b))
+    )
+      .toString(16)
+      .slice(1)}`;
+  };
+  const lightenDarkenColor = (col, amt) => {
+    let usePound = false;
+    if (col[0] === "#") {
+      col = col.slice(1);
+      usePound = true;
+    }
+
+    const num = parseInt(col, 16);
+    let r = (num >> 16) + amt;
+
+    if (r > 255) r = 255;
+    else if (r < 0) r = 0;
+
+    let g = (num & 0x0000ff) + amt;
+
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+
+    let b = ((num & 0x00ff00) >> 8) + amt;
+
+    if (b > 255) b = 255;
+    else if (b < 0) b = 0;
+
+    return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
+  };
   return (
-    <Box sx={{ padding: "20px" }}>
-      {/* Heading and Controls */}
-      <Box
-        sx={{
-          padding: "20px",
-          marginBottom: "30px",
-          backgroundColor: colors.primary[500],
-          borderRadius: "8px",
-        }}
-      >
-        <Typography
-          variant="h3"
-          sx={{ color: colors.gray[100], fontWeight: "bold" }}
-        >
-          Agent Analytics
-        </Typography>
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
+        Agent Analytics
+      </Typography>
 
-        {/* Agent Selection */}
-        <FormControl sx={{ minWidth: 300, marginTop: 3, marginRight: 3 }}>
-          <InputLabel id="agent-select-label">Select Agents</InputLabel>
-          <Select
-            labelId="agent-select-label"
-            multiple
-            value={selectedAgents}
-            onChange={handleAgentChange}
-            input={<OutlinedInput label="Select Agents" />}
-            renderValue={(selected) =>
-              agents
-                .filter((agent) => selected.includes(agent._id))
-                .map((agent) => agent.name || agent.username || "Unnamed Agent")
-                .join(", ")
-            }
-            MenuProps={MenuProps}
-          >
-            {agents.map((agent) => (
-              <MenuItem key={agent._id} value={agent._id}>
-                <Checkbox checked={selectedAgents.indexOf(agent._id) > -1} />
-                <ListItemText
-                  primary={agent.name || agent.username || "Unnamed Agent"}
+      <Grid container spacing={3}>
+        {/* Agent Dropdown */}
+        <Grid item xs={12} sm={6}>
+          <FormControl fullWidth>
+            <InputLabel id="agent-select-label">Agents</InputLabel>
+            <Select
+              labelId="agent-select-label"
+              multiple
+              value={selectedAgents}
+              onChange={handleAgentChange}
+              input={<OutlinedInput label="Agents" />}
+              renderValue={(selected) =>
+                selected
+                  .map((id) => {
+                    const agent = agents.find((a) => a._id === id);
+                    return agent ? agent.fullName : "Unknown"; // Ensure the agent exists before accessing fullName
+                  })
+                  .join(", ")
+              }
+              MenuProps={MenuProps}
+            >
+              {/* Search Input */}
+              <MenuItem>
+                <OutlinedInput
+                  value={searchTerm} // Bind the search term value to the text field
+                  placeholder="Search Agents..."
+                  onChange={handleSearchChange} // Call handleSearchChange when the input changes
+                  margin="dense"
+                  fullWidth
                 />
               </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
 
-        {/* Chart Type Selection */}
-        <FormControl sx={{ minWidth: 200, marginTop: 3 }}>
-          <InputLabel id="chart-type-select-label">Select Charts</InputLabel>
-          <Select
-            labelId="chart-type-select-label"
-            multiple
-            value={selectedCharts}
-            onChange={handleChartChange}
-            input={<OutlinedInput label="Select Charts" />}
-            renderValue={(selected) => selected.join(", ")}
-            MenuProps={MenuProps}
-          >
-            {["Line", "Bar", "Pie"].map((chart) => (
-              <MenuItem key={chart} value={chart}>
-                <Checkbox checked={selectedCharts.indexOf(chart) > -1} />
-                <ListItemText primary={chart} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-
-      {/* Loading Indicator */}
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {/* Charts Grid */}
-      {!loading && selectedCharts.length > 0 && (
-        <Grid container spacing={4}>
-          {/* Line Chart */}
-          {selectedCharts.includes("Line") && (
-            <Grid item xs={12}>
-              <Box
-                sx={{
-                  padding: "25px",
-                  borderRadius: "8px",
-                  backgroundColor: colors.primary[500],
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  sx={{ marginBottom: "20px", color: colors.gray[100] }}
-                >
-                  Incoming vs. Answered Calls Over Time
-                </Typography>
-                <Line
-                  data={processLineChartData()}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: {
-                        position: "top",
-                      },
-                      title: {
-                        display: true,
-                        text: "Incoming vs. Answered Calls Over Time",
-                      },
-                    },
-                    scales: {
-                      x: {
-                        title: {
-                          display: true,
-                          text: "Date",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                      y: {
-                        title: {
-                          display: true,
-                          text: "Number of Calls",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </Grid>
-          )}
-
-          {/* Bar Chart */}
-          {selectedCharts.includes("Bar") && (
-            <Grid item xs={12}>
-              <Box
-                sx={{
-                  padding: "25px",
-                  borderRadius: "8px",
-                  backgroundColor: colors.primary[500],
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  sx={{ marginBottom: "20px", color: colors.gray[100] }}
-                >
-                  Call Dispositions
-                </Typography>
-                <Bar
-                  data={processBarChartData()}
-                  options={{
-                    responsive: true,
-                    plugins: {
-                      legend: {
-                        position: "top",
-                      },
-                      title: {
-                        display: true,
-                        text: "Call Dispositions by Agent",
-                      },
-                    },
-                    scales: {
-                      x: {
-                        title: {
-                          display: true,
-                          text: "Disposition",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                      y: {
-                        title: {
-                          display: true,
-                          text: "Number of Calls",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </Grid>
-          )}
-
-          {/* Pie Charts */}
-          {selectedCharts.includes("Pie") && (
-            <Grid item xs={12}>
-              <Grid container spacing={4}>
-                {processPieChartData().map((pieData, index) => (
-                  <Grid item xs={12} md={6} key={index}>
-                    <Box
-                      sx={{
-                        padding: "25px",
-                        borderRadius: "8px",
-                        backgroundColor: colors.primary[500],
-                        height: "100%",
-                      }}
-                    >
-                      <Typography
-                        variant="h4"
-                        sx={{ marginBottom: "20px", color: colors.gray[100] }}
-                      >
-                        {pieData.datasets[0].label} - Disposition Distribution
-                      </Typography>
-                      <Pie
-                        data={pieData}
-                        options={{
-                          responsive: true,
-                          plugins: {
-                            legend: {
-                              position: "top",
-                              labels: {
-                                color: colors.gray[100],
-                              },
-                            },
-                            title: {
-                              display: true,
-                              text: `${pieData.datasets[0].label} Disposition Distribution`,
-                            },
-                          },
-                        }}
-                      />
-                    </Box>
-                  </Grid>
+              {/* Filtered Agents List */}
+              {agents
+                .filter((agent) =>
+                  agent.fullName
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+                )
+                .map((agent) => (
+                  <MenuItem key={agent._id} value={agent._id}>
+                    <Checkbox
+                      checked={selectedAgents.indexOf(agent._id) > -1}
+                    />
+                    <ListItemText primary={agent.fullName} />
+                  </MenuItem>
                 ))}
-              </Grid>
-            </Grid>
-          )}
-        </Grid>
-      )}
 
-      {/* No Charts Selected */}
-      {!loading && selectedCharts.length === 0 && (
-        <Typography variant="h6" sx={{ textAlign: "center", mt: 5 }}>
-          Please select at least one chart type to display analytics.
-        </Typography>
-      )}
+              {/* Option when no agents match */}
+              {agents.filter((agent) =>
+                agent.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length === 0 && <MenuItem disabled>No agents found</MenuItem>}
+            </Select>
+          </FormControl>
+        </Grid>
+
+        {/* Charts Dropdown */}
+        <Grid item xs={12} sm={6}>
+          <FormControl fullWidth>
+            <InputLabel>Charts</InputLabel>
+            <Select
+              multiple
+              value={selectedCharts}
+              onChange={handleChartChange}
+              input={<OutlinedInput label="Charts" />}
+              MenuProps={MenuProps}
+            >
+              <MenuItem value="line">Line Chart</MenuItem>
+              <MenuItem value="bar">Bar Chart</MenuItem>
+              <MenuItem value="pie">Pie Chart</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3} sx={{ marginTop: "2rem" }}>
+        {/* Line Chart */}
+        {selectedCharts.includes("line") && (
+          <Grid item xs={12} sm={6}>
+            <Line
+              data={processLineChartData()}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Calls Analytics (Line Chart)",
+                  },
+                },
+              }}
+            />
+          </Grid>
+        )}
+
+        {/* Bar Chart */}
+        {selectedCharts.includes("bar") && (
+          <Grid item xs={12} sm={6}>
+            <Bar
+              data={processBarChartData()}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Disposition Analytics (Bar Chart)",
+                  },
+                },
+              }}
+            />
+          </Grid>
+        )}
+
+        {/* Pie Chart */}
+        {selectedCharts.includes("pie") && (
+          <Grid item xs={12} sm={6}>
+            <Pie
+              data={processPieChartData()}
+              options={{
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Disposition Analytics (Pie Chart)",
+                  },
+                },
+              }}
+            />
+          </Grid>
+        )}
+      </Grid>
     </Box>
   );
 };

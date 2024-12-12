@@ -20,6 +20,7 @@ import {
   VerifiedOutlined,
   ExitToAppOutlined,
   DescriptionOutlined,
+  QueryStatsOutlined,
 } from "@mui/icons-material";
 import defaultAvatar from "../../../../assets/no-user-image.gif";
 import logo from "../../../../assets/logo name.jpg";
@@ -243,10 +244,16 @@ const SideBar = () => {
           }}
         >
           <Item
-            title="Analytics"
+            title="Agent Analytics"
             path="/analytics"
             colors={colors}
             icon={<BarChartOutlined />}
+          />
+          <Item
+            title="Campaign Analytics"
+            path="/campaign-analytics"
+            colors={colors}
+            icon={<QueryStatsOutlined />}
           />
           <Item
             title="Quality Assurance"
@@ -277,7 +284,7 @@ const SideBar = () => {
             },
             justifyContent: collapsed ? "center" : "flex-start",
             padding: collapsed ? "8px" : "8px 16px",
-            mt: collapsed ? 47.6 : 17.2,
+            mt: collapsed ? 37.6 : 7.2,
             paddingLeft: collapsed ? "18px" : "65px",
             width: collapsed ? "35px" : "100%",
             minWidth: collapsed ? "25px" : "auto",

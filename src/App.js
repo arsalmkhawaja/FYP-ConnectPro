@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/Login";
+// Admin Side
 import AdminRegister from "./components/AdminRegister";
 import Dashboard from "./components/Admin Side/Dashboard";
 import Layout from "./components/Admin Side/layout/AdminLayout";
@@ -10,6 +11,8 @@ import DownloadSalesReport from "./components/Admin Side/DownloadSalesReport";
 import AgentAnalyticsDashboard from "./components/Admin Side/Analytics";
 import ScriptViewer from "./components/Admin Side/ScriptViewerAdmin";
 import AudioSentiment from "./components/Admin Side/QA";
+import CampaignAnalytics from "./components/Admin Side/CampaignAnalytics";
+// Agent Side
 import DialingScreen2 from "./components/Agent Side/Dialler2";
 import AgentHome from "./components/Agent Side/AgentHome";
 import CallLogs from "./components/Agent Side/CallLogs";
@@ -49,6 +52,9 @@ const App = () => {
         </Route>
         <Route path="/scripts-admin" element={<Layout />}>
           <Route index element={<ScriptViewer />} />
+        </Route>
+        <Route path="/campaign-analytics" element={<Layout />}>
+          <Route index element={<CampaignAnalytics />} />
         </Route>
         {/* Agent Dialer */}
         <Route path="/dialler" element={<AgentLayout />}>
