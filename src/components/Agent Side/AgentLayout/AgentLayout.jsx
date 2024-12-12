@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "../../../theme";
 import Navbar from "./Navbar";
@@ -11,6 +11,28 @@ const AgentLayout = () => {
   const [theme, colorMode] = useMode();
   const [toggled, setToggled] = useState(false);
   const values = { toggled, setToggled };
+
+  // Add the chatbot script dynamically
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src =
+      "https://s3.ap-south-1.amazonaws.com/conferbot.defaults/dist/v1/widget.min.js";
+    script.async = true;
+    script.charset = "UTF-8";
+    script.onload = () => {
+      window.ConferbotWidget("657fef3cb3d7f38922af0bc7", "live_chat");
+    };
+    script.id = "conferbot-js";
+    document.head.appendChild(script);
+
+    // Cleanup function to remove the script when the component unmounts
+    return () => {
+      const scriptElement = document.getElementById("conferbot-js");
+      if (scriptElement) {
+        scriptElement.remove();
+      }
+    };
+  }, []);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
