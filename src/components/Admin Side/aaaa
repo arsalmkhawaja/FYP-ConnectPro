@@ -15,7 +15,6 @@ import {
   Checkbox,
   ListItemText,
   OutlinedInput,
-  CircularProgress,
 } from "@mui/material";
 import { tokens } from "../../theme";
 
@@ -30,7 +29,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
 } from "chart.js";
 
 // Register Chart.js components
@@ -43,8 +41,7 @@ ChartJS.register(
   ArcElement,
   Title,
   Tooltip,
-  Legend,
-  Filler
+  Legend
 );
 
 // Constants for menu properties
@@ -57,70 +54,6 @@ const MenuProps = {
       width: 250,
     },
   },
-};
-
-// Utility functions for colors
-const getColor = (index) => {
-  const colorsArray = [
-    "#1f77b4", // Blue
-    "#ff7f0e", // Orange
-    "#2ca02c", // Green
-    "#d62728", // Red
-    "#9467bd", // Purple
-    "#8c564b", // Brown
-    "#e377c2", // Pink
-    "#7f7f7f", // Gray
-    "#bcbd22", // Lime
-    "#17becf", // Cyan
-  ];
-  return colorsArray[index % colorsArray.length];
-};
-
-const shadeColor = (color, percent) => {
-  // Simple function to darken or lighten a color
-  let R = parseInt(color.substring(1, 3), 16);
-  let G = parseInt(color.substring(3, 5), 16);
-  let B = parseInt(color.substring(5, 7), 16);
-
-  R = parseInt((R * (100 + percent)) / 100);
-  G = parseInt((G * (100 + percent)) / 100);
-  B = parseInt((B * (100 + percent)) / 100);
-
-  R = R < 255 ? R : 255;
-  G = G < 255 ? G : 255;
-  B = B < 255 ? B : 255;
-
-  const RR = R.toString(16).padStart(2, "0");
-  const GG = G.toString(16).padStart(2, "0");
-  const BB = B.toString(16).padStart(2, "0");
-
-  return `#${RR}${GG}${BB}`;
-};
-
-const hexToRGBA = (hex, alpha) => {
-  let r = 0,
-    g = 0,
-    b = 0;
-  if (hex.length === 4) {
-    r = parseInt(hex[1] + hex[1], 16);
-    g = parseInt(hex[2] + hex[2], 16);
-    b = parseInt(hex[3] + hex[3], 16);
-  } else if (hex.length === 7) {
-    r = parseInt(hex.substring(1, 3), 16);
-    g = parseInt(hex.substring(3, 5), 16);
-    b = parseInt(hex.substring(5, 7), 16);
-  }
-  return `rgba(${r},${g},${b},${alpha})`;
-};
-
-const generateColorPalette = (numColors, baseColor) => {
-  // Generate distinct colors based on baseColor
-  const shades = [];
-  for (let i = 0; i < numColors; i++) {
-    // Alternate shading for variety
-    shades.push(shadeColor(baseColor, i % 2 === 0 ? 0 : -20));
-  }
-  return shades;
 };
 
 const AgentAnalyticsWithDropdown = () => {
@@ -182,7 +115,7 @@ const AgentAnalyticsWithDropdown = () => {
     const fetchAgentData = async (agentId) => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/api/v5/agent/${agentId}`, // Ensure this endpoint is correct
+          `http://localhost:4000/api/v5/agent/${agentId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -203,9 +136,7 @@ const AgentAnalyticsWithDropdown = () => {
       }
 
       setLoading(true);
-      const dataPromises = selectedAgents.map((agentId) =>
-        fetchAgentData(agentId)
-      );
+      const dataPromises = selectedAgents.map((agentId) => fetchAgentData(agentId));
       const results = await Promise.all(dataPromises);
 
       const newAgentsData = {};
@@ -240,35 +171,31 @@ const AgentAnalyticsWithDropdown = () => {
   // Processing functions for charts
   const processLineChartData = () => {
     const analyticsByAgent = {};
-  
+
+    // Aggregate data for each selected agent
     selectedAgents.forEach((agentId) => {
       const data = agentsData[agentId];
-      if (!data || !Array.isArray(data.calls)) return; // Ensure data exists and has 'calls'
-  
-      console.log(`Processing data for agent ${agentId}:`, data);  // Log agent data
-  
-      data.calls.forEach((call) => {
-        if (!call.date) return; // Ensure call has a date
-  
+      if (!data) return;
+
+      data.forEach((call) => {
         const callDate = new Date(call.date).toLocaleDateString();
+
         if (!analyticsByAgent[agentId]) {
           analyticsByAgent[agentId] = {};
         }
-  
+
         if (!analyticsByAgent[agentId][callDate]) {
           analyticsByAgent[agentId][callDate] = { total: 0, answered: 0 };
         }
-  
+
         analyticsByAgent[agentId][callDate].total += 1;
-  
+
         if (call.disposition === "Answered") {
           analyticsByAgent[agentId][callDate].answered += 1;
         }
       });
     });
-  
-    console.log('Aggregated Line Chart Data:', analyticsByAgent);
-  
+
     // Determine all unique dates across agents
     const allDatesSet = new Set();
     Object.values(analyticsByAgent).forEach((agentData) => {
@@ -277,18 +204,18 @@ const AgentAnalyticsWithDropdown = () => {
     const allDates = Array.from(allDatesSet).sort(
       (a, b) => new Date(a) - new Date(b)
     );
-  
-    // Prepare datasets
+
+    // Prepare datasets for each agent
     const datasetsIncoming = [];
     const datasetsAnswered = [];
-  
+
     selectedAgents.forEach((agentId, index) => {
-      const agent = agents.find((agent) => agent._id === agentId);
-      const agentName = agent ? agent.name : agentId;
-  
+      const agentName =
+        agents.find((agent) => agent._id === agentId)?.name || agentId;
+
       const incomingCalls = [];
       const answeredCalls = [];
-  
+
       allDates.forEach((date) => {
         const agentDateData = analyticsByAgent[agentId][date] || {
           total: 0,
@@ -297,51 +224,47 @@ const AgentAnalyticsWithDropdown = () => {
         incomingCalls.push(agentDateData.total);
         answeredCalls.push(agentDateData.answered);
       });
-  
+
       // Generate colors for each agent
-      const baseColor = getColor(index);
-      const incomingColor = hexToRGBA(baseColor, 0.6);
-      const answeredColor = hexToRGBA(shadeColor(baseColor, -20), 0.6);
-  
+      const color = getColor(index);
+
       datasetsIncoming.push({
         label: `${agentName} - Incoming Calls`,
         data: incomingCalls,
-        borderColor: baseColor,
-        backgroundColor: hexToRGBA(baseColor, 0.2),
+        borderColor: color,
+        backgroundColor: hexToRGBA(color, 0.2),
         tension: 0.4,
         fill: true,
       });
-  
+
       datasetsAnswered.push({
         label: `${agentName} - Answered Calls`,
         data: answeredCalls,
-        borderColor: shadeColor(baseColor, -20),
-        backgroundColor: hexToRGBA(shadeColor(baseColor, -20), 0.2),
+        borderColor: shadeColor(color, -20),
+        backgroundColor: hexToRGBA(shadeColor(color, -20), 0.2),
         tension: 0.4,
         fill: true,
       });
     });
-  
+
     return {
       labels: allDates,
       datasets: [...datasetsIncoming, ...datasetsAnswered],
     };
   };
-  
-  
 
   const processBarChartData = () => {
     const dispositionCountsByAgent = {};
 
     selectedAgents.forEach((agentId) => {
       const data = agentsData[agentId];
-      if (!data || !Array.isArray(data.calls)) return; // Ensure data exists and has 'calls'
+      if (!data) return;
 
       if (!dispositionCountsByAgent[agentId]) {
         dispositionCountsByAgent[agentId] = {};
       }
 
-      data.calls.forEach((call) => {
+      data.forEach((call) => {
         const disposition = call.disposition || "Unknown";
         if (!dispositionCountsByAgent[agentId][disposition]) {
           dispositionCountsByAgent[agentId][disposition] = 0;
@@ -361,22 +284,18 @@ const AgentAnalyticsWithDropdown = () => {
     const datasets = [];
 
     selectedAgents.forEach((agentId, index) => {
-      const agent = agents.find((agent) => agent._id === agentId);
-      const agentName = agent ? agent.name : agentId;
+      const agentName =
+        agents.find((agent) => agent._id === agentId)?.name || agentId;
       const counts = allDispositions.map(
         (disp) => dispositionCountsByAgent[agentId][disp] || 0
       );
 
-      const baseColor = getColor(index);
-      const colorPalette = generateColorPalette(
-        allDispositions.length,
-        baseColor
-      );
+      const color = getColor(index);
 
       datasets.push({
         label: agentName,
         data: counts,
-        backgroundColor: colorPalette,
+        backgroundColor: hexToRGBA(color, 0.6),
       });
     });
 
@@ -392,10 +311,10 @@ const AgentAnalyticsWithDropdown = () => {
     // Prepare data for each agent
     const pieDatasets = selectedAgents.map((agentId, index) => {
       const data = agentsData[agentId];
-      if (!data || !Array.isArray(data.calls)) return null; // Ensure data exists and has 'calls'
+      if (!data) return null;
 
       const dispositionCounts = {};
-      data.calls.forEach((call) => {
+      data.forEach((call) => {
         const disposition = call.disposition || "Unknown";
         if (!dispositionCounts[disposition]) {
           dispositionCounts[disposition] = 0;
@@ -406,17 +325,13 @@ const AgentAnalyticsWithDropdown = () => {
       const labels = Object.keys(dispositionCounts);
       const counts = Object.values(dispositionCounts);
 
-      const baseColor = getColor(index);
-      const colorPalette = generateColorPalette(counts.length, baseColor);
-
-      const agent = agents.find((agent) => agent._id === agentId);
-      const agentName = agent ? agent.name : agentId;
+      const colorPalette = generateColorPalette(counts.length, getColor(index));
 
       return {
         labels,
         datasets: [
           {
-            label: `${agentName} - Disposition Distribution`,
+            label: agents.find((agent) => agent._id === agentId)?.name || agentId,
             data: counts,
             backgroundColor: colorPalette,
           },
@@ -427,13 +342,76 @@ const AgentAnalyticsWithDropdown = () => {
     return pieDatasets.filter((dataset) => dataset !== null);
   };
 
+  // Utility functions for colors
+  const getColor = (index) => {
+    const colorsArray = [
+      "#1f77b4",
+      "#ff7f0e",
+      "#2ca02c",
+      "#d62728",
+      "#9467bd",
+      "#8c564b",
+      "#e377c2",
+      "#7f7f7f",
+      "#bcbd22",
+      "#17becf",
+    ];
+    return colorsArray[index % colorsArray.length];
+  };
+
+  const shadeColor = (color, percent) => {
+    // Simple function to darken or lighten a color
+    let R = parseInt(color.substring(1, 3), 16);
+    let G = parseInt(color.substring(3, 5), 16);
+    let B = parseInt(color.substring(5, 7), 16);
+
+    R = parseInt((R * (100 + percent)) / 100);
+    G = parseInt((G * (100 + percent)) / 100);
+    B = parseInt((B * (100 + percent)) / 100);
+
+    R = R < 255 ? R : 255;
+    G = G < 255 ? G : 255;
+    B = B < 255 ? B : 255;
+
+    const RR = R.toString(16).padStart(2, "0");
+    const GG = G.toString(16).padStart(2, "0");
+    const BB = B.toString(16).padStart(2, "0");
+
+    return `#${RR}${GG}${BB}`;
+  };
+
+  const hexToRGBA = (hex, alpha) => {
+    let r = 0,
+      g = 0,
+      b = 0;
+    if (hex.length === 4) {
+      r = parseInt(hex[1] + hex[1], 16);
+      g = parseInt(hex[2] + hex[2], 16);
+      b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length === 7) {
+      r = parseInt(hex.substring(1, 3), 16);
+      g = parseInt(hex.substring(3, 5), 16);
+      b = parseInt(hex.substring(5, 7), 16);
+    }
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
+
+  const generateColorPalette = (numColors, baseColor) => {
+    // Generate lighter shades based on baseColor
+    const shades = [];
+    for (let i = 0; i < numColors; i++) {
+      shades.push(shadeColor(baseColor, 20 + i * 10));
+    }
+    return shades;
+  };
+
   return (
-    <Box sx={{ padding: "20px" }}>
+    <Box sx={{ padding: "5px" }}>
       {/* Heading and Controls */}
       <Box
         sx={{
-          padding: "20px",
-          marginBottom: "30px",
+          padding: "10px",
+          marginBottom: "20px",
           backgroundColor: colors.primary[500],
           borderRadius: "8px",
         }}
@@ -446,7 +424,7 @@ const AgentAnalyticsWithDropdown = () => {
         </Typography>
 
         {/* Agent Selection */}
-        <FormControl sx={{ minWidth: 300, marginTop: 3, marginRight: 3 }}>
+        <FormControl sx={{ minWidth: 300, marginTop: 2, marginRight: 2 }}>
           <InputLabel id="agent-select-label">Select Agents</InputLabel>
           <Select
             labelId="agent-select-label"
@@ -457,7 +435,7 @@ const AgentAnalyticsWithDropdown = () => {
             renderValue={(selected) =>
               agents
                 .filter((agent) => selected.includes(agent._id))
-                .map((agent) => agent.name || agent.username || "Unnamed Agent")
+                .map((agent) => agent.name)
                 .join(", ")
             }
             MenuProps={MenuProps}
@@ -465,16 +443,14 @@ const AgentAnalyticsWithDropdown = () => {
             {agents.map((agent) => (
               <MenuItem key={agent._id} value={agent._id}>
                 <Checkbox checked={selectedAgents.indexOf(agent._id) > -1} />
-                <ListItemText
-                  primary={agent.name || agent.username || "Unnamed Agent"}
-                />
+                <ListItemText primary={agent.name} />
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
         {/* Chart Type Selection */}
-        <FormControl sx={{ minWidth: 200, marginTop: 3 }}>
+        <FormControl sx={{ minWidth: 200, marginTop: 2 }}>
           <InputLabel id="chart-type-select-label">Select Charts</InputLabel>
           <Select
             labelId="chart-type-select-label"
@@ -496,11 +472,7 @@ const AgentAnalyticsWithDropdown = () => {
       </Box>
 
       {/* Loading Indicator */}
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 5 }}>
-          <CircularProgress />
-        </Box>
-      )}
+      {loading && <Typography>Loading data...</Typography>}
 
       {/* Charts Grid */}
       {!loading && selectedCharts.length > 0 && (
@@ -517,7 +489,7 @@ const AgentAnalyticsWithDropdown = () => {
               >
                 <Typography
                   variant="h4"
-                  sx={{ marginBottom: "20px", color: colors.gray[100] }}
+                  sx={{ marginBottom: "10px", color: colors.gray[100] }}
                 >
                   Incoming vs. Answered Calls Over Time
                 </Typography>
@@ -532,34 +504,6 @@ const AgentAnalyticsWithDropdown = () => {
                       title: {
                         display: true,
                         text: "Incoming vs. Answered Calls Over Time",
-                      },
-                    },
-                    scales: {
-                      x: {
-                        title: {
-                          display: true,
-                          text: "Date",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                      y: {
-                        title: {
-                          display: true,
-                          text: "Number of Calls",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
                       },
                     },
                   }}
@@ -580,7 +524,7 @@ const AgentAnalyticsWithDropdown = () => {
               >
                 <Typography
                   variant="h4"
-                  sx={{ marginBottom: "20px", color: colors.gray[100] }}
+                  sx={{ marginBottom: "10px", color: colors.gray[100] }}
                 >
                   Call Dispositions
                 </Typography>
@@ -597,34 +541,6 @@ const AgentAnalyticsWithDropdown = () => {
                         text: "Call Dispositions by Agent",
                       },
                     },
-                    scales: {
-                      x: {
-                        title: {
-                          display: true,
-                          text: "Disposition",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                      y: {
-                        title: {
-                          display: true,
-                          text: "Number of Calls",
-                          color: colors.gray[100],
-                        },
-                        ticks: {
-                          color: colors.gray[100],
-                        },
-                        grid: {
-                          color: colors.gray[300],
-                        },
-                      },
-                    },
                   }}
                 />
               </Box>
@@ -634,45 +550,39 @@ const AgentAnalyticsWithDropdown = () => {
           {/* Pie Charts */}
           {selectedCharts.includes("Pie") && (
             <Grid item xs={12}>
-              <Grid container spacing={4}>
-                {processPieChartData().map((pieData, index) => (
-                  <Grid item xs={12} md={6} key={index}>
-                    <Box
-                      sx={{
-                        padding: "25px",
-                        borderRadius: "8px",
-                        backgroundColor: colors.primary[500],
-                        height: "100%",
-                      }}
-                    >
-                      <Typography
-                        variant="h4"
-                        sx={{ marginBottom: "20px", color: colors.gray[100] }}
-                      >
-                        {pieData.datasets[0].label} - Disposition Distribution
-                      </Typography>
-                      <Pie
-                        data={pieData}
-                        options={{
-                          responsive: true,
-                          plugins: {
-                            legend: {
-                              position: "top",
-                              labels: {
-                                color: colors.gray[100],
-                              },
-                            },
-                            title: {
-                              display: true,
-                              text: `${pieData.datasets[0].label} Disposition Distribution`,
-                            },
-                          },
-                        }}
-                      />
-                    </Box>
-                  </Grid>
-                ))}
-              </Grid>
+              {processPieChartData().map((pieData, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    padding: "25px",
+                    borderRadius: "8px",
+                    backgroundColor: colors.primary[500],
+                    marginBottom: "20px",
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    sx={{ marginBottom: "10px", color: colors.gray[100] }}
+                  >
+                    {pieData.datasets[0].label} - Disposition Distribution
+                  </Typography>
+                  <Pie
+                    data={pieData}
+                    options={{
+                      responsive: true,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                        title: {
+                          display: true,
+                          text: `${pieData.datasets[0].label} Disposition Distribution`,
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              ))}
             </Grid>
           )}
         </Grid>
@@ -680,9 +590,7 @@ const AgentAnalyticsWithDropdown = () => {
 
       {/* No Charts Selected */}
       {!loading && selectedCharts.length === 0 && (
-        <Typography variant="h6" sx={{ textAlign: "center", mt: 5 }}>
-          Please select at least one chart type to display analytics.
-        </Typography>
+        <Typography>Please select at least one chart type to display analytics.</Typography>
       )}
     </Box>
   );
