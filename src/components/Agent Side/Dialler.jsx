@@ -347,7 +347,6 @@ const CallCenterScreen = () => {
       }
     } else {
       console.log("All numbers have been dialed. Stopping auto-dialer.");
-      alert("All numbers have been dialed.");
     }
   };
 
@@ -690,9 +689,57 @@ const DispositionModal = ({
     XFER: false,
   });
 
+  const [agents, setAgents] = useState([]);
+  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [newAgentId, setNewAgentId] = useState("");
+  const [loading, setLoading] = useState(false); // New state to track loading
+
   const handleCheckboxChange = (e) => {
     const { name, checked } = e.target;
-    setCheckedItems((prevState) => ({ ...prevState, [name]: checked }));
+    setCheckedItems((prevState) => {
+      const updatedState = { ...prevState, [name]: checked };
+      if (name === "XFER" && checked) {
+        fetchAgents(); // Fetch agents when XFER is selected
+      }
+      return updatedState;
+    });
+  };
+
+  // Fetch agents from the server
+  const fetchAgents = async () => {
+    setLoading(true); // Start loading state
+    try {
+      const response = await axios.get("http://localhost:4000/api/v1/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Response data:", response.data); // Log the response
+
+      // Check if response.data.agents is an array
+      if (Array.isArray(response.data.agents)) {
+        setAgents(response.data.agents); // Set agents from the "agents" key
+      } else {
+        console.error(
+          "Expected 'agents' to be an array, but got:",
+          response.data.agents
+        );
+        setAgents([]); // Clear agents if the response is not as expected
+      }
+    } catch (error) {
+      console.error("Error fetching agents:", error);
+      setError("Error fetching agents");
+    } finally {
+      setLoading(false); // End loading state
+    }
+  };
+
+  const handleAgentSelect = (agent) => {
+    setSelectedAgent(agent);
+    setNewAgentId(agent.agentID); // Update the text input with the agent's full name or any other property
+    setDropdownVisible(false); // Close the dropdown after selecting
   };
 
   const handleSaleAmountChange = (e) => {
@@ -700,66 +747,6 @@ const DispositionModal = ({
       ...prevSale,
       amount: e.target.value,
     }));
-  };
-
-  const handleSaveCall = async (dispositionSelected) => {
-    console.log(`Requesting form data for phone number: ${formData.phone}`);
-
-    try {
-      const formResponse = await axios.get(
-        `http://localhost:4000/api/v3/forms/phone/${formData.phone}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const formDataFromServer = formResponse.data;
-
-      if (!formDataFromServer || !formDataFromServer.formId) {
-        setError({
-          open: true,
-          message: "Form not found for the provided phone number.",
-        });
-        return;
-      }
-
-      const updatedCall = {
-        phoneNumber: formData.phone,
-        form: formDataFromServer.formId || null,
-        agent: currentSale.agent.agentID,
-        campaign: currentSale.campaign || null,
-        duration: 120,
-        sentiment: currentSale.sentiment,
-        disposition: dispositionSelected,
-        transcription: "Call transcription text",
-      };
-
-      console.log("Updated Call Data:", updatedCall);
-
-      const callResponse = await axios.post(
-        "http://localhost:4000/api/v5/calls",
-        updatedCall,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      toast.success("Call saved successfully");
-      console.log("Call saved successfully:", callResponse.data);
-    } catch (error) {
-      setError({
-        open: true,
-        message: "Failed to save call. Please check the fields and try again.",
-      });
-      console.error(
-        "Error saving call:",
-        error.response?.data || error.message
-      );
-    }
   };
 
   const handleSubmit = async () => {
@@ -795,6 +782,8 @@ const DispositionModal = ({
       SALE: false,
       XFER: false,
     });
+    setSelectedAgent(null); // Clear selected agent
+    setNewAgentId(""); // Clear the search input
     setCurrentSale((prevSale) => ({
       ...prevSale,
       amount: "",
@@ -821,6 +810,7 @@ const DispositionModal = ({
           />
         ))}
       </Box>
+
       {checkedItems.SALE && (
         <TextField
           label="Sale Amount"
@@ -831,6 +821,74 @@ const DispositionModal = ({
           sx={{ marginTop: 2 }}
         />
       )}
+
+      {checkedItems.XFER && (
+        <div style={{ position: "relative" }}>
+          <input
+            type="text"
+            placeholder="Search or Select Agent"
+            value={newAgentId}
+            onChange={(e) => setNewAgentId(e.target.value)}
+            onFocus={() => setDropdownVisible(true)}
+            style={{
+              padding: "10px",
+              border: "1px solid #ccc",
+              borderRadius: "5px",
+              width: "100%",
+              marginTop: "10px",
+            }}
+          />
+          {dropdownVisible && (
+            <ul
+              style={{
+                position: "absolute",
+                top: "45px",
+                left: "0",
+                right: "0",
+                maxHeight: "150px",
+                overflowY: "auto",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                backgroundColor: "white",
+                listStyleType: "none",
+                margin: "0",
+                padding: "10px",
+                zIndex: 1000,
+                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+              }}
+            >
+              {loading ? (
+                <li style={{ padding: "10px" }}>Loading agents...</li>
+              ) : (
+                agents
+                  .filter(
+                    (agent) =>
+                      agent.fullName
+                        .toLowerCase()
+                        .includes(newAgentId.toLowerCase()) ||
+                      agent.agentID
+                        .toString()
+                        .includes(newAgentId.toLowerCase())
+                  )
+                  .map((agent) => (
+                    <li
+                      key={agent.agentID}
+                      style={{
+                        padding: "5px 10px",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                      onClick={() => handleAgentSelect(agent)}
+                    >
+                      {agent.fullName} (ID: {agent.agentID})
+                    </li>
+                  ))
+              )}
+            </ul>
+          )}
+        </div>
+      )}
+
       <Box
         sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}
       >

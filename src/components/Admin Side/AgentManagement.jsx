@@ -86,7 +86,7 @@ const AgentManagement = () => {
       navigate("/login");
     }
   }, [token, navigate]);
-
+  const [isHovered, setIsHovered] = useState(false);
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -406,14 +406,20 @@ const AgentManagement = () => {
           <button
             style={{
               padding: "10px 15px",
-              backgroundColor: colors.greenAccent[500],
+              backgroundColor: isHovered
+                ? colors.greenAccent[600]
+                : colors.greenAccent[500],
               color: "white",
               border: "none",
               borderRadius: "5px",
               cursor: "pointer",
               marginLeft: "10px",
+              transition: "transform 0.3s ease", // Smooth size transition
+              transform: isHovered ? "scale(1.1)" : "scale(1)", // Scale size on hover
             }}
             onClick={() => setShowModal(true)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           >
             + Add agent
           </button>

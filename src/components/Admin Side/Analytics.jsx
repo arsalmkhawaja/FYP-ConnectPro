@@ -393,7 +393,7 @@ const AgentAnalyticsWithDropdown = () => {
   };
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h2" gutterBottom>
         Agent Analytics
       </Typography>
 

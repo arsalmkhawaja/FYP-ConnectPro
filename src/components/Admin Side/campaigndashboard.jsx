@@ -400,9 +400,7 @@ const CampaignsManager = () => {
           >
             {/* Campaign Details */}
             <div style={{ flex: 1, padding: "0 20px" }}>
-              <h3
-                style={{ color: { colors }, marginBottom: "10px" }}
-              >
+              <h3 style={{ color: { colors }, marginBottom: "10px" }}>
                 {campaign.name} Data
               </h3>
               <p style={{ margin: "5px 0", color: { colors } }}>
