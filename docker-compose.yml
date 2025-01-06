@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   client:
     build:
@@ -14,13 +14,14 @@ services:
     build:
       context: ./backend
     ports:
-      - "5000:5000"
+      - "4000:4000"
     volumes:
       - ./backend:/app
     environment:
-      env_file:
-      - path: ./.env
-        required: true # default
+      - MONGO_URI=mongodb://localhost:27017/connectpro
+      - JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      - PORT=4000
+
     depends_on:
       - db
 
@@ -33,4 +34,3 @@ services:
 
 volumes:
   mongo-data:
-
