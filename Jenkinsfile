@@ -14,7 +14,7 @@ pipeline {
     stages {
       stage('Clone Repository') {
             steps {
-                git 'https://github.com/arsalmkhawaja/ConnectPro.git'
+                git 'https://github.com/arsalmkhawaja/FYP-ConnectPro.git'
             }
         }
 
