@@ -12,35 +12,40 @@ pipeline {
         MONGO_URI = 'mongodb://localhost:27017/connectpro'
     }
     stages {
-
-        stage('Install Client Dependencies') {
-      steps {
-        // Change to the client directory and install dependencies
-        dir('client') {
-          sh 'npm install'
-        }
-      }
+      stage('Clone Repository') {
+            steps {
+                git 'https://github.com/arsalmkhawaja/ConnectPro.git'
+            }
         }
 
-        stage('Build Client') {
-      steps {
-        // Change to the client directory and run the build command
-        dir('client') {
-          sh 'npm run build'
+      stage('Install Client Dependencies') {
+        steps {
+          // Change to the client directory and install dependencies
+          dir('./') {
+            sh 'npm install'
+          }
         }
       }
-        }
 
-        stage('Install Backend Dependencies') {
-      steps {
-        // Change to the backend directory and install dependencies
-        dir('api') {
-          sh 'npm install'
-          sh 'export MONGODB_URI=$MONGODB_URI'
-          sh 'export TOKEN_KEY=$TOKEN_KEY'
+      stage('Build Client') {
+        steps {
+          // Change to the client directory and run the build command
+          dir('./') {
+            sh 'npm run build'
+          }
         }
       }
+
+      stage('Install Backend Dependencies') {
+        steps {
+          // Change to the backend directory and install dependencies
+          dir('./backend') {
+            sh 'npm install'
+            sh 'export MONGODB_URI=$MONGODB_URI'
+            sh 'export TOKEN_KEY=$TOKEN_KEY'
+          }
         }
+      }
     }
 
     post {
