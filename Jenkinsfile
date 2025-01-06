@@ -4,7 +4,7 @@ pipeline {
     // Define tools to be installed
     tools {
         // Install Node.js tool with a specific version
-        nodejs 'node:latest'
+         nodejs 'node-latest'
     }
 
     environment {
