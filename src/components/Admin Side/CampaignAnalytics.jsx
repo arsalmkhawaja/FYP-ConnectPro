@@ -17,7 +17,7 @@ const AgentAnalyticsDashboard = () => {
   }, [token, navigate]);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [selectedAgent, setSelectedAgent] = useState("agent1");
+  const [selectedAgent, setSelectedAgent] = useState("arsal");
   const [chartType, setChartType] = useState("attendance");
   const [selectedChartType, setSelectedChartType] = useState("bar");
   const [chartData, setChartData] = useState({
@@ -31,6 +31,70 @@ const AgentAnalyticsDashboard = () => {
   const [totalCalls, setTotalCalls] = useState(0);
   const [callDisposition, setCallDisposition] = useState({});
   const [workingHours, setWorkingHours] = useState(0);
+  const chartColors = {
+    bar: [
+      "rgba(75, 192, 192, 0.2)",
+      "rgba(54, 162, 235, 0.2)",
+      "rgba(153, 102, 255, 0.2)",
+      "rgba(255, 159, 64, 0.2)",
+      "rgba(255, 99, 132, 0.2)",
+      "rgba(255, 205, 86, 0.2)",
+    ],
+    line: [
+      "rgba(75, 192, 192, 1)",
+      "rgba(54, 162, 235, 1)",
+      "rgba(153, 102, 255, 1)",
+      "rgba(255, 159, 64, 1)",
+      "rgba(255, 99, 132, 1)",
+      "rgba(255, 205, 86, 1)",
+    ],
+    pie: [
+      "rgba(75, 192, 192, 0.9)",
+      "rgba(54, 162, 235, 0.9)",
+      "rgba(153, 102, 255, 0.9)",
+      "rgba(255, 159, 64, 0.9)",
+      "rgba(255, 99, 132, 0.9)",
+      "rgba(255, 205, 86, 0.9)",
+    ],
+    doughnut: [
+      "rgba(75, 192, 192, 0.9)",
+      "rgba(54, 162, 235, 0.9)",
+      "rgba(153, 102, 255, 0.9)",
+      "rgba(255, 159, 64, 0.9)",
+      "rgba(255, 99, 132, 0.9)",
+      "rgba(255, 205, 86, 0.9)",
+    ],
+    radar: [
+      "rgba(75, 192, 192, 0.9)",
+      "rgba(54, 162, 235, 0.9)",
+      "rgba(153, 102, 255, 0.9)",
+      "rgba(255, 159, 64, 0.9)",
+      "rgba(255, 99, 132, 0.9)",
+      "rgba(255, 205, 86, 0.9)",
+    ],
+    polarArea: [
+      "rgba(75, 192, 192, 0.9)",
+      "rgba(54, 162, 235, 0.9)",
+      "rgba(153, 102, 255, 0.9)",
+      "rgba(255, 159, 64, 0.9)",
+      "rgba(255, 99, 132, 0.9)",
+      "rgba(255, 205, 86, 0.9)",
+    ],
+  };
+  const monthColors = [
+    "rgba(255, 99, 132, 0.5)", // January
+    "rgba(54, 162, 235, 0.5)", // February
+    "rgba(255, 206, 86, 0.5)", // March
+    "rgba(75, 192, 192, 0.5)", // April
+    "rgba(153, 102, 255, 0.5)", // May
+    "rgba(255, 159, 64, 0.5)", // June
+    "rgba(199, 199, 199, 0.5)", // July
+    "rgba(83, 102, 255, 0.5)", // August
+    "rgba(255, 159, 152, 0.5)", // September
+    "rgba(100, 205, 86, 0.5)", // October
+    "rgba(220, 90, 86, 0.5)", // November
+    "rgba(110, 190, 150, 0.5)", // December
+  ];
 
   useEffect(() => {
     let agentChartInstance;
@@ -66,14 +130,8 @@ const AgentAnalyticsDashboard = () => {
           {
             label: `${agentData.chartLabel} for ${selectedAgent}`,
             data: dataValues,
-            backgroundColor:
-              selectedChartType === "bar"
-                ? "rgba(75, 192, 192, 0.2)"
-                : "rgba(54, 162, 235, 0.2)",
-            borderColor:
-              selectedChartType === "bar"
-                ? "rgba(75, 192, 192, 1)"
-                : "rgba(54, 162, 235, 1)",
+            backgroundColor: monthColors.slice(0, dataValues.length), // Apply colors for months
+            borderColor: monthColors.slice(0, dataValues.length), // Same color for border
             borderWidth: 1,
           },
         ],
@@ -90,14 +148,8 @@ const AgentAnalyticsDashboard = () => {
           {
             label: `Overall ${agentData.chartLabel} Comparison`,
             data: overallData,
-            backgroundColor:
-              selectedChartType === "bar"
-                ? "rgba(153, 102, 255, 0.2)"
-                : "rgba(255, 159, 64, 0.2)",
-            borderColor:
-              selectedChartType === "bar"
-                ? "rgba(153, 102, 255, 1)"
-                : "rgba(255, 159, 64, 1)",
+            backgroundColor: monthColors.slice(0, overallData.length), // Apply colors for comparison
+            borderColor: monthColors.slice(0, overallData.length), // Same color for border
             borderWidth: 1,
           },
         ],

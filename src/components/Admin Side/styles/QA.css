@@ -44,10 +44,14 @@ body {
   cursor: pointer;
   border-radius: 4px;
   font-size: 1em;
+  transition: all 0.3s ease; /* Smooth transition for all properties */
 }
 
+/* Hover effect for record and submit buttons */
 .record-button:hover, .submit-button:hover {
   background-color: #2a5d8e; /* Slightly darker Deep Sky Blue */
+  transform: scale(1.05); /* Slightly enlarge the button */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
 }
 
 .options-group {

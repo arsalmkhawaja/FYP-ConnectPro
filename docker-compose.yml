@@ -18,7 +18,9 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - NODE_ENV=production
+      env_file:
+      - path: ./.env
+        required: true # default
     depends_on:
       - db
 

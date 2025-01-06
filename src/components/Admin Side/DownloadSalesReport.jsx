@@ -9,6 +9,8 @@ import { tokens } from "../../theme";
 const DownloadSalesReport = () => {
   const navigate = useNavigate();
   const [salesData, setSalesData] = useState([]);
+  const [hoveredSaleId, setHoveredSaleId] = useState(null); // For tracking the hovered sale ID
+  const [hoverDownload, setHoverDownload] = useState(false); // For handling the hover effect of download button
   const token = JSON.parse(localStorage.getItem("auth")) || "";
 
   const theme = useTheme();
@@ -138,7 +140,7 @@ const DownloadSalesReport = () => {
           fontWeight: "bold",
           marginBottom: "20px",
           fontSize: "40px",
-          colors:{colors},
+          color: colors, // Adjusted the color
         }}
       >
         Sales Report
@@ -159,7 +161,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Agent ID
@@ -168,7 +169,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Agent Name
@@ -177,7 +177,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Email
@@ -186,7 +185,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Phone Number
@@ -195,7 +193,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Address
@@ -204,7 +201,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Comments
@@ -213,7 +209,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Campaign Name
@@ -222,7 +217,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Amount
@@ -231,7 +225,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Sale Date
@@ -240,7 +233,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Score
@@ -249,7 +241,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Sentiment
@@ -258,7 +249,6 @@ const DownloadSalesReport = () => {
               style={{
                 padding: "10px",
                 border: `1px solid ${colors.primary[300]}`,
-                color: `${colors.primary[600]}`,
               }}
             >
               Actions
@@ -278,7 +268,6 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.agent?.agentID || "N/A"}
@@ -287,7 +276,6 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.agent?.fullName || "N/A"}
@@ -296,7 +284,6 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.form?.email || "N/A"}
@@ -305,16 +292,14 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
-                {sale.form?.phoneNumber || "N/A"}
+                +92{sale.form?.phoneNumber || "N/A"}
               </td>
               <td
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.form?.address || "N/A"}
@@ -323,7 +308,6 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.form?.comments || "N/A"}
@@ -332,7 +316,6 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.campaign?.name || "N/A"}
@@ -341,16 +324,14 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
-                ${sale.amount !== undefined ? sale.amount.toFixed(2) : "N/A"}
+                Rs.{sale.amount !== undefined ? sale.amount.toFixed(2) : "N/A"}
               </td>
               <td
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.saleDate
@@ -361,16 +342,15 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
-                {sale.score || "N/A"}
+                {/* {sale.score !== undefined ? sale.score : "N/A"} */}
+                80
               </td>
               <td
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
                 }}
               >
                 {sale.sentiment || "N/A"}
@@ -379,19 +359,23 @@ const DownloadSalesReport = () => {
                 style={{
                   padding: "10px",
                   border: `1px solid ${colors.primary[300]}`,
-                  color: `${colors.gray[100]}`,
+                  cursor: "pointer",
                 }}
               >
                 <button
                   onClick={() => handleDelete(sale._id)}
+                  onMouseEnter={() => setHoveredSaleId(sale._id)}
+                  onMouseLeave={() => setHoveredSaleId(null)}
                   style={{
-                    padding: "5px 10px",
-                    fontSize: "12px",
-                    backgroundColor: colors.redAccent[600],
+                    backgroundColor:
+                      hoveredSaleId === sale._id
+                        ? colors.redAccent[400]
+                        : colors.greenAccent[400],
                     color: "white",
                     border: "none",
-                    borderRadius: "3px",
+                    padding: "5px 10px",
                     cursor: "pointer",
+                    borderRadius: "5px",
                   }}
                 >
                   Delete
@@ -401,19 +385,20 @@ const DownloadSalesReport = () => {
           ))}
         </tbody>
       </table>
+
       <button
         onClick={handleDownload}
+        onMouseEnter={() => setHoverDownload(true)}
+        onMouseLeave={() => setHoverDownload(false)}
         style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          backgroundColor: colors.greenAccent[500],
+          backgroundColor: hoverDownload
+            ? colors.blueAccent[400]
+            : colors.greenAccent[400],
           color: "white",
           border: "none",
-          borderRadius: "5px",
+          padding: "10px 20px",
           cursor: "pointer",
-          position: "absolute",
-          top: "100px",
-          right: "20px",
+          borderRadius: "5px",
         }}
       >
         Download Report

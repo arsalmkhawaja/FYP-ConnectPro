@@ -5,7 +5,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useTheme } from "@mui/material";
 import { tokens } from "../../theme";
-
 const SentimentAnalysis = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -88,7 +87,7 @@ const SentimentAnalysis = () => {
     a.href = url;
     a.download = "transcription_sentiment.txt";
     a.click();
-    URL.revokeObjectURL(url); 
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -110,7 +109,7 @@ const SentimentAnalysis = () => {
           textAlign: "center",
         }}
       >
-        <h1 style={{ color: colors.greenAccent[500], marginBottom: "20px" }}>
+        <h1 style={{ color: colors, marginBottom: "20px" }}>
           Sentiment Analysis
         </h1>
 
@@ -185,35 +184,35 @@ const SentimentAnalysis = () => {
         <div
           style={{
             marginBottom: "20px",
-            backgroundColor: colors.primary[600],
+            backgroundColor: colors.primary[900],
             padding: "20px",
             borderRadius: "8px",
           }}
         >
-          <h2 style={{ color: colors.greenAccent[500] }}>Detected Language</h2>
+          <h2 style={{ color: colors }}>Detected Language</h2>
           <p>{language}</p>
         </div>
 
         <div
           style={{
             marginBottom: "20px",
-            backgroundColor: colors.primary[600],
+            backgroundColor: colors.primary[900],
             padding: "20px",
             borderRadius: "8px",
           }}
         >
-          <h2 style={{ color: colors.greenAccent[500] }}>Transcription</h2>
+          <h2 style={{ color: colors }}>Transcription</h2>
           <p>{transcription}</p>
         </div>
 
         <div
           style={{
-            backgroundColor: colors.primary[600],
+            backgroundColor: colors.primary[900],
             padding: "20px",
             borderRadius: "8px",
           }}
         >
-          <h2 style={{ color: colors.greenAccent[500] }}>Sentiment Analysis</h2>
+          <h2 style={{ color: colors }}>Sentiment Analysis</h2>
           <p>{sentiment}</p>
         </div>
 

@@ -363,7 +363,14 @@ const CampaignsManager = () => {
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
+            transition: "background-color 0.3s ease, transform 0.3s ease",
           }}
+          onMouseEnter={(e) =>
+            (e.target.style.backgroundColor = colors.blueAccent[500])
+          }
+          onMouseLeave={(e) =>
+            (e.target.style.backgroundColor = colors.blueAccent[700])
+          }
           onClick={() => setModalVisible(true)}
         >
           Add Campaign
@@ -433,7 +440,14 @@ const CampaignsManager = () => {
                   borderRadius: "6px",
                   cursor: "pointer",
                   fontWeight: "bold",
+                  transition: "background-color 0.3s ease, transform 0.3s ease",
                 }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = colors.blueAccent[500])
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = colors.blueAccent[700])
+                }
                 onClick={() => handleEditClick(campaign)}
               >
                 Edit Campaign
@@ -447,7 +461,14 @@ const CampaignsManager = () => {
                   borderRadius: "6px",
                   cursor: "pointer",
                   fontWeight: "bold",
+                  transition: "background-color 0.3s ease, transform 0.3s ease",
                 }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = colors.blueAccent[500])
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = colors.blueAccent[700])
+                }
                 onClick={() => handleViewAgentsClick(campaign)}
               >
                 View Agents
@@ -461,7 +482,14 @@ const CampaignsManager = () => {
                   borderRadius: "6px",
                   cursor: "pointer",
                   fontWeight: "bold",
+                  transition: "background-color 0.3s ease, transform 0.3s ease",
                 }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = colors.redAccent[500])
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = colors.redAccent[600])
+                }
                 onClick={() => openConfirmDeleteModal(campaign)}
               >
                 Delete Campaign
@@ -551,7 +579,14 @@ const CampaignsManager = () => {
                 border: "none",
                 borderRadius: "5px",
                 cursor: "pointer",
+                transition: "background-color 0.3s ease, transform 0.3s ease",
               }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = colors.greenAccent[400])
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = colors.greenAccent[500])
+              }
               onClick={selectedCampaign ? updateCampaign : createCampaign}
             >
               {selectedCampaign ? "Update Campaign" : "Create Campaign"}
@@ -565,7 +600,14 @@ const CampaignsManager = () => {
                 border: "none",
                 borderRadius: "5px",
                 cursor: "pointer",
+                transition: "background-color 0.3s ease, transform 0.3s ease",
               }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = colors.redAccent[500])
+              }
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = colors.redAccent[600])
+              }
               onClick={closeModal}
             >
               Close
@@ -609,16 +651,28 @@ const CampaignsManager = () => {
             <button
               style={{
                 padding: "10px 20px",
+                marginTop: "10px",
                 backgroundColor: colors.greenAccent[500],
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
                 cursor: "pointer",
+                transition: "background-color 0.3s ease, transform 0.3s ease", // Added transition for hover effect
               }}
-              onClick={addAgentToCampaign}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = colors.greenAccent[400])
+              } // Hover effect
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = colors.greenAccent[500])
+              } // Restore original color on hover out
+              onClick={async () => {
+                await addAgentToCampaign(); // Add the new agent
+                fetchAgents(selectedCampaign.name); // Fetch the updated list of agents
+              }}
             >
-              Add Agent
+              Add Agents
             </button>
+
             <button
               style={{
                 marginLeft: "10px",
@@ -662,7 +716,7 @@ const CampaignsManager = () => {
               textAlign: "center",
             }}
           >
-            <h2 style={{ marginBottom: "20px" }}>
+            <h2 style={{ marginBottom: "20px", color: "black" }}>
               Agents in {selectedCampaign?.name}
             </h2>
 
@@ -809,13 +863,31 @@ const CampaignsManager = () => {
                 {agents.length > 0 ? (
                   agents.map((agent) => (
                     <tr key={agent._id}>
-                      <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                      <td
+                        style={{
+                          border: "1px solid #ccc",
+                          padding: "10px",
+                          color: "black",
+                        }}
+                      >
                         {agent.agentID}
                       </td>
-                      <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                      <td
+                        style={{
+                          border: "1px solid #ccc",
+                          padding: "10px",
+                          color: "black",
+                        }}
+                      >
                         {agent.fullName}
                       </td>
-                      <td style={{ border: "1px solid #ccc", padding: "10px" }}>
+                      <td
+                        style={{
+                          border: "1px solid #ccc",
+                          padding: "10px",
+                          color: "black",
+                        }}
+                      >
                         {agent.email}
                       </td>
                       <td
@@ -833,7 +905,17 @@ const CampaignsManager = () => {
                             border: "none",
                             borderRadius: "3px",
                             cursor: "pointer",
+                            transition:
+                              "background-color 0.3s ease, transform 0.3s ease", // Added transition for hover effect
                           }}
+                          onMouseEnter={(e) =>
+                            (e.target.style.backgroundColor =
+                              colors.redAccent[500])
+                          } // Hover effect
+                          onMouseLeave={(e) =>
+                            (e.target.style.backgroundColor =
+                              colors.redAccent[600])
+                          } // Restore original color on hover out
                           onClick={async () => {
                             setRemoveAgentId(agent.agentID);
                             await removeAgentFromCampaign(agent.agentID); // Remove agent
@@ -849,7 +931,11 @@ const CampaignsManager = () => {
                   <tr>
                     <td
                       colSpan="4"
-                      style={{ textAlign: "center", padding: "20px" }}
+                      style={{
+                        textAlign: "center",
+                        padding: "20px",
+                        color: "black",
+                      }}
                     >
                       No agents found in this campaign.
                     </td>
@@ -867,7 +953,14 @@ const CampaignsManager = () => {
                 border: "none",
                 borderRadius: "5px",
                 cursor: "pointer",
+                transition: "background-color 0.3s ease, transform 0.3s ease", // Added transition for hover effect
               }}
+              onMouseEnter={(e) =>
+                (e.target.style.backgroundColor = colors.blueAccent[500])
+              } // Hover effect
+              onMouseLeave={(e) =>
+                (e.target.style.backgroundColor = colors.blueAccent[600])
+              } // Restore original color on hover out
               onClick={closeViewAgentsModal}
             >
               Close
@@ -897,7 +990,7 @@ const CampaignsManager = () => {
               borderRadius: "10px",
               width: "400px",
               textAlign: "center",
-              color: theme.palette.mode === "dark" ? "black" : colors.gray[900],
+              color: "black",
             }}
           >
             <h2>Confirm Deletion</h2>
