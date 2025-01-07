@@ -10,7 +10,11 @@ pipeline {
                 git 'https://github.com/arsalmkhawaja/FYP-ConnectPro.git'
             }
         }
-
+      stage('Build image'){
+        agent {
+          docker { image 'node:latest'}
+        }
+      }
       stage('Install Client Dependencies') {
         steps {
           // Change to the client directory and install dependencies
