@@ -88,9 +88,7 @@ const AgentAnalyticsWithDropdown = () => {
 
   useEffect(() => {
     if (agents.length > 0) {
-      // Set the first agent as selected by default
       setSelectedAgents([agents[0]._id]);
-      // Set the first chart (e.g., Line Chart) to be selected by default
       setSelectedCharts(["line", "bar", "pie"]);
     }
   }, [agents]);
@@ -164,16 +162,13 @@ const AgentAnalyticsWithDropdown = () => {
       target: { value },
     } = event;
 
-    // Convert the selection to an array if it's not already (handle string values)
     const newSelection = typeof value === "string" ? value.split(",") : value;
 
-    // Limit the number of selectable agents to 2
     if (newSelection.length > 2) {
       toast.warn("You can only select up to 2 agents.");
     } else {
       setSelectedAgents(newSelection);
 
-      // Clear chart selection when agent selection changes
       setSelectedCharts([]);
     }
   };
@@ -186,7 +181,6 @@ const AgentAnalyticsWithDropdown = () => {
   };
 
   const getColor = (index) => {
-    // Expanded and more diverse set of colors for charts
     const colorPalette = [
       "#3498db", // Blue
       "#e74c3c", // Red

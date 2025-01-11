@@ -30,17 +30,6 @@ const Dashboard = () => {
     }
   }, [token, navigate]);
 
-  // const handleLogout = () => {
-  //   try {
-  //     localStorage.removeItem("auth");
-  //     navigate("/login");
-  //     toast.info("Logged out successfully.");
-  //   } catch (error) {
-  //     console.error("Error during logout:", error);
-  //     toast.error("Failed to log out. Please try again.");
-  //   }
-  // };
-
   const isXlDevices = useMediaQuery("(min-width: 1260px)");
   const isMdDevices = useMediaQuery("(min-width: 724px)");
   const isXsDevices = useMediaQuery("(max-width: 436px)");

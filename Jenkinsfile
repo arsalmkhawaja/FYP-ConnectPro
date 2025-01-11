@@ -28,7 +28,7 @@ pipeline {
         steps {
           // Change to the client directory and run the build command
           dir('./') {
-            sh 'npm run build'
+            sh 'npm start'
           }
         }
       }
@@ -40,6 +40,14 @@ pipeline {
             sh 'npm install'
             sh 'export MONGODB_URI=$MONGODB_URI'
             sh 'export TOKEN_KEY=$TOKEN_KEY'
+          }
+        }
+      }
+      stage('Build Server') {
+        steps {
+          // Change to the client directory and run the build command
+          dir('./backend') {
+            sh 'npm start'
           }
         }
       }
